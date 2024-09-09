@@ -123,24 +123,20 @@ function verifyEmail(){
     }
 }
 
-function reverseString(str) {return str.split('').reverse().join('');}
-const cred = {
-    "clientId": 'moc.tnetnocresuelgoog.sppa.vm9htj38ig522vl0l4nm10v2bu3napgn-491794761683',
-    "clientSecret":'81SCwWDICr2GKhn-KbOTD6HHyfwU-XPSCOG',
-    "redirectUri": 'https://techmark.solutions/add-campaign'
-}
-
 function extractCodeFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('code');
   }
 
 if((sessionStorage.getItem("gmail") != null) && (sessionStorage.getItem("gmail") != "null")){
+    const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
+    const redirectUri = 'https://techmark.solutions/add-campaign';
+    const clientSecret = "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";
     const event = {
         "email": sessionStorage.getItem("gmail"),
-        "clientId": reverseString(cred["clientId"]),
-        "clientSecret": reverseString(cred["clientSecret"]),
-        "redirect_uri": cred["redirectUri"]
+        "clientId": clientId,
+        "clientSecret": clientSecret,
+        "redirect_uri": redirectUri
     }
     flow(event);
   }
@@ -159,8 +155,8 @@ function flow(event){
 
 function getCode(email){
     const event = {
-        "clientId": reverseString(cred["clientId"]),
-        "redirect_uri": cred["redirectUri"]
+        "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
+        "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
     if(email != ""){
         sessionStorage.setItem("gmail", email);
