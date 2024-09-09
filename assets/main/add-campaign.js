@@ -214,12 +214,12 @@ function getProfile(token, event){
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", ((data["error"]["message"]).split(" ")[3]));
-                    put_credentials((data["error"]["message"]).split(" ")[3])
+                    //put_credentials((data["error"]["message"]).split(" ")[3])
                 }
             }catch{
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", data["emailAddress"]);
-                    put_credentials(data["emailAddress"])
+                    //put_credentials(data["emailAddress"])
             }
         }).catch(error => {
             console.log(error)
