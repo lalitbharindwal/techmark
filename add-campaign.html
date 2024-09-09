@@ -267,7 +267,11 @@
                                                                                                                 <th scope="col">Status</th>
                                                                                                             </tr>
                                                                                                         </thead>
-                                                                                                        <tbody id="verifiedemailslist"></tbody>
+                                                                                                        <tbody id="verifiedemailslist">
+                                                                                                            <tr>
+                                                                                                                <td>No Data Found</th>
+                                                                                                            </tr>
+                                                                                                        </tbody>
                                                                                                     </table>
                                                                                                 </div>
                                                                                                 <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
@@ -330,81 +334,6 @@
                                                                 </div><!-- /.modal-content -->
                                                             </div><!-- /.modal-dialog -->
                                                         </div><!-- /.modal -->
-                                                        
-                                                        <div class="modal fade" id="ModalFullscreenLg" tabindex="-1" aria-labelledby="exampleModalFullscreenLgLabel" aria-hidden="true">
-                                                            <div class="modal-dialog modal-fullscreen-lg-down">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalFullscreenLgLabel">Insert a template</h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <div class="col-xl-12">
-                                                                            <div class="card">
-                                                                                <div class="card-body">
-                                                                                    <div id="contact-existing-list">
-                                                                                        <div data-simplebar style="height: 242px;" class="mx-n3">
-                                                                                            <ul class="list list-group list-group-flush mb-0">
-                                                                                                <li class="list-group-item" data-id="01">
-                                                                                                    <div class="d-flex align-items-start">
-                                                                                                        <div class="flex-grow-1 overflow-hidden">
-                                                                                                            <h5 class="contact-name fs-13 mb-1"><a href="#" class="link text-body">Jonny Stromberg</a></h5>
-                                                                                                        </div>
-                                                                                                        <div class="flex-shrink-0 ms-2">
-                                                                                                            <div class="fs-11 text-muted">06 min</div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </li>
-                                                                                                <!-- end list item -->
-                                                                                                <li class="list-group-item" data-id="02">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="flex-grow-1 overflow-hidden">
-                                                                                                            <h5 class="contact-name fs-13 mb-1"><a href="#" class="link text-body">Jonas Arnklint</a></h5>
-                                                                                                        </div>
-                                                                                                        <div class="flex-shrink-0 ms-2">
-                                                                                                            <div class="fs-11 text-muted">12 min</div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </li>
-                                                                                                <!-- end list item -->
-                                                                                                <li class="list-group-item" data-id="03">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="flex-grow-1">
-                                                                                                            <h5 class="contact-name fs-13 mb-1"><a href="#" class="link text-body">Martina Elm</a></h5>
-                                                                                                        </div>
-                                                                                                        <div class="flex-shrink-0 ms-2">
-                                                                                                            <div class="fs-11 text-muted">28 min</div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </li>
-                                                                                                <!-- end list item -->
-                                                                                                <li class="list-group-item" data-id="04">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="flex-grow-1">
-                                                                                                            <h5 class="contact-name fs-13 mb-1"><a href="#" class="link text-body">Gustaf Lindqvist</a></h5>
-                                                                                                        </div>
-                                                                                                        <div class="flex-shrink-0 ms-2">
-                                                                                                            <div class="fs-11 text-muted">01 hrs</div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </li>
-                                                                                                <!-- end list item -->
-                                                                                            </ul>
-                                                                                            <!-- end ul list -->
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div><!-- end card -->
-                                                                            </div>
-                                                                            <!-- end col -->
-                                                                        </div>
-                                                                        <!-- end col -->
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                     <div class="col-lg-1">
                                                         <label for="nameInput" class="form-label">To (Recipients)</label>
@@ -439,10 +368,6 @@
                                                             </div>
                                                             <script>
                                                                 var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "default" });
-                                                                if(sessionStorage.getItem("template") != (null || "null")){
-                                                                    editor1.setHTMLCode(sessionStorage.getItem("template"));
-                                                                    sessionStorage.setItem("template", null);
-                                                                }
                                                             </script>
                                                             <script src="assets/editor/res/patch.js"></script>
                                                         </div>
@@ -483,7 +408,7 @@
                                                         <div class="modal-body">
                                                             <div class="row" style="text-align: center; min-height: 420px;">
                                                                 <div class="col-md-4">
-                                                                    <br><button type="button" id="type" onclick="uploadoptions(this)" class="btn btn-info btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-copy-line label-icon align-middle fs-16 me-2"></i>Copy/Paste</button>
+                                                                    <br><button type="button" id="type" class="btn btn-info btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-copy-line label-icon align-middle fs-16 me-2"></i>Copy/Paste</button>
                                                                     <!--<br><br>
                                                                     <button type="button" id="contacts" onclick="uploadoptions(this)" class="btn btn-warning btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-contacts-book-fill label-icon align-middle fs-16 me-2"></i>Contact List</button>
                                                                     <br><br> 
@@ -643,5 +568,6 @@
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <!-- App js -->
     <script src="assets/js/app.js"></script>
+    <script src="assets/main/add-campaign.js"></script>
 </body>
 </html>
