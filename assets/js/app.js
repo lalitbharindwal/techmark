@@ -1,3 +1,10 @@
+if(sessionStorage.getItem("code") == null){
+    location = "login.html";
+}else{
+    document.getElementById("userfullname").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["fullname"];
+    document.getElementById("useremail").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email"];
+}
+
 !function() {
     var d = document.querySelector(".navbar-menu").innerHTML
       , M = 7

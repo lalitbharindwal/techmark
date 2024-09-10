@@ -59,7 +59,7 @@
                                     <p class="text-muted">Get your free TechMark account now</p>
                                 </div>
                                 <div class="p-2 mt-4">
-                                    <form class="needs-validation" novalidate onsubmit="signup(); return false;">
+                                    <form class="needs-validation" onsubmit="signup(); return false;">
                                         <div class="mb-3">
                                             <label for="fullname" class="form-label">Fullname <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="fullname" placeholder="Enter Fullname" required>
@@ -74,12 +74,19 @@
                                         <div class="mb-3">
                                             <label class="form-label" for="password-input">Password</label>
                                             <div class="position-relative auth-pass-inputgroup">
-                                                <input type="password" class="form-control pe-5 password-input" onpaste="return false" placeholder="Enter password" id="password-input" aria-describedby="passwordInput" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+                                                <input type="password" class="form-control pe-5 password-input" onpaste="return false" placeholder="Enter password" id="password" aria-describedby="passwordInput" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
                                                 <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
                                                 <div class="invalid-feedback">Please enter password</div>
                                             </div>
                                         </div>
-
+                                        <div class="mb-3">
+                                            <label class="form-label" for="password-input">Confirm Password</label>
+                                            <div class="position-relative auth-pass-inputgroup">
+                                                <input type="password" class="form-control pe-5 password-input" onpaste="return false" placeholder="Enter confirm password" id="confirm-password" required>
+                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+                                                <div class="invalid-feedback">Please enter confirm password</div>
+                                            </div>
+                                        </div>
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">By registering you agree to the TechMark <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">Terms of Use</a></p>
                                         </div>
@@ -123,8 +130,76 @@
             </div>
             <!-- end container -->
         </div>
-        <!-- end auth page content -->
-
+        <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10 col-lg-10 col-xl-10">
+                            <div class="card mt-4">
+                                <div class="card-body p-4">
+                                    <div class="mb-4">
+                                        <div class="avatar-lg mx-auto">
+                                            <div class="avatar-title bg-light text-primary display-5 rounded-circle">
+                                                <i class="ri-mail-line"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="p-2 mt-4">
+                                        <div class="text-muted text-center mb-4 mx-lg-3">
+                                            <h4>Verify Your Email</h4>
+                                            <p>Please enter the 4 digit code sent to <span class="fw-semibold" id="verification-email">example@abc.com</span></p>
+                                        </div>
+    
+                                        <form autocomplete="off">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <div class="mb-3">
+                                                        <label for="digit1-input" class="visually-hidden">Digit 1</label>
+                                                        <input type="text" class="form-control form-control-lg bg-light border-light text-center" onkeyup="moveToNext(1, event)" maxLength="1" id="digit1-input">
+                                                    </div>
+                                                </div><!-- end col -->
+                                        
+                                                <div class="col-3">
+                                                    <div class="mb-3">
+                                                        <label for="digit2-input" class="visually-hidden">Digit 2</label>
+                                                        <input type="text" class="form-control form-control-lg bg-light border-light text-center" onkeyup="moveToNext(2, event)" maxLength="1" id="digit2-input">
+                                                    </div>
+                                                </div><!-- end col -->
+                                        
+                                                <div class="col-3">
+                                                    <div class="mb-3">
+                                                        <label for="digit3-input" class="visually-hidden">Digit 3</label>
+                                                        <input type="text" class="form-control form-control-lg bg-light border-light text-center" onkeyup="moveToNext(3, event)" maxLength="1" id="digit3-input">
+                                                    </div>
+                                                </div><!-- end col -->
+                                        
+                                                <div class="col-3">
+                                                    <div class="mb-3">
+                                                        <label for="digit4-input" class="visually-hidden">Digit 4</label>
+                                                        <input type="text" class="form-control form-control-lg bg-light border-light text-center" onkeyup="moveToNext(4, event)" maxLength="1" id="digit4-input">
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="mt-4">
+                                                    <p class="text-muted text-center mt-2" id="alert"></p>
+                                                </div>
+                                            </div>
+                                        </form><!-- end form -->
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+    
+                            <div class="mt-4 text-center">
+                                <p class="mb-0">Didn't receive a code ? <a class="fw-semibold text-primary text-decoration-underline" onclick="resendOTP()">Resend</a></p><hr>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end row -->
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
         <!-- footer -->
         <footer class="footer">
             <div class="container">
@@ -166,6 +241,6 @@
     <script src="assets/js/pages/particles.app.js"></script>
     <!-- two-step-verification js -->
     <script src="assets/js/pages/two-step-verification.init.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <script src="assets/main/auth.js"></script>
 </body>
 </html>
