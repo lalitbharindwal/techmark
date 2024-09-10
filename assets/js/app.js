@@ -1,8 +1,8 @@
 if(sessionStorage.getItem("code") == null){
     location = "login.html";
 }else{
-    document.getElementById("userfullname").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["fullname"];
-    document.getElementById("useremail").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email"];
+    document.getElementById("userfullname").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["userdata"]["fullname"];
+    document.getElementById("useremail").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["email"];
 }
 
 !function() {

@@ -98,15 +98,14 @@ function login(){
             if(JSON.parse(data["body"])["data"] == null){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
-                if(atob(JSON.parse(data["body"])["data"]["password"]) == document.getElementById("password").value){
+                if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
                     document.getElementById("alert").innerHTML = "Login Successfully";
-                    sessionStorage.setItem("code", btoa(data["body"]));
+                    sessionStorage.setItem("code", btoa(JSON.stringify(JSON.parse(data["body"])["data"])));
                     location = `index.html`;
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
                 }
             }
-            
         }
       }).catch(error => {
         location = "auth-offline.html";
@@ -145,9 +144,11 @@ function verify(code){
     if(code==payload["code"]){
         const data = {
             "email": payload["email"],
-            "fullname": payload["fullname"],
-            "password": btoa(payload["password"]),
-            "created": datetime()
+            "userdata": {
+                "fullname": payload["fullname"],
+                "password": btoa(payload["password"]),
+                "created": datetime()
+            }
         }
         put_data("techmark-solutions", data);
     }else{
