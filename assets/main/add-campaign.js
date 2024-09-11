@@ -18,12 +18,11 @@ for (let key in useremailcredentials) {
                 <td data-label="Email">${key}</td>
                 <td data-label="Alias Email">${useremailcredentials[key]["alias-email"]}-</td>
                 <td data-label="Verified on">${useremailcredentials[key]["created"]}</td>
-                <td data-label="Status">${useremailcredentials[key]["status"]}</td>
             </tr>`;
     }
   }
 
-sessionStorage.setItem("contactlist", "")
+sessionStorage.setItem("cache", "")
 function select_sender(obj){
     if(useremailcredentials[obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
@@ -240,24 +239,23 @@ function saveContacts(){
             emails.push(email.trim())
         });
     }
-    sessionStorage.setItem("contactlist", emails)
+    sessionStorage.setItem("cache", emails)
     document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
 }
 
-function verifyEmail(){
+
+function verifymail(){
     const email = document.getElementById("newemail").value;
     let domain = document.getElementById("domain").textContent;
-    const newemaildata = {
+    const payload = {
         "name": document.getElementById("newemailname").value,
         "password": document.getElementById("newemailpassword").value,
         "alias-email": document.getElementById("newaliasemail").value,
         "domain": document.getElementById("domain").textContent,
-        "created": datetime(),
-        "status": "verified"
+        "created": datetime()
     }
     if(domain == "@gmail.com"){
-        sessionStorage.setItem("newemailcredential", JSON.stringify(newemaildata))
-        getCode(email);
+        getCode(email, payload);
     }else{
         alert("Enter Valid Gmail");
     }
@@ -293,12 +291,13 @@ function flow(event){
     }
   }
 
-function getCode(email){
+function getCode(email, payload){
     const event = {
         "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
         "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
     if(email != ""){
+        putCredentials(email, payload);
         sessionStorage.setItem("gmail", email);
         sessionStorage.setItem("bearer", "unverified")
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
@@ -352,12 +351,12 @@ function getProfile(token, event){
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", ((data["error"]["message"]).split(" ")[3]));
-                    putCredentials()
+                    document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", data["emailAddress"]);
-                    putCredentials()
+                    document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
             console.log(error)
@@ -366,9 +365,8 @@ function getProfile(token, event){
     });
   }
 
-function putCredentials(){
-  var newemailcredential = JSON.parse(sessionStorage.getItem("newemailcredential"));
-  useremailcredentials[sessionStorage.getItem("gmail")] = newemailcredential;
+function putCredentials(email, payload){
+  useremailcredentials[email] = payload;
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
@@ -396,8 +394,6 @@ function putCredentials(){
   }).then(data => {
       if(JSON.parse(data["body"])["error"] == "true"){
           location = "auth-500.html";
-      }else{
-          document.getElementById("sender").innerHTML = sessionStorage.getItem("gmail");
       }
   }).catch(error => {
       location = "auth-offline.html";
