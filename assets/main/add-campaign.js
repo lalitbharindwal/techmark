@@ -94,6 +94,8 @@ function send_mail(){
     }catch(error){
         replyto = "";
     }
+    console.log(document.getElementById("sender").textContent)
+    console.log(useremailcredentials[document.getElementById("sender").textContent]["name"])
 
     const payload = {
         "fullname": useremailcredentials[document.getElementById("sender").textContent]["name"],
@@ -107,6 +109,7 @@ function send_mail(){
         "body_html": editor1.getHTMLCode()
     }
 
+    console.log(payload.fullname)
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
       if(payload["from"] == "Select Sender"){
