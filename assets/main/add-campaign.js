@@ -9,6 +9,7 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
+
 for (let key in useremailcredentials) {
     if (useremailcredentials.hasOwnProperty(key)) {
       document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
@@ -23,58 +24,35 @@ for (let key in useremailcredentials) {
     }
   }
 
+sessionStorage.setItem("contactlist", "")
 function select_sender(obj){
     if(useremailcredentials[obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
     }
 }
 
-function send_email(){
-var cc;
-var bcc;
-var replyto;
-try{
-    cc = document.getElementById("cc").value;
-}catch(error){
-    cc = "";
-}
-    
-try{
-    bcc = document.getElementById("bcc").value;
-}catch(error){
-    bcc = "";
-}
+function customBase64Encode(str) {
+    let utf8Bytes = unescape(encodeURIComponent(str));
+    let charCodeList = utf8Bytes.split('').map(c => c.charCodeAt(0));
+    let binaryString = String.fromCharCode(...charCodeList);
+    return btoa(binaryString);
+  }
 
-try{
-    replyto = document.getElementById("replytoemailbcc").value;
-}catch(error){
-    replyto = "";
-}
-
-const payload = {
-    "from": document.getElementById("sender").textContent,
-    "to": sessionStorage.getItem("contactlist").split(","),
-    "cc": cc.split(","),
-    "bcc": bcc.split(","),
-    "replyto": replyto,
-    "subject": document.getElementById("subject").value,
-    "body_text": editor1.getPlainText(),
-    "body_html": editor1.getHTMLCode()
-}
-
-console.log(payload)
-
-/*const raw = 
-`From: ${sessionStorage.getItem("gmail")}
-To: ${mailId}
-Subject: ${document.getElementById("subject").value}
+function raw(payload){
+const raw = 
+`From: ${payload["from"]}
+To: ${payload["to"]}
+Cc: ${payload["cc"]}
+Bcc: ${payload["bcc"]}
+Reply-To: ${payload["replyto"]}
+Subject: ${payload["subject"]}
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
 
 --techmark-mail-boundary
 Content-Type: text/plain; charset="UTF-8"
 
-${textContent}
+${payload["body_text"]}
 
 --techmark-mail-boundary
 Content-Type: text/html; charset="UTF-8"
@@ -86,63 +64,105 @@ Content-Type: text/html; charset="UTF-8"
 <title>TechMark</title>
 </head>
 <body>
-${htmlContent}
+${payload["body_html"]}
 </body>
 </html>
-    
+
 --techmark-mail-boundary--`;
-    
-const requestBody = {
-    "raw": customBase64Encode(raw)
-};
-fetch('https://gmail.googleapis.com/gmail/v1/users/'+ sessionStorage.getItem("gmail") + '/messages/send', {
-method: 'POST', // Change the method accordingly (POST, PUT, etc.)
-headers: {
-    'Authorization': `Bearer ${bearer}`,
-    'Content-Type': 'application/json', // Adjust the content type as needed
-    // Add other headers if required by the API
-},
- body: JSON.stringify(requestBody) // Convert the request body to JSON string
-}).then(response => {
- if (!response.ok) {
-    return false
+
+return {"raw": customBase64Encode(raw)}
 }
- return response.json();
-}).then(data => {
-    if(data["id"]){
-        document.getElementById("mailLog").innerHTML += `<tr class="table-success">
-                                                          <td scope="row">${EmailCount}</td>
-                                                          <td>${mailId}</td>
-                                                          <td>SENT</td>
-                                                      </tr>`;
-        document.getElementById("seccessEmails").innerHTML = "Success:" + Success;
-        payload["sent"] = "True";
-        console.log(payload)
-        saveEmails(payload, EmailCount);
-        Success++;
-        EmailCount++;
-    }else{
-        document.getElementById("mailLog").innerHTML += `<tr class="table-danger">
-                                                          <td scope="row">${EmailCount}</td>
-                                                          <td>${mailId}</td>
-                                                          <td>UNSENT</td>
-                                                      </tr>`
-        document.getElementById("failedEmails").innerHTML = failed;
-        payload["sent"] = "False";
-        saveEmails(payload, EmailCount);
-        failed++;
-        EmailCount++;
+
+function send_mail(){
+    var cc;
+    var bcc;
+    var replyto;
+    try{
+        cc = document.getElementById("cc").value;
+    }catch(error){
+        cc = "";
     }
-}).catch(error => {
-document.getElementById("mailLog").innerHTML += `<tr class="table-danger">
-                                                          <td scope="row">${EmailCount}</td>
-                                                          <td>${mailId}</td>
-                                                          <td>ERROR</td>
-                                                      </tr>`;
-payload["sent"] = "Error";
-//saveEmails(payload, EmailCount);
-EmailCount++;
-});*/
+        
+    try{
+        bcc = document.getElementById("bcc").value;
+    }catch(error){
+        bcc = "";
+    }
+
+    try{
+        replyto = document.getElementById("replytoemailbcc").value;
+    }catch(error){
+        replyto = "";
+    }
+
+    const payload = {
+        "from": document.getElementById("sender").textContent,
+        "to": sessionStorage.getItem("contactlist").split(","),
+        "cc": cc,
+        "bcc": bcc,
+        "replyto": replyto,
+        "subject": document.getElementById("subject").value,
+        "body_text": editor1.getPlainText(),
+        "body_html": editor1.getHTMLCode()
+    }
+
+    let userResponse = confirm("Do you want to proceed?");
+    if (userResponse) {
+      if(payload["from"] != "Select Sender"){
+        alert("Please select Sender");
+      }else{
+        if(sessionStorage.getItem("contactlist") == ""){
+          alert("Please Select Recipients");
+        }else{
+          if((payload["from"].split("@"))[1] != "gmail.com"){
+            payload["bearer"] = atob(sessionStorage.getItem("bearer"));
+            sessionStorage.getItem("contactlist").split(",").forEach((gmail, index) => {
+                const delay = 1850 * index;
+                setTimeout(() => {
+                    payload["to"] = gmail;
+                    payload["requestBody"] = raw(payload)
+                    send_gmail(payload)
+                }, delay);
+            });
+          }
+        }
+      }
+    }
+}
+
+function display_gmail_log(log){
+    console.log(log, payload)
+}
+
+function send_gmail(payload){
+    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ payload.from + '/messages/send', {
+        method: 'POST', // Change the method accordingly (POST, PUT, etc.)
+        headers: {
+           'Authorization': `Bearer ${payload.bearer}`,
+           'Content-Type': 'application/json'
+       },
+            body: JSON.stringify(payload.requestBody) // Convert the request body to JSON string
+       }).then(response => {
+            if (!response.ok) {
+               return false
+            }
+            return response.json();
+       }).then(data => {
+            
+           if(data["id"]){
+               payload["sent"] = "True";
+               payload["datetime"] = datetime();
+               display_gmail_log(data, payload)
+           }else{
+               payload["sent"] = "False";
+               payload["datetime"] = datetime();
+               display_gmail_log(data, payload)
+           }
+       }).catch(error => {
+            payload["sent"] = "Error";
+            payload["datetime"] = datetime();
+            display_gmail_log(error, payload)
+   });
 }
 
 function getEmail(){
@@ -309,7 +329,6 @@ function authenticate_code(authCode, event){
             return data.text();
         }).then((data2)=>{
             const token_json = JSON.parse(data2)
-            console.log(data2)
             getProfile(JSON.parse(token_json["body"])["access_token"], event)
     });
   }
@@ -327,7 +346,6 @@ function getProfile(token, event){
             }
             return response.json();
         }).then(data => {
-            console.log(data)
             try{
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     sessionStorage.setItem("bearer", btoa(token));
@@ -378,7 +396,6 @@ function putCredentials(){
           location = "auth-500.html";
       }else{
           document.getElementById("sender").innerHTML = sessionStorage.getItem("gmail");
-          document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" href="javascript:void(0);">${sessionStorage.getItem("gmail")}</a>`;
       }
   }).catch(error => {
       location = "auth-offline.html";
