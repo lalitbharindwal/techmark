@@ -108,13 +108,13 @@ function send_mail(){
 
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
-      if(payload["from"] == "Select Sender"){
+      if(payload["from"] != "Select Sender"){
         alert("Please select Sender");
       }else{
         if(sessionStorage.getItem("contactlist") == ""){
           alert("Please Select Recipients");
         }else{
-          if((payload["from"].split("@"))[1] != "gmail.com"){
+          if((payload["from"].split("@"))[1] == "gmail.com"){
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
             payload["to"].forEach((gmail, index) => {
                 const delay = 1850 * index;
@@ -135,7 +135,7 @@ function display_gmail_log(log, payload){
 }
 
 function send_gmail(payload){
-    console.log(payload)
+    console.log(payload.from)
     fetch('https://gmail.googleapis.com/gmail/v1/users/'+ payload.from + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
