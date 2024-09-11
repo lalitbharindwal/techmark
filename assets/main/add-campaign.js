@@ -289,7 +289,7 @@ function putCredentials(){
           location = "auth-500.html";
       }else{
           document.getElementById("sender").innerHTML = sessionStorage.getItem("gmail");
-          document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" href="javascript:void(0);">${sessionStorage.getItem("gmail")}</a>`;
+          document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" href="javascript:void(0);">${sessionStorage.getItem("gmail")}</a>`;
       }
   }).catch(error => {
       location = "auth-offline.html";
