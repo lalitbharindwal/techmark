@@ -102,7 +102,7 @@ if(sessionStorage.getItem("code") == null){
             a.classList.contains("nav-link") && a.classList.replace("nav-link", "nav-icon"),
             a.classList.remove("collapsed", "menu-link")
         }),
-        (e = (e = "/" == location.pathname ? "dashboard.html" : location.pathname.substring(1)).substring(e.lastIndexOf("/") + 1)) && (t = document.getElementById("navbar-nav").querySelector('[href="' + e + '"]')) && (e = t.closest(".collapse.menu-dropdown")) && (e.classList.add("show"),
+        (e = (e = "/" == location.pathname ? "index.html" : location.pathname.substring(1)).substring(e.lastIndexOf("/") + 1)) && (t = document.getElementById("navbar-nav").querySelector('[href="' + e + '"]')) && (e = t.closest(".collapse.menu-dropdown")) && (e.classList.add("show"),
         e.parentElement.children[0].classList.add("active"),
         e.parentElement.children[0].setAttribute("aria-expanded", "true"),
         e.parentElement.closest(".collapse.menu-dropdown")) && (e.parentElement.closest(".collapse").classList.add("show"),
@@ -111,7 +111,7 @@ if(sessionStorage.getItem("code") == null){
         e.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling) && e.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling.classList.add("active"),
         document.getElementById("two-column-menu").innerHTML = n.outerHTML,
         Array.from(document.querySelector("#two-column-menu ul").querySelectorAll("li a")).forEach(function(a) {
-            var n = (n = "/" == location.pathname ? "dashboard.html" : location.pathname.substring(1)).substring(n.lastIndexOf("/") + 1);
+            var n = (n = "/" == location.pathname ? "index.html" : location.pathname.substring(1)).substring(n.lastIndexOf("/") + 1);
             a.addEventListener("click", function(e) {
                 var t;
                 (n != "/" + a.getAttribute("href") || a.getAttribute("data-bs-toggle")) && document.body.classList.contains("twocolumn-panel") && document.body.classList.remove("twocolumn-panel"),
@@ -267,7 +267,7 @@ if(sessionStorage.getItem("code") == null){
     }
     function u() {
         feather.replace();
-        var e, t, a = "/" == location.pathname ? "dashboard.html" : location.pathname.substring(1);
+        var e, t, a = "/" == location.pathname ? "index.html" : location.pathname.substring(1);
         (a = a.substring(a.lastIndexOf("/") + 1)) && ("twocolumn-panel" == document.body.className && document.getElementById("two-column-menu").querySelector('[href="' + a + '"]').classList.add("active"),
         (a = document.getElementById("navbar-nav").querySelector('[href="' + a + '"]')) ? (a.classList.add("active"),
         t = ((e = a.closest(".collapse.menu-dropdown")) && e.parentElement.closest(".collapse.menu-dropdown") ? (e.classList.add("show"),
@@ -282,7 +282,7 @@ if(sessionStorage.getItem("code") == null){
         document.getElementById("two-column-menu").querySelector('[href="#' + t + '"]') && document.getElementById("two-column-menu").querySelector('[href="#' + t + '"]').classList.add("active")) : document.body.classList.add("twocolumn-panel"))
     }
     function g() {
-        var e = "/" == location.pathname ? "dashboard.html" : location.pathname.substring(1);
+        var e = "/" == location.pathname ? "index.html" : location.pathname.substring(1);
         (e = e.substring(e.lastIndexOf("/") + 1)) && (e = document.getElementById("navbar-nav").querySelector('[href="' + e + '"]')) && (e.classList.add("active"),
         e = e.closest(".collapse.menu-dropdown")) && (e.classList.add("show"),
         e.parentElement.children[0].classList.add("active"),

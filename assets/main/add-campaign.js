@@ -108,7 +108,7 @@ function send_mail(){
 
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
-      if(payload["from"] != "Select Sender"){
+      if(payload["from"] == "Select Sender"){
         alert("Please select Sender");
       }else{
         if(sessionStorage.getItem("contactlist") == ""){
@@ -116,7 +116,7 @@ function send_mail(){
         }else{
           if((payload["from"].split("@"))[1] != "gmail.com"){
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
-            sessionStorage.getItem("contactlist").split(",").forEach((gmail, index) => {
+            payload["to"].split(",").forEach((gmail, index) => {
                 const delay = 1850 * index;
                 setTimeout(() => {
                     payload["to"] = gmail;
