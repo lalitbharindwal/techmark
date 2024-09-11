@@ -149,7 +149,8 @@ function verify(code){
                 "fullname": payload["fullname"],
                 "password": btoa(payload["password"]),
                 "created": datetime()
-            }
+            },
+            "email-credentials": {}
         }
         put_data("techmark-solutions", data);
     }else{

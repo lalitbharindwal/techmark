@@ -263,7 +263,7 @@ function putCredentials(){
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
-  var expression_attribute_values = {":value1": useremail,  ":value2": newemailcredential};
+  var expression_attribute_values = {":value1": useremail,  ":value2": useremailcredentials};
   let headers = new Headers();
   headers.append('Origin', '*');
   fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
@@ -286,10 +286,10 @@ function putCredentials(){
       return response.json()
   }).then(data => {
       if(JSON.parse(data["body"])["error"] == "true"){
-          //location = "auth-500.html";
-          console.log(data)
+          location = "auth-500.html";
       }else{
-          console.log(data)
+          document.getElementById("sender").innerHTML = sessionStorage.getItem("gmail");
+          document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" href="javascript:void(0);">${sessionStorage.getItem("gmail")}</a>`;
       }
   }).catch(error => {
       location = "auth-offline.html";
