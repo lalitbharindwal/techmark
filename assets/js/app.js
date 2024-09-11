@@ -1,8 +1,15 @@
+var useremail;
+var userfullname;
+var useremailcredentials;
 if(sessionStorage.getItem("code") == null){
     location = "login.html";
 }else{
-    document.getElementById("userfullname").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["userdata"]["fullname"];
-    document.getElementById("useremail").innerHTML = JSON.parse(atob(sessionStorage.getItem("code")))["email"];
+    var useremail = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email"];
+    var userfullname = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["userdata"]["fullname"];
+    var useremailcredentials = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email-credentials"];
+    console.log(JSON.parse(atob(sessionStorage.getItem("code"))))
+    document.getElementById("userfullname").innerHTML = userfullname;
+    document.getElementById("useremail").innerHTML = useremail;
 }
 
 !function() {

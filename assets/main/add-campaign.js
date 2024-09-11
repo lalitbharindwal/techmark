@@ -1,3 +1,14 @@
+function datetime(){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
 function send_email(){
     var cc;
     var bcc;
@@ -114,9 +125,18 @@ function verifyEmail(){
     const name = document.getElementById("newemailname").value;
     const email = document.getElementById("newemail").value;
     const password = document.getElementById("newemailpassword").value;
-    let aliceemail = document.getElementById("newaliseemail").value;
+    let aliasemail = document.getElementById("newaliasemail").value;
     let domain = document.getElementById("domain").textContent;
+    const newemaildata = {
+        "name": document.getElementById("newemailname").value,
+        "email": document.getElementById("newemail").value,
+        "password": document.getElementById("newemailpassword").value,
+        "alias-email": document.getElementById("newaliasemail").value,
+        "domain": document.getElementById("domain").textContent,
+        "created": datetime()
+    }
     if(domain == "@gmail.com"){
+        sessionStorage.setItem("newemailcredential", JSON.stringify(newemaildata))
         getCode(email);
     }else{
         alert("Enter Valid Gmail");
@@ -214,10 +234,12 @@ function getProfile(token, event){
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", ((data["error"]["message"]).split(" ")[3]));
+                    putCredentials()
                 }
             }catch{
                     sessionStorage.setItem("bearer", btoa(token));
                     sessionStorage.setItem("gmail", data["emailAddress"]);
+                    putCredentials()
             }
         }).catch(error => {
             console.log(error)
@@ -227,5 +249,49 @@ function getProfile(token, event){
   }
 
 function putCredentials(){
-    
+  let date = new Date();
+  let day = String(date.getDate()).padStart(2, '0');
+  let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  let year = date.getFullYear();
+  let hours = String(date.getHours()).padStart(2, '0');
+  let minutes = String(date.getMinutes()).padStart(2, '0');
+  let seconds = String(date.getSeconds()).padStart(2, '0');
+  const credential_id = `email${count}-${day}${month}${year}${hours}${minutes}${seconds}`;
+  var newemailcredential = JSON.parse(sessionStorage.getItem("newemailcredential"));
+  newemailcredential["email"] = sessionStorage.getItem("gmail");
+  useremailcredentials[credential_id] = newemailcredential;
+  var condition_expression = "#useremail = :value1";
+  var update_expression = "SET #useremailcredentials = :value2";
+  var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
+  var expression_attribute_values = {":value1": useremail,  ":value2": newemailcredential};
+  let headers = new Headers();
+  headers.append('Origin', '*');
+  fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+      "method": "update",
+      "table_name": "techmark-solutions",
+      "primary_key": {"email": useremail},
+      "condition_expression": condition_expression,
+      "update_expression": update_expression,
+      "expression_attribute_names": expression_attribute_names,
+      "expression_attribute_values": expression_attribute_values
+    })
+  }).then(response => {
+      if (!response.ok) {
+        location = "auth-offline.html";
+      }
+      return response.json()
+  }).then(data => {
+      if(JSON.parse(data["body"])["error"] == "true"){
+          //location = "auth-500.html";
+          console.log(data)
+      }else{
+          console.log(data)
+      }
+  }).catch(error => {
+      location = "auth-offline.html";
+  });
 }

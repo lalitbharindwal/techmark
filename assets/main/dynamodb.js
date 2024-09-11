@@ -50,3 +50,38 @@ function put_data(table_name, items){
         location = "auth-offline.html";
     });
 }
+
+//put_data("techmark-solutions", {"email": "lalit@gmail.com"})
+
+function update_data(table_name, primary_key, condition_expression, update_expression, expression_attribute_names, expression_attribute_values){
+  let headers = new Headers();
+  headers.append('Origin', '*');
+  fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+      "method": "update",
+      "table_name": table_name,
+      "primary_key": primary_key,
+      "condition_expression": condition_expression,
+      "update_expression": update_expression,
+      "expression_attribute_names": expression_attribute_names,
+      "expression_attribute_values": expression_attribute_values
+    })
+  }).then(response => {
+      if (!response.ok) {
+        location = "auth-offline.html";
+      }
+      return response.json()
+  }).then(data => {
+      if(JSON.parse(data["body"])["error"] == "true"){
+          console.log(data)
+          location = "auth-500.html";
+      }else{
+          console.log(data)
+      }
+  }).catch(error => {
+      location = "auth-offline.html";
+  });
+}

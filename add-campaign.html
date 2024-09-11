@@ -249,14 +249,14 @@
                                                                                     <div class="row" style="min-height: 10cm;">
                                                                                         <div class="col-lg-3">
                                                                                             <div class="nav flex-column nav-pills text-center" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                                                                                <hr><a class="nav-link mb-2 active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Active Alises</a>
-                                                                                                <a class="nav-link mb-2" id="v-pills-profile-tab" data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Create New Alises</a><hr>
+                                                                                                <hr><a class="nav-link mb-2 active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Active Alias</a>
+                                                                                                <a class="nav-link mb-2" id="v-pills-profile-tab" data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Create New Alias</a><hr>
                                                                                             </div>
                                                                                         </div><!-- end col -->
                                                                                         <div class="col-lg-9 mt-4">
                                                                                             <div class="tab-content text-muted mt-4 mt-md-0" id="v-pills-tabContent">
                                                                                                 <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-                                                                                                    <h5 class="modal-title" id="myLargeModalLabel">Active Alises</h5>
+                                                                                                    <h5 class="modal-title" id="myLargeModalLabel">Active Aliases</h5>
                                                                                                     <p>You have configured the following aliases</p><hr>
                                                                                                     <!-- Small Tables -->
                                                                                                     <table class="table table-sm table-nowrap">
@@ -296,10 +296,10 @@
                                                                                                         </div>
                                                                                                         <div class="row mb-3">
                                                                                                             <div class="col-lg-2">
-                                                                                                                <label for="newalternateemail" class="form-label">Alise Email</label>
+                                                                                                                <label for="newalternateemail" class="form-label">Alias Email</label>
                                                                                                             </div>
                                                                                                             <div class="col-lg-6">
-                                                                                                                <input type="email" class="form-control" id="newaliseemail" placeholder="Alise Email" required>
+                                                                                                                <input type="email" class="form-control" id="newaliasemail" placeholder="Alias Email" required>
                                                                                                             </div>
                                                                                                             <div class="col-lg-4">
                                                                                                                 <span id="domain"></span>
@@ -569,5 +569,6 @@
     <!-- App js -->
     <script src="assets/js/app.js"></script>
     <script src="assets/main/add-campaign.js"></script>
+    <script src="assets/main/dynamodb.js"></script>
 </body>
 </html>
