@@ -9,22 +9,22 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-for (let key in useremailcredentials) {
-    if (useremailcredentials.hasOwnProperty(key)) {
+for (let key in cache["data"]["email-credentials"]) {
+    if (cache["data"]["email-credentials"].hasOwnProperty(key)) {
       document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
       document.getElementById("verifiedemailslist").innerHTML += 
             `<tr>
-                <td data-label="Name">${useremailcredentials[key]["name"]}</td>
+                <td data-label="Name">${cache["data"]["email-credentials"][key]["name"]}</td>
                 <td data-label="Email">${key}</td>
-                <td data-label="Alias Email">${useremailcredentials[key]["alias-email"]}-</td>
-                <td data-label="Verified on">${useremailcredentials[key]["created"]}</td>
+                <td data-label="Alias Email">${cache["data"]["email-credentials"][key]["alias-email"]}-</td>
+                <td data-label="Verified on">${cache["data"]["email-credentials"][key]["created"]}</td>
             </tr>`;
     }
   }
 
 sessionStorage.setItem("cache", "")
 function select_sender(obj){
-    if(useremailcredentials[obj.id]["domain"] == "@gmail.com"){
+    if(cache["data"]["email-credentials"][obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
     }
 }
@@ -94,7 +94,7 @@ function send_mail(){
     }
 
     const payload = {
-        "fullname": useremailcredentials[document.getElementById("sender").textContent]["name"],
+        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
         "from": document.getElementById("sender").textContent,
         "to": sessionStorage.getItem("contactlist").split(","),
         "cc": cc,
@@ -366,11 +366,11 @@ function getProfile(token, event){
   }
 
 function putCredentials(email, payload){
-  useremailcredentials[email] = payload;
+  cache["data"]["email-credentials"]["email"] = payload;
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
-  var expression_attribute_values = {":value1": useremail,  ":value2": useremailcredentials};
+  var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["data"]["email-credentials"]};
   let headers = new Headers();
   headers.append('Origin', '*');
   fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
@@ -380,7 +380,7 @@ function putCredentials(email, payload){
     "body": JSON.stringify({
       "method": "update",
       "table_name": "techmark-solutions",
-      "primary_key": {"email": useremail},
+      "primary_key": {"email": cache["data"]["email"]},
       "condition_expression": condition_expression,
       "update_expression": update_expression,
       "expression_attribute_names": expression_attribute_names,
@@ -394,6 +394,8 @@ function putCredentials(email, payload){
   }).then(data => {
       if(JSON.parse(data["body"])["error"] == "true"){
           location = "auth-500.html";
+      }else{
+          sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
       }
   }).catch(error => {
       location = "auth-offline.html";

@@ -101,7 +101,7 @@ function login(){
             }else{
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
                     document.getElementById("alert").innerHTML = "Login Successfully";
-                    sessionStorage.setItem("code", btoa(JSON.stringify(JSON.parse(data["body"]))));
+                    sessionStorage.setItem("cache", btoa(JSON.stringify(JSON.parse(data["body"]))));
                     location = `dashboard.html`;
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";

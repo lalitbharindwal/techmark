@@ -1,15 +1,12 @@
 var useremail;
 var userfullname;
 var useremailcredentials;
-if(sessionStorage.getItem("code") == null){
+if(sessionStorage.getItem("cache") == null){
     location = "index.html";
 }else{
-    var useremail = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email"];
-    var userfullname = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["userdata"]["fullname"];
-    var useremailcredentials = JSON.parse(atob(sessionStorage.getItem("code")))["data"]["email-credentials"];
-    console.log(JSON.parse(atob(sessionStorage.getItem("code"))))
-    document.getElementById("userfullname").innerHTML = userfullname;
-    document.getElementById("useremail").innerHTML = useremail;
+    var cache = JSON.parse(atob(sessionStorage.getItem("cache")))
+    document.getElementById("userfullname").innerHTML = cache["data"]["userdata"]["fullname"];
+    document.getElementById("useremail").innerHTML = cache["data"]["email-credentials"];
 }
 
 !function() {
