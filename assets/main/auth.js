@@ -68,7 +68,7 @@ function signup(){
 }
 
 if(sessionStorage.getItem("code") != null){
-    location = "index.html";
+    location = "dashboard.html";
 }
 
 function login(){
@@ -102,7 +102,7 @@ function login(){
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
                     document.getElementById("alert").innerHTML = "Login Successfully";
                     sessionStorage.setItem("code", btoa(JSON.stringify(JSON.parse(data["body"]))));
-                    location = `index.html`;
+                    location = `dashboard.html`;
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
                 }
