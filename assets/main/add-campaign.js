@@ -116,7 +116,7 @@ function send_mail(){
         }else{
           if((payload["from"].split("@"))[1] != "gmail.com"){
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
-            payload["to"].split(",").forEach((gmail, index) => {
+            payload["to"].forEach((gmail, index) => {
                 const delay = 1850 * index;
                 setTimeout(() => {
                     payload["to"] = gmail;
