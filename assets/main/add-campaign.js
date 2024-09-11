@@ -135,6 +135,7 @@ function display_gmail_log(log){
 }
 
 function send_gmail(payload){
+    console.log(payload)
     fetch('https://gmail.googleapis.com/gmail/v1/users/'+ payload.from + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
@@ -148,7 +149,7 @@ function send_gmail(payload){
             }
             return response.json();
        }).then(data => {
-            
+           console.log(data)
            if(data["id"]){
                payload["sent"] = "True";
                payload["datetime"] = datetime();
@@ -159,6 +160,7 @@ function send_gmail(payload){
                display_gmail_log(data, payload)
            }
        }).catch(error => {
+            console.log(error)
             payload["sent"] = "Error";
             payload["datetime"] = datetime();
             display_gmail_log(error, payload)
