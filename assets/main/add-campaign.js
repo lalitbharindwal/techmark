@@ -202,18 +202,15 @@ function saveContacts(){
 }
 
 function verifyEmail(){
-    const name = document.getElementById("newemailname").value;
     const email = document.getElementById("newemail").value;
-    const password = document.getElementById("newemailpassword").value;
-    let aliasemail = document.getElementById("newaliasemail").value;
     let domain = document.getElementById("domain").textContent;
     const newemaildata = {
         "name": document.getElementById("newemailname").value,
-        "email": document.getElementById("newemail").value,
         "password": document.getElementById("newemailpassword").value,
         "alias-email": document.getElementById("newaliasemail").value,
         "domain": document.getElementById("domain").textContent,
-        "created": datetime()
+        "created": datetime(),
+        "status": "verified"
     }
     if(domain == "@gmail.com"){
         sessionStorage.setItem("newemailcredential", JSON.stringify(newemaildata))
@@ -305,7 +302,7 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
-                alert("Network Error");
+                alert("Please Login to "+ data["emailAddress"]);
             }
             return response.json();
         }).then(data => {
@@ -329,17 +326,8 @@ function getProfile(token, event){
   }
 
 function putCredentials(){
-  let date = new Date();
-  let day = String(date.getDate()).padStart(2, '0');
-  let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-  let year = date.getFullYear();
-  let hours = String(date.getHours()).padStart(2, '0');
-  let minutes = String(date.getMinutes()).padStart(2, '0');
-  let seconds = String(date.getSeconds()).padStart(2, '0');
-  const credential_id = `${day}${month}${year}${hours}${minutes}${seconds}`;
   var newemailcredential = JSON.parse(sessionStorage.getItem("newemailcredential"));
-  newemailcredential["email"] = sessionStorage.getItem("gmail");
-  useremailcredentials[credential_id] = newemailcredential;
+  useremailcredentials[sessionStorage.getItem("gmail")] = newemailcredential;
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
