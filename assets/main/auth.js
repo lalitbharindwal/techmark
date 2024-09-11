@@ -74,6 +74,7 @@ if(sessionStorage.getItem("code") != null){
 function login(){
     let headers = new Headers();
     headers.append('Origin', '*');
+    document.getElementById("alert").innerHTML = "Please wait...";
     fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
       mode: 'cors',
       headers: headers,
