@@ -302,7 +302,7 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
-                alert("Please Login to "+ data["emailAddress"]);
+                alert("Please Login to " + event["email"]);
             }
             return response.json();
         }).then(data => {
