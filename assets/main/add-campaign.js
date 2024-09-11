@@ -39,9 +39,9 @@ function customBase64Encode(str) {
   }
 
 function raw(payload){
-const raw = 
+const raw =
 `From: ${payload["from"]}
-To: ${payload["to"]}
+To: ${payload["fullname"]} <${payload["to"]}>
 Cc: ${payload["cc"]}
 Bcc: ${payload["bcc"]}
 Reply-To: ${payload["replyto"]}
@@ -96,6 +96,7 @@ function send_mail(){
     }
 
     const payload = {
+        "fullname": useremailcredentials[document.getElementById("sender").textContent]["name"],
         "from": document.getElementById("sender").textContent,
         "to": sessionStorage.getItem("contactlist").split(","),
         "cc": cc,
