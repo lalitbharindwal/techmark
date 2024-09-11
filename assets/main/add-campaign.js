@@ -40,8 +40,8 @@ function customBase64Encode(str) {
 
 function raw(payload){
 const raw =
-`From: ${payload["from"]}
-To: ${payload["fullname"]} <${payload["to"]}>
+`From: ${payload["fullname"]} <${payload["from"]}>
+To: ${payload["to"]}
 Cc: ${payload["cc"]}
 Bcc: ${payload["bcc"]}
 Reply-To: ${payload["replyto"]}
@@ -90,12 +90,10 @@ function send_mail(){
     }
 
     try{
-        replyto = document.getElementById("replytoemailbcc").value;
+        replyto = document.getElementById("replytoemail").value;
     }catch(error){
         replyto = "";
     }
-    console.log(document.getElementById("sender").textContent)
-    console.log(useremailcredentials[document.getElementById("sender").textContent]["name"])
 
     const payload = {
         "fullname": useremailcredentials[document.getElementById("sender").textContent]["name"],
@@ -109,7 +107,6 @@ function send_mail(){
         "body_html": editor1.getHTMLCode()
     }
 
-    console.log(payload.fullname)
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
       if(payload["from"] == "Select Sender"){
