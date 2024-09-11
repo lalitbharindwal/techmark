@@ -22,7 +22,6 @@ for (let key in cache["data"]["email-credentials"]) {
     }
   }
 
-sessionStorage.setItem("cache", "")
 function select_sender(obj){
     if(cache["data"]["email-credentials"][obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
@@ -96,7 +95,7 @@ function send_mail(){
     const payload = {
         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
         "from": document.getElementById("sender").textContent,
-        "to": sessionStorage.getItem("contactlist").split(","),
+        "to": cache["recipients"].split(","),
         "cc": cc,
         "bcc": bcc,
         "replyto": replyto,
@@ -110,7 +109,7 @@ function send_mail(){
       if(payload["from"] == "Select Sender"){
         alert("Please select Sender");
       }else{
-        if(sessionStorage.getItem("contactlist") == ""){
+        if(cache["recipients"] == ""){
           alert("Please Select Recipients");
         }else{
           if((payload["from"].split("@"))[1] == "gmail.com"){
@@ -239,7 +238,7 @@ function saveContacts(){
             emails.push(email.trim())
         });
     }
-    sessionStorage.setItem("cache", emails)
+    cache["recipients"] = emails;
     document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
 }
 
