@@ -268,7 +268,7 @@
                                                                                                     <h5 class="modal-title" id="myLargeModalLabel">Active Aliases</h5>
                                                                                                     <p>You have configured the following aliases</p><hr>
                                                                                                     <!-- Small Tables -->
-                                                                                                    <table class="table table-sm table-nowrap">
+                                                                                                    <table class="table table-sm table-nowrap" style="overflow: scroll;">
                                                                                                         <thead>
                                                                                                             <tr>
                                                                                                                 <th scope="col">Name</th>
@@ -533,6 +533,79 @@
                 #div_editor1 rte-dialog-header {
                     background-color: white;
                 }
+
+                table {
+                    border-collapse: collapse;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                }
+
+                table caption {
+                    font-size: 1em;
+                    margin: .5em 0 .75em;
+                }
+
+                table tr {
+                    padding: .36em;
+                }
+
+                table th, table td {
+                    padding: .625em;
+                    text-align: left;
+                }
+
+                table th {
+                    font-size: .85em;
+                    letter-spacing: .1em;
+                    text-transform: uppercase;
+                }
+
+                @media screen and (max-width: 600px) {
+                table {
+                    border: 0;
+                }
+
+                table caption {
+                    font-size: 1.3em;
+                }
+                    
+                table thead {
+                    border: none;
+                    clip: rect(0 0 0 0);
+                    height: 1px;
+                    margin: -1px;
+                    overflow: hidden;
+                    padding: 0;
+                    position: absolute;
+                    width: 1px;
+                }
+                    
+                table tr {
+                    border-bottom: 3px solid #ddd;
+                    display: block;
+                    margin-bottom: .625em;
+                }
+                    
+                table td {
+                    border-bottom: 1px solid #ddd;
+                    display: block;
+                    font-size: .8em;
+                    text-align: right;
+                }
+                    
+                table td::before {
+                    content: attr(data-label);
+                    float: left;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                    
+                table td:last-child {
+                    border-bottom: 0;
+                }
+                }
+
             </style>
 
             <footer class="footer">

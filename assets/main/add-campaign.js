@@ -9,17 +9,16 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-
 for (let key in useremailcredentials) {
     if (useremailcredentials.hasOwnProperty(key)) {
       document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
       document.getElementById("verifiedemailslist").innerHTML += 
             `<tr>
-                <td scope="col">${useremailcredentials[key]["name"]}</td>
-                <td scope="col">${key}</td>
-                <td scope="col">${useremailcredentials[key]["alias-email"]}</td>
-                <td scope="col">${useremailcredentials[key]["created"]}</td>
-                <td scope="col">${useremailcredentials[key]["status"]}</td>
+                <td data-label="Name">${useremailcredentials[key]["name"]}</td>
+                <td data-label="Email">${key}</td>
+                <td data-label="Alias Email">${useremailcredentials[key]["alias-email"]}-</td>
+                <td data-label="Verified on">${useremailcredentials[key]["created"]}</td>
+                <td data-label="Status">${useremailcredentials[key]["status"]}</td>
             </tr>`;
     }
   }
