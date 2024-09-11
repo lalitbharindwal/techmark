@@ -10,38 +10,118 @@ function datetime(){
 }
 
 function send_email(){
-    var cc;
-    var bcc;
-    var replyto;
-    try{
-        cc = document.getElementById("cc").value;
-    }catch(error){
-        cc = "";
-    }
-        
-    try{
-        bcc = document.getElementById("bcc").value;
-    }catch(error){
-        bcc = "";
-    }
-
-    try{
-        replyto = document.getElementById("replytoemailbcc").value;
-    }catch(error){
-        replyto = "";
-    }
-
-    const payload = {
-        "to": sessionStorage.getItem("contactlist").split(","),
-        "cc": cc,
-        "bcc": bcc,
-        "replyto": replyto,
-        "subject": document.getElementById("subject").value,
-        "body_text": editor1.getPlainText(),
-        "body_html": editor1.getHTMLCode()
-    }
+var cc;
+var bcc;
+var replyto;
+try{
+    cc = document.getElementById("cc").value;
+}catch(error){
+    cc = "";
+}
     
-    console.log(payload)
+try{
+    bcc = document.getElementById("bcc").value;
+}catch(error){
+    bcc = "";
+}
+
+try{
+    replyto = document.getElementById("replytoemailbcc").value;
+}catch(error){
+    replyto = "";
+}
+
+const payload = {
+    "to": sessionStorage.getItem("contactlist").split(","),
+    "cc": cc,
+    "bcc": bcc,
+    "replyto": replyto,
+    "subject": document.getElementById("subject").value,
+    "body_text": editor1.getPlainText(),
+    "body_html": editor1.getHTMLCode()
+}
+
+console.log(payload)
+
+const raw = 
+`From: ${sessionStorage.getItem("gmail")}
+To: ${mailId}
+Subject: ${document.getElementById("subject").value}
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
+
+--techmark-mail-boundary
+Content-Type: text/plain; charset="UTF-8"
+
+${textContent}
+
+--techmark-mail-boundary
+Content-Type: text/html; charset="UTF-8"
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TechMark</title>
+</head>
+<body>
+${htmlContent}
+</body>
+</html>
+    
+--techmark-mail-boundary--`;
+    
+const requestBody = {
+    "raw": customBase64Encode(raw)
+};
+fetch('https://gmail.googleapis.com/gmail/v1/users/'+ sessionStorage.getItem("gmail") + '/messages/send', {
+method: 'POST', // Change the method accordingly (POST, PUT, etc.)
+headers: {
+    'Authorization': `Bearer ${bearer}`,
+    'Content-Type': 'application/json', // Adjust the content type as needed
+    // Add other headers if required by the API
+},
+ body: JSON.stringify(requestBody) // Convert the request body to JSON string
+}).then(response => {
+ if (!response.ok) {
+    return false
+}
+ return response.json();
+}).then(data => {
+    if(data["id"]){
+        document.getElementById("mailLog").innerHTML += `<tr class="table-success">
+                                                          <td scope="row">${EmailCount}</td>
+                                                          <td>${mailId}</td>
+                                                          <td>SENT</td>
+                                                      </tr>`;
+        document.getElementById("seccessEmails").innerHTML = "Success:" + Success;
+        payload["sent"] = "True";
+        console.log(payload)
+        saveEmails(payload, EmailCount);
+        Success++;
+        EmailCount++;
+    }else{
+        document.getElementById("mailLog").innerHTML += `<tr class="table-danger">
+                                                          <td scope="row">${EmailCount}</td>
+                                                          <td>${mailId}</td>
+                                                          <td>UNSENT</td>
+                                                      </tr>`
+        document.getElementById("failedEmails").innerHTML = failed;
+        payload["sent"] = "False";
+        saveEmails(payload, EmailCount);
+        failed++;
+        EmailCount++;
+    }
+}).catch(error => {
+document.getElementById("mailLog").innerHTML += `<tr class="table-danger">
+                                                          <td scope="row">${EmailCount}</td>
+                                                          <td>${mailId}</td>
+                                                          <td>ERROR</td>
+                                                      </tr>`;
+payload["sent"] = "Error";
+//saveEmails(payload, EmailCount);
+EmailCount++;
+});
 }
 
 function getEmail(){
@@ -295,3 +375,4 @@ function putCredentials(){
       location = "auth-offline.html";
   });
 }
+

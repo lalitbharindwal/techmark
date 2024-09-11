@@ -12,7 +12,6 @@ function save_theme_settings() {
     localStorage.setItem("data-sidebar-image", sessionStorage.getItem("data-sidebar-image"));
 }
 
-if(sessionStorage.getItem("code") == null){location = "login.html"}
 if (localStorage.getItem("data-bs-theme") != null) {
     sessionStorage.setItem("data-preloader", "enable");
     sessionStorage.setItem("data-bs-theme", localStorage.getItem("data-bs-theme"));
