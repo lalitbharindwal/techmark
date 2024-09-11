@@ -108,7 +108,7 @@ function send_mail(){
 
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
-      if(payload["from"] == "Select Sender"){
+      if(payload["from"] != "Select Sender"){
         alert("Please select Sender");
       }else{
         if(sessionStorage.getItem("contactlist") == ""){
@@ -130,7 +130,7 @@ function send_mail(){
     }
 }
 
-function display_gmail_log(log){
+function display_gmail_log(log, payload){
     console.log(log, payload)
 }
 
