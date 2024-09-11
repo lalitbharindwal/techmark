@@ -9,6 +9,26 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
+for (let key in useremailcredentials) {
+    if (useremailcredentials.hasOwnProperty(key)) {
+      document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
+      document.getElementById("verifiedemailslist").innerHTML += 
+            `<tr>
+                <td scope="col">${useremailcredentials[key]["name"]}</td>
+                <td scope="col">${key}</td>
+                <td scope="col">${useremailcredentials[key]["alias-email"]}</td>
+                <td scope="col">${useremailcredentials[key]["created"]}</td>
+                <td scope="col">${useremailcredentials[key]["status"]}</td>
+            </tr>`;
+    }
+  }
+
+function select_sender(obj){
+    if(useremailcredentials[obj.id]["domain"] == "@gmail.com"){
+        getCode(obj.id)
+    }
+}
+
 function send_email(){
 var cc;
 var bcc;
@@ -32,9 +52,10 @@ try{
 }
 
 const payload = {
+    "from": document.getElementById("sender").textContent,
     "to": sessionStorage.getItem("contactlist").split(","),
-    "cc": cc,
-    "bcc": bcc,
+    "cc": cc.split(","),
+    "bcc": bcc.split(","),
     "replyto": replyto,
     "subject": document.getElementById("subject").value,
     "body_text": editor1.getPlainText(),
@@ -43,7 +64,7 @@ const payload = {
 
 console.log(payload)
 
-const raw = 
+/*const raw = 
 `From: ${sessionStorage.getItem("gmail")}
 To: ${mailId}
 Subject: ${document.getElementById("subject").value}
@@ -121,7 +142,7 @@ document.getElementById("mailLog").innerHTML += `<tr class="table-danger">
 payload["sent"] = "Error";
 //saveEmails(payload, EmailCount);
 EmailCount++;
-});
+});*/
 }
 
 function getEmail(){
