@@ -1,10 +1,8 @@
-var useremail;
-var userfullname;
-var useremailcredentials;
+var cache;
 if(sessionStorage.getItem("cache") == null){
     location = "index.html";
 }else{
-    var cache = JSON.parse(atob(sessionStorage.getItem("cache")))
+    cache = JSON.parse(atob(sessionStorage.getItem("cache")))
     document.getElementById("userfullname").innerHTML = cache["data"]["userdata"]["fullname"];
     document.getElementById("useremail").innerHTML = cache["data"]["email"];
 }

@@ -28,6 +28,7 @@ function select_sender(obj){
     }
 }
 
+
 function customBase64Encode(str) {
     let utf8Bytes = unescape(encodeURIComponent(str));
     let charCodeList = utf8Bytes.split('').map(c => c.charCodeAt(0));
@@ -256,7 +257,8 @@ function verifymail(){
         "created": datetime()
     }
     if(domain == "@gmail.com"){
-        getCode(email, payload);
+        putCredentials(email, payload);
+        getCode(email);
     }else{
         alert("Enter Valid Gmail");
     }
@@ -292,13 +294,12 @@ function flow(event){
     }
   }
 
-function getCode(email, payload){
+function getCode(email){
     const event = {
         "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
         "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
     if(email != ""){
-        putCredentials(email, payload);
         sessionStorage.setItem("gmail", email);
         sessionStorage.setItem("bearer", "unverified")
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
