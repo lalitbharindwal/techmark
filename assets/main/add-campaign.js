@@ -366,7 +366,7 @@ function getProfile(token, event){
   }
 
 function putCredentials(email, payload){
-  cache["data"]["email-credentials"]["email"] = payload;
+  cache["data"]["email-credentials"][email] = payload;
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
