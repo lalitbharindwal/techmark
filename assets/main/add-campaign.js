@@ -95,7 +95,7 @@ function send_mail(){
     const payload = {
         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
         "from": document.getElementById("sender").textContent,
-        "to": cache["recipients"].split(","),
+        "to": cache["data"]["recipients"],
         "cc": cc,
         "bcc": bcc,
         "replyto": replyto,
@@ -104,12 +104,14 @@ function send_mail(){
         "body_html": editor1.getHTMLCode()
     }
 
+    
+
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
       if(payload["from"] == "Select Sender"){
         alert("Please select Sender");
       }else{
-        if(cache["recipients"] == ""){
+        if(cache["data"]["recipients"] == ""){
           alert("Please Select Recipients");
         }else{
           if((payload["from"].split("@"))[1] == "gmail.com"){
@@ -238,7 +240,7 @@ function saveContacts(){
             emails.push(email.trim())
         });
     }
-    cache["recipients"] = emails;
+    cache["data"]["recipients"] = emails;
     document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
 }
 

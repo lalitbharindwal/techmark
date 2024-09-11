@@ -6,7 +6,7 @@ if(sessionStorage.getItem("cache") == null){
 }else{
     var cache = JSON.parse(atob(sessionStorage.getItem("cache")))
     document.getElementById("userfullname").innerHTML = cache["data"]["userdata"]["fullname"];
-    document.getElementById("useremail").innerHTML = cache["data"]["email-credentials"];
+    document.getElementById("useremail").innerHTML = cache["data"]["email"];
 }
 
 !function() {
