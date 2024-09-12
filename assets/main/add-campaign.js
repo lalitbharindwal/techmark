@@ -119,7 +119,7 @@ function send_mail(){
             logmodel.show();
             document.getElementById("send_emails_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
             document.getElementById("log-title").innerHTML = payload.subject;
-            document.getElementById("log-from").innerHTML = payload.subject;
+            document.getElementById("log-from").innerHTML = payload.from;
             document.getElementById("log-subject").innerHTML = payload.subject;
             document.getElementById("log-name").innerHTML = payload.fullname;
             document.getElementById("log-cc").innerHTML = payload.cc;
@@ -140,7 +140,6 @@ function send_mail(){
     }
 }
 
-console.log(cache)
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
     sendingCount++;
@@ -224,7 +223,6 @@ function send_gmail(payload){
             }
             return response.json();
        }).then(data => {
-           console.log(data)
            if(data["id"]){
                payload["response"] = data;
                payload["sent"] = "True";
@@ -380,7 +378,6 @@ function getCode(gmail){
     }
     if(gmail != ""){
         cache.data.gmail = gmail;
-        console.log(cache)
         sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
@@ -444,7 +441,6 @@ function getProfile(token, event){
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
-            console.log(error)
             cache.data.bearer = btoa(token);
             sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
             alert("verification Failed!")
@@ -488,3 +484,49 @@ function putCredentials(email, payload){
   });
 }
 
+
+function dropdown(obj){
+    if(obj.id == "ccon"){
+        document.getElementById("Cc").innerHTML =
+            `<div class="row mb-3">
+                <div class="col-lg-1">
+                    <label for="Cc" class="form-label">Cc</label>
+                </div>
+                <div class="col-lg-4">
+                    <input type="email" class="form-control" id="cc" placeholder="Enter Cc Recipient" multiple>
+                </div>
+            </div>`;
+        document.getElementById("toggle-cc-btn").innerHTML = '<a class="dropdown-item active" id="ccoff" onclick="dropdown(this)">Cc</a>';
+    }else if(obj.id == "ccoff"){
+        document.getElementById("Cc").innerHTML = "";
+        document.getElementById("toggle-cc-btn").innerHTML = '<a class="dropdown-item" id="ccon" onclick="dropdown(this)">Cc</a>';
+    }else if(obj.id == "bccon"){
+        document.getElementById("Bcc").innerHTML = 
+            `<div class="row mb-3">
+                <div class="col-lg-1">
+                    <label for="Bcc" class="form-label">Bcc</label>
+                </div>
+                <div class="col-lg-4">
+                    <input type="email" class="form-control" id="bcc" placeholder="Enter Bcc Recipient" multiple>
+                </div>
+            </div>`;
+        document.getElementById("toggle-bcc-btn").innerHTML = '<a class="dropdown-item active" id="bccoff" onclick="dropdown(this)">Bcc</a>';
+    }else if(obj.id == "bccoff"){
+        document.getElementById("Bcc").innerHTML = "";
+        document.getElementById("toggle-bcc-btn").innerHTML = '<a class="dropdown-item" id="bccon" onclick="dropdown(this)">Bcc</a>';
+    }else if(obj.id == "replytoon"){
+        document.getElementById("Replyto").innerHTML = 
+            `<div class="row mb-3">
+                <div class="col-lg-1">
+                    <label for="Bcc" class="form-label">Replyto</label>
+                </div>
+                <div class="col-lg-4">
+                    <input type="email" class="form-control" id="replytoemail" placeholder="Enter Replyto Recipient">
+                </div>
+            </div>`;
+        document.getElementById("toggle-replyto-btn").innerHTML = '<a class="dropdown-item active" id="replytooff" onclick="dropdown(this)">Replyto</a>';
+    }else if(obj.id == "replytooff"){
+        document.getElementById("Replyto").innerHTML = "";
+        document.getElementById("toggle-replyto-btn").innerHTML = '<a class="dropdown-item" id="replytoon" onclick="dropdown(this)">Replyto</a>';
+    }
+}

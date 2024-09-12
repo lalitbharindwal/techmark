@@ -412,7 +412,7 @@
                                                                                     <h4 class="card-title mb-0">Enter Emails</h4>
                                                                                 </div><!-- end card header -->
                                                                                 <div class="card-body">
-                                                                                    <textarea style="width: 100%; height: 8cm;" id="emaillist" placeholder="Enter one email address per line"></textarea>
+                                                                                    <textarea id="emaillist" placeholder="Enter one email address per line"></textarea>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -521,54 +521,6 @@
                 <!-- container-fluid -->
             </div>
             <!-- End Page-content -->
-
-            <script>
-                function dropdown(obj){
-                    if(obj.id == "ccon"){
-                        document.getElementById("Cc").innerHTML =
-                            `<div class="row mb-3">
-                                <div class="col-lg-1">
-                                    <label for="Cc" class="form-label">Cc</label>
-                                </div>
-                                <div class="col-lg-4">
-                                    <input type="email" class="form-control" id="cc" placeholder="Enter Cc Recipient">
-                                </div>
-                            </div>`;
-                        document.getElementById("toggle-cc-btn").innerHTML = '<a class="dropdown-item active" id="ccoff" onclick="dropdown(this)">Cc</a>';
-                    }else if(obj.id == "ccoff"){
-                        document.getElementById("Cc").innerHTML = "";
-                        document.getElementById("toggle-cc-btn").innerHTML = '<a class="dropdown-item" id="ccon" onclick="dropdown(this)">Cc</a>';
-                    }else if(obj.id == "bccon"){
-                        document.getElementById("Bcc").innerHTML = 
-                            `<div class="row mb-3">
-                                <div class="col-lg-1">
-                                    <label for="Bcc" class="form-label">Bcc</label>
-                                </div>
-                                <div class="col-lg-4">
-                                    <input type="email" class="form-control" id="bcc" placeholder="Enter Bcc Recipient">
-                                </div>
-                            </div>`;
-                        document.getElementById("toggle-bcc-btn").innerHTML = '<a class="dropdown-item active" id="bccoff" onclick="dropdown(this)">Bcc</a>';
-                    }else if(obj.id == "bccoff"){
-                        document.getElementById("Bcc").innerHTML = "";
-                        document.getElementById("toggle-bcc-btn").innerHTML = '<a class="dropdown-item" id="bccon" onclick="dropdown(this)">Bcc</a>';
-                    }else if(obj.id == "replytoon"){
-                        document.getElementById("Replyto").innerHTML = 
-                            `<div class="row mb-3">
-                                <div class="col-lg-1">
-                                    <label for="Bcc" class="form-label">Replyto</label>
-                                </div>
-                                <div class="col-lg-4">
-                                    <input type="email" class="form-control" id="replytoemail" placeholder="Enter Replyto Recipient">
-                                </div>
-                            </div>`;
-                        document.getElementById("toggle-replyto-btn").innerHTML = '<a class="dropdown-item active" id="replytooff" onclick="dropdown(this)">Replyto</a>';
-                    }else if(obj.id == "replytooff"){
-                        document.getElementById("Replyto").innerHTML = "";
-                        document.getElementById("toggle-replyto-btn").innerHTML = '<a class="dropdown-item" id="replytoon" onclick="dropdown(this)">Replyto</a>';
-                    }
-                }
-            </script>
             <style>
                 #div_editor1 {
                     background-color: white !important;
@@ -667,6 +619,34 @@
                     table td:last-child {
                         border-bottom: 0;
                     }
+                }
+
+                #emaillist{
+                    box-sizing: border-box;
+                    border: 2px solid;
+                    font-weight: bolder;
+                    width: 100%; 
+                    height: 8cm;
+                }
+
+                input[type="email"] {
+                    box-sizing: border-box;
+                    border: 2px solid #ccc;
+                }
+
+                input[type="email"]:focus {
+                    border-color: #4CAF50;
+                    outline: none;
+                }
+
+                /* Style for validation messages */
+                input[type="email"]:invalid {
+                    border-color: red;
+                }
+
+                input[type="email"]:valid {
+                    font-weight: bolder;
+                    border-color: green;
                 }
             </style>
 
