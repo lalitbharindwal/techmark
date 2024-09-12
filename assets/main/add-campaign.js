@@ -9,7 +9,6 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-cache["data"]["recipients"] = []
 for (let key in cache["data"]["email-credentials"]) {
     if (cache["data"]["email-credentials"].hasOwnProperty(key)) {
       document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
@@ -28,7 +27,6 @@ function select_sender(obj){
         getCode(obj.id)
     }
 }
-
 
 function customBase64Encode(str) {
     let utf8Bytes = unescape(encodeURIComponent(str));
@@ -119,7 +117,7 @@ function send_mail(){
                 keyboard: false     // Disable closing with the Esc key
             });
             logmodel.show();
-            document.getElementById("send_emails_btn").innerHTML = `<button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+            document.getElementById("send_emails_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
             document.getElementById("log-title").innerHTML = payload.subject;
             document.getElementById("log-from").innerHTML = payload.subject;
             document.getElementById("log-subject").innerHTML = payload.subject;
@@ -127,7 +125,7 @@ function send_mail(){
             document.getElementById("log-cc").innerHTML = payload.cc;
             document.getElementById("log-bcc").innerHTML = payload.bcc;
             document.getElementById("log-replyto").innerHTML = payload.replyto;
-            payload["bearer"] = atob(sessionStorage.getItem("bearer"));
+            payload["bearer"] = atob(cache.data.bearer);
             payload["to"].forEach((gmail, index) => {
                 const delay = 2850 * index;
                 setTimeout(() => {
@@ -142,6 +140,7 @@ function send_mail(){
     }
 }
 
+console.log(cache)
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
     sendingCount++;
@@ -165,7 +164,7 @@ function display_log(payload){
             <td>${payload.from}</td>
             <td>${payload.to}</td>
             <td>${payload.datetime}</td>
-            <td><span class="badge bg-danger">Sent</span></td>
+            <td><span class="badge bg-danger">Failed</span></td>
         </tr>`;
     }
 
@@ -177,7 +176,7 @@ function display_log(payload){
              <td>${payload.from}</td>
              <td>${payload.to}</td>
              <td>${payload.datetime}</td>
-             <td><span class="badge bg-warning">Sent</span></td>
+             <td><span class="badge bg-warning">Error</span></td>
          </tr>`;
      }
 
@@ -202,9 +201,9 @@ function updateProgressBars(sent, failed, error) {
     document.getElementById("log-error").innerHTML = `<i class="mdi mdi-numeric-${error}-circle text-warning fs-18 align-middle me-2"></i>Error`;
     // Update the progress bars
     document.querySelector('.progress-bar.bg-success').style.width = `${successPercentage}%`;
-    document.querySelector('.progress-bar.bg-warning').style.width = `${inprogressPercentage}%`;
-    document.querySelector('.progress-bar.bg-info').style.width = `${failurePercentage}%`;
-    document.querySelector('.progress-bar.bg-danger').style.width = `${errorPercentage}%`;
+    document.querySelector('.progress-bar.bg-info').style.width = `${inprogressPercentage}%`;
+    document.querySelector('.progress-bar.bg-danger').style.width = `${failurePercentage}%`;
+    document.querySelector('.progress-bar.bg-warning').style.width = `${errorPercentage}%`;
 }
 
 function savepayload(payload){
@@ -349,12 +348,12 @@ function extractCodeFromUrl() {
     return urlParams.get('code');
   }
 
-if((sessionStorage.getItem("gmail") != null) && (sessionStorage.getItem("gmail") != "null")){
+if(cache.data.gmail != null){
     const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
     const redirectUri = 'https://techmark.solutions/add-campaign';
     const clientSecret = "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";
     const event = {
-        "email": sessionStorage.getItem("gmail"),
+        "email": cache.data.gmail,
         "clientId": clientId,
         "clientSecret": clientSecret,
         "redirect_uri": redirectUri
@@ -363,8 +362,8 @@ if((sessionStorage.getItem("gmail") != null) && (sessionStorage.getItem("gmail")
   }
 
 function flow(event){
-    const bearer = sessionStorage.getItem("bearer")
-    if(bearer == "unverified"){
+    const bearer = cache.data.bearer;
+    if(bearer == null){
         const authorizationCode = extractCodeFromUrl();
         if (authorizationCode) {
             authenticate_code(authorizationCode, event);
@@ -374,14 +373,14 @@ function flow(event){
     }
   }
 
-function getCode(email){
+function getCode(gmail){
     const event = {
         "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
         "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
     if(email != ""){
-        sessionStorage.setItem("gmail", email);
-        sessionStorage.setItem("bearer", "unverified")
+        cache.data.gmail = gmail;
+        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
         alert("Please enter valid Gmail");
@@ -431,18 +430,22 @@ function getProfile(token, event){
         }).then(data => {
             try{
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
-                    sessionStorage.setItem("bearer", btoa(token));
-                    sessionStorage.setItem("gmail", ((data["error"]["message"]).split(" ")[3]));
+                    cache.data.bearer = btoa(token);
+                    cache.data.gmail = ((data["error"]["message"]).split(" ")[3]);
+                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
                     sessionStorage.setItem("bearer", btoa(token));
-                    sessionStorage.setItem("gmail", data["emailAddress"]);
+                    cache.data.bearer = btoa(token);
+                    cache.data.gmail = data["emailAddress"];
+                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
             console.log(error)
-            sessionStorage.setItem("bearer", btoa(token))
+            cache.data.bearer = btoa(token);
+            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
             alert("verification Failed!")
     });
   }
