@@ -118,20 +118,68 @@ function send_mail(){
                 keyboard: false     // Disable closing with the Esc key
             });
             logmodel.show();
+            document.getElementById("log-subject").innerHTML = payload.subject;
+            document.getElementById("log-name").innerHTML = payload.fullname;
+            document.getElementById("log-cc").innerHTML = payload.cc;
+            document.getElementById("log-bcc").innerHTML = payload.bcc;
+            document.getElementById("log-replyto").innerHTML = payload.replyto;
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
             payload["to"].forEach((gmail, index) => {
                 const delay = 1850 * index;
                 setTimeout(() => {
                     payload["to"] = gmail;
                     payload["requestBody"] = raw(payload)
-                    let response = send_gmail(payload)
-                    console.log(response)
+                    send_gmail(payload)
                 }, delay);
             });
           }
         }
       }
     }
+}
+
+var sent = 0, failed = 0, error = 0, total = 0;
+function display_log(payload){
+    total = total++;
+    if(payload["sent"] == "True"){
+       sent = sent++;
+       document.getElementById("emaillog").innerHTML += 
+        `<tr class="table-success">
+            <td>${total}</td>
+            <td>${payload.from}</td>
+            <td>${payload.to}</td>
+            <td>${payload.datetime}</td>
+            <td><span class="badge bg-success">Sent</span></td>
+        </tr>`;
+    }
+
+    if(payload["sent"] == "False"){
+       failed = failed++;
+       document.getElementById("emaillog").innerHTML += 
+        `<tr class="table-danger">
+            <td>${total}</td>
+            <td>${payload.from}</td>
+            <td>${payload.to}</td>
+            <td>${payload.datetime}</td>
+            <td><span class="badge bg-danger">Sent</span></td>
+        </tr>`;
+    }
+
+    if(payload["sent"] == "Error"){
+        error = error++;
+        document.getElementById("emaillog").innerHTML += 
+         `<tr class="table-warning">
+             <td>${total}</td>
+             <td>${payload.from}</td>
+             <td>${payload.to}</td>
+             <td>${payload.datetime}</td>
+             <td><span class="badge bg-warning">Sent</span></td>
+         </tr>`;
+     }
+}
+
+function savepayload(payload){
+    console.log(payload)
 }
 
 function send_gmail(payload){
@@ -153,18 +201,21 @@ function send_gmail(payload){
                payload["response"] = data;
                payload["sent"] = "True";
                payload["datetime"] = datetime();
-               return payload
+               display_log(payload);
+               savepayload(payload);
            }else{
                payload["response"] = data;
                payload["sent"] = "False";
                payload["datetime"] = datetime();
-               return payload
+               display_log(payload);
+               savepayload(payload);
            }
        }).catch(error => {
             payload["response"] = error;
             payload["sent"] = "Error";
             payload["datetime"] = datetime();
-            return payload
+            display_log(payload);
+            savepayload(payload);
    });
 }
 

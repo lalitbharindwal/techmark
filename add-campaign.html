@@ -442,10 +442,31 @@
                                                 <div class="modal-dialog modal-xl">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="myExtraLargeModal">SENDING</h5>
+                                                            <h5 class="modal-title" id="myExtraLargeModal">SENDING LOG</h5>
                                                             <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
                                                         </div>
                                                         <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <ul class="list-group">
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Subject <span id="log-subject"></span>
+                                                                        </li>
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Name <span id="log-name"></span>
+                                                                        </li>
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Cc <span id="log-cc"></span>
+                                                                        </li>
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Bcc <span id="log-bcc"></span>
+                                                                        </li>
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Replyto <span id="log-replyto"></span>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div><hr>
                                                             <table class="table table-nowrap">
                                                                 <thead>
                                                                     <tr class="table-info">
@@ -456,29 +477,7 @@
                                                                         <th scope="col">Status</th>
                                                                     </tr>
                                                                 </thead>
-                                                                <tbody>
-                                                                    <tr class="table-success">
-                                                                        <td>1</td>
-                                                                        <td>lalitbharindwal@gmail.com</td>
-                                                                        <td>bharindwall@gmail.com</td>
-                                                                        <td>01-09-2000 20:30:03</td>
-                                                                        <td><span class="badge bg-success">Sent</span></td>
-                                                                    </tr>
-                                                                    <tr class="table-danger">
-                                                                        <td>2</td>
-                                                                        <td>lalitbharindwal@gmail.com</td>
-                                                                        <td>lbharindwal@gmail.com</td>
-                                                                        <td>01-09-2000 20:30:03</td>
-                                                                        <td><span class="badge bg-danger">Failed</span></td>
-                                                                    </tr>
-                                                                    <tr class="table-warning">
-                                                                        <td>3</td>
-                                                                        <td>lalitbharindwal@gmail.com</td>
-                                                                        <td>lsitdevelopmetns@gmail.com</td>
-                                                                        <td>01-09-2000 20:30:03</td>
-                                                                        <td><span class="badge bg-warning">Error</span></td>
-                                                                    </tr>
-                                                                </tbody>
+                                                                <tbody id="emaillog"></tbody>
                                                             </table>
                                                         </div>
                                                         <div class="modal-footer">
@@ -604,48 +603,48 @@
                 }
 
                 @media screen and (max-width: 1200px) {
-                table {
-                    border: 0;
-                }
+                    table {
+                        border: 0;
+                    }
 
-                table caption {
-                    font-size: 1.3em;
-                }
-                    
-                table thead {
-                    border: none;
-                    clip: rect(0 0 0 0);
-                    height: 1px;
-                    margin: -1px;
-                    overflow: hidden;
-                    padding: 0;
-                    position: absolute;
-                    width: 1px;
-                }
-                    
-                table tr {
-                    border-bottom: 3px solid #ddd;
-                    display: block;
-                    margin-bottom: .625em;
-                }
-                    
-                table td {
-                    border-bottom: 1px solid #ddd;
-                    display: block;
-                    font-size: .8em;
-                    text-align: right;
-                }
-                    
-                table td::before {
-                    content: attr(data-label);
-                    float: left;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                }
-                    
-                table td:last-child {
-                    border-bottom: 0;
-                }
+                    table caption {
+                        font-size: 1.3em;
+                    }
+                        
+                    table thead {
+                        border: none;
+                        clip: rect(0 0 0 0);
+                        height: 1px;
+                        margin: -1px;
+                        overflow: hidden;
+                        padding: 0;
+                        position: absolute;
+                        width: 1px;
+                    }
+                        
+                    table tr {
+                        border-bottom: 3px solid #ddd;
+                        display: block;
+                        margin-bottom: .625em;
+                    }
+                        
+                    table td {
+                        border-bottom: 1px solid #ddd;
+                        display: block;
+                        font-size: .8em;
+                        text-align: right;
+                    }
+                        
+                    table td::before {
+                        content: attr(data-label);
+                        float: left;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                    }
+                        
+                    table td:last-child {
+                        border-bottom: 0;
+                    }
                 }
             </style>
 
