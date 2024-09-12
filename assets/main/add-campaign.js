@@ -70,75 +70,87 @@ ${payload["body_html"]}
 return {"raw": customBase64Encode(raw)}
 }
 
-function send_mail(){
-    var cc;
-    var bcc;
-    var replyto;
-    try{
-        cc = document.getElementById("cc").value;
-    }catch(error){
-        cc = "";
-    }
-        
-    try{
-        bcc = document.getElementById("bcc").value;
-    }catch(error){
-        bcc = "";
-    }
-
-    try{
-        replyto = document.getElementById("replytoemail").value;
-    }catch(error){
-        replyto = "";
-    }
-
-    let userResponse = confirm("Do you want to proceed?");
-    if (userResponse) {
-      if(document.getElementById("sender").textContent == "Select Sender"){
-        alert("Please select Sender");
-      }else{
-        if(cache.data.recipients == undefined){
-          alert("Please Select Recipients");
-        }else{
-          const payload = {
-                "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
-                "from": document.getElementById("sender").textContent,
-                "to": cache["data"]["recipients"],
-                "cc": cc,
-                "bcc": bcc,
-                "replyto": replyto,
-                "subject": document.getElementById("subject").value,
-                "body_text": editor1.getPlainText(),
-                "body_html": editor1.getHTMLCode()
+document.getElementById("send_emails_btn") && document.getElementById("send_emails_btn").addEventListener("click", function() {
+    Swal.fire({
+        title: "Do you want to start campaign?",
+        showDenyButton: !1,
+        showCancelButton: !0,
+        confirmButtonText: "Start",
+        //confirmButtonClass: "btn btn-success w-xs me-2",
+        //cancelButtonClass: "btn btn-danger w-xs",
+        //denyButtonClass: "btn btn-info w-xs me-2",
+        buttonsStyling: !0,
+        //denyButtonText: "Don't save",
+        showCloseButton: !0
+    }).then(function(t) {
+        if(t.isConfirmed){
+            var cc;
+            var bcc;
+            var replyto;
+            try{
+                cc = document.getElementById("cc").value;
+            }catch(error){
+                cc = "";
             }
-          if((payload["from"].split("@"))[1] == "gmail.com"){
-            var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
-                backdrop: 'static', // Disable closing by clicking outside the modal
-                keyboard: false     // Disable closing with the Esc key
-            });
-            logmodel.show();
-            document.getElementById("send_emails_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
-            document.getElementById("log-title").innerHTML = payload.subject;
-            document.getElementById("log-from").innerHTML = payload.from;
-            document.getElementById("log-subject").innerHTML = payload.subject;
-            document.getElementById("log-name").innerHTML = payload.fullname;
-            document.getElementById("log-cc").innerHTML = payload.cc;
-            document.getElementById("log-bcc").innerHTML = payload.bcc;
-            document.getElementById("log-replyto").innerHTML = payload.replyto;
-            payload["bearer"] = atob(cache.data.bearer);
-            payload["to"].forEach((gmail, index) => {
-                const delay = 2850 * index;
-                setTimeout(() => {
-                    payload["to"] = gmail;
-                    payload["requestBody"] = raw(payload)
-                    send_gmail(payload)
-                }, delay);
-            });
-          }
+                
+            try{
+                bcc = document.getElementById("bcc").value;
+            }catch(error){
+                bcc = "";
+            }
+
+            try{
+                replyto = document.getElementById("replytoemail").value;
+            }catch(error){
+                replyto = "";
+            }
+
+            if(document.getElementById("sender").textContent == "Select Sender"){
+                alert("Please select Sender");
+            }else{
+                if(cache.data.recipients == undefined){
+                alert("Please Select Recipients");
+                }else{
+                const payload = {
+                        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
+                        "from": document.getElementById("sender").textContent,
+                        "to": cache["data"]["recipients"],
+                        "cc": cc,
+                        "bcc": bcc,
+                        "replyto": replyto,
+                        "subject": document.getElementById("subject").value,
+                        "body_text": editor1.getPlainText(),
+                        "body_html": editor1.getHTMLCode()
+                    }
+                    if((payload["from"].split("@"))[1] == "gmail.com"){
+                        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+                            backdrop: 'static', // Disable closing by clicking outside the modal
+                            keyboard: false     // Disable closing with the Esc key
+                        });
+                        logmodel.show();
+                        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+                        document.getElementById("log-title").innerHTML = payload.subject;
+                        document.getElementById("log-from").innerHTML = payload.from;
+                        document.getElementById("log-subject").innerHTML = payload.subject;
+                        document.getElementById("log-name").innerHTML = payload.fullname;
+                        document.getElementById("log-cc").innerHTML = payload.cc;
+                        document.getElementById("log-bcc").innerHTML = payload.bcc;
+                        document.getElementById("log-replyto").innerHTML = payload.replyto;
+                        payload["bearer"] = atob(cache.data.bearer);
+                        payload["to"].forEach((gmail, index) => {
+                            const delay = 2850 * index;
+                            setTimeout(() => {
+                                payload["to"] = gmail;
+                                payload["requestBody"] = raw(payload)
+                                send_gmail(payload)
+                            }, delay);
+                        });
+                    }
+                }
+            }
         }
-      }
-    }
-}
+    })
+})
 
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
@@ -347,6 +359,7 @@ function extractCodeFromUrl() {
   }
 
 if(cache.data.gmail != undefined){
+    document.getElementById("sender").innerHTML = "Authenticating access...";
     const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
     const redirectUri = 'https://techmark.solutions/add-campaign';
     const clientSecret = "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";
@@ -483,7 +496,6 @@ function putCredentials(email, payload){
       location = "auth-offline.html";
   });
 }
-
 
 function dropdown(obj){
     if(obj.id == "ccon"){

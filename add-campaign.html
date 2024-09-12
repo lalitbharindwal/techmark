@@ -8,6 +8,8 @@
     <meta content="TechMark" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/logo-sm.png">
+    <!-- Sweet Alert css-->
+    <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <!-- Layout config Js -->
     <script src="assets/js/layout.js"></script>
     <!-- Bootstrap Css -->
@@ -366,8 +368,8 @@
                                                             <script>RTE_DefaultConfig.url_base='assets/editor/richtexteditor'</script>
                                                             <script type="text/javascript" src='assets/editor/richtexteditor/plugins/all_plugins.js'></script>
                                                             <div id="div_editor1"></div>
-                                                            <div class="d-grid gap-2" style="margin-top: -24px;" id="send_emails_btn">
-                                                                <button class="btn btn-light" type="button" onclick="send_mail()">SEND EMAILS <i class="ri-send-plane-2-fill fs-10"></i></button>
+                                                            <div class="d-grid gap-2" style="margin-top: -24px;" id="send_emails_log_btn">
+                                                                <button class="btn btn-light" type="button" onclick="send_mail()" id="send_emails_btn">SEND EMAILS <i class="ri-send-plane-2-fill fs-10"></i></button>
                                                             </div>
                                                             <script>
                                                                 var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "default" });
@@ -688,6 +690,8 @@
     <script src="assets/js/plugins.js"></script>
     <!--Swiper slider js-->
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
+    <!-- Sweet Alerts js -->
+    <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     <!-- App js -->
     <script src="assets/js/app.js"></script>
     <script src="assets/main/add-campaign.js"></script>
