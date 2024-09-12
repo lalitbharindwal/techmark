@@ -9,6 +9,7 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
+cache["data"]["recipients"] = []
 for (let key in cache["data"]["email-credentials"]) {
     if (cache["data"]["email-credentials"].hasOwnProperty(key)) {
       document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
@@ -98,7 +99,7 @@ function send_mail(){
       if(document.getElementById("sender").textContent == "Select Sender"){
         alert("Please select Sender");
       }else{
-        if(cache["data"]["recipients"] == ""){
+        if(cache["data"]["recipients"].length == 0){
           alert("Please Select Recipients");
         }else{
           const payload = {
@@ -138,14 +139,15 @@ function send_mail(){
     }
 }
 
-var sent = 0, failed = 0, error = 0, total = 0;
+var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
-    total = total++;
+    sendingCount++;
+
     if(payload["sent"] == "True"){
-       sent = sent++;
+       sent++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
-            <td>${total}</td>
+            <td>${sendingCount}</td>
             <td>${payload.from}</td>
             <td>${payload.to}</td>
             <td>${payload.datetime}</td>
@@ -154,10 +156,10 @@ function display_log(payload){
     }
 
     if(payload["sent"] == "False"){
-       failed = failed++;
+       failed++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
-            <td>${total}</td>
+            <td>${sendingCount}</td>
             <td>${payload.from}</td>
             <td>${payload.to}</td>
             <td>${payload.datetime}</td>
@@ -166,16 +168,41 @@ function display_log(payload){
     }
 
     if(payload["sent"] == "Error"){
-        error = error++;
+        error++;
         document.getElementById("emaillog").innerHTML += 
          `<tr class="table-warning">
-             <td>${total}</td>
+             <td>${sendingCount}</td>
              <td>${payload.from}</td>
              <td>${payload.to}</td>
              <td>${payload.datetime}</td>
              <td><span class="badge bg-warning">Sent</span></td>
          </tr>`;
      }
+
+    // progressbar
+    updateProgressBars(sent, failed, error);
+}
+
+function updateProgressBars(sent, failed, error) {
+    // Calculate total sum of all values
+    const total = sent + failed + error;
+    const inprogress = cache["data"]["recipients"].length - total;
+
+    // Calculate width percentages
+    const successPercentage = (sent / total) * 100;
+    const inprogressPercentage = (inprogress / total) * 100;
+    const failurePercentage = (failed / total) * 100;
+    const errorPercentage = (error / total) * 100;
+
+    document.getElementById("log-sent").innerHTML = `<i class="mdi mdi-numeric-${sent}-circle text-success fs-18 align-middle me-2"></i>Sent`;
+    document.getElementById("log-inprogress").innerHTML = `<i class="mdi mdi-numeric-${inprogress}-circle text-info fs-18 align-middle me-2"></i>In Progress`;
+    document.getElementById("log-failed").innerHTML = `<i class="mdi mdi-numeric-${failed}-circle text-danger fs-18 align-middle me-2"></i>Failed`;
+    document.getElementById("log-error").innerHTML = `<i class="mdi mdi-numeric-${error}-circle text-warning fs-18 align-middle me-2"></i>Error`;
+    // Update the progress bars
+    document.querySelector('.progress-bar.bg-success').style.width = `${successPercentage}%`;
+    document.querySelector('.progress-bar.bg-warning').style.width = `${inprogressPercentage}%`;
+    document.querySelector('.progress-bar.bg-info').style.width = `${failurePercentage}%`;
+    document.querySelector('.progress-bar.bg-danger').style.width = `${errorPercentage}%`;
 }
 
 function savepayload(payload){
