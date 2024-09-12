@@ -119,6 +119,9 @@ function send_mail(){
                 keyboard: false     // Disable closing with the Esc key
             });
             logmodel.show();
+            document.getElementById("send_emails_btn").innerHTML = `<button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+            document.getElementById("log-title").innerHTML = payload.subject;
+            document.getElementById("log-from").innerHTML = payload.subject;
             document.getElementById("log-subject").innerHTML = payload.subject;
             document.getElementById("log-name").innerHTML = payload.fullname;
             document.getElementById("log-cc").innerHTML = payload.cc;
@@ -126,7 +129,7 @@ function send_mail(){
             document.getElementById("log-replyto").innerHTML = payload.replyto;
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
             payload["to"].forEach((gmail, index) => {
-                const delay = 1850 * index;
+                const delay = 2850 * index;
                 setTimeout(() => {
                     payload["to"] = gmail;
                     payload["requestBody"] = raw(payload)
@@ -142,7 +145,6 @@ function send_mail(){
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
     sendingCount++;
-
     if(payload["sent"] == "True"){
        sent++;
        document.getElementById("emaillog").innerHTML += 
@@ -423,7 +425,7 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
-                alert("Please Login to " + event["email"]);
+                alert("Please Verify " + event["email"]);
             }
             return response.json();
         }).then(data => {
