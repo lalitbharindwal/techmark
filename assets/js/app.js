@@ -3,9 +3,6 @@ if(sessionStorage.getItem("cache") == null){
     location = "index.html";
 }else{
     cache = JSON.parse(atob(sessionStorage.getItem("cache")))
-    cache.data.recipients = null;
-    cache.data.gmail = null;
-    cache.data.bearer = null;
     document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
     document.getElementById("useremail").innerHTML = cache.data.email;
 }

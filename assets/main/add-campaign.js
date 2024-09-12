@@ -97,7 +97,7 @@ function send_mail(){
       if(document.getElementById("sender").textContent == "Select Sender"){
         alert("Please select Sender");
       }else{
-        if(cache["data"]["recipients"].length == 0){
+        if(cache.data.recipients == undefined){
           alert("Please Select Recipients");
         }else{
           const payload = {
@@ -348,7 +348,7 @@ function extractCodeFromUrl() {
     return urlParams.get('code');
   }
 
-if(cache.data.gmail != null){
+if(cache.data.gmail != undefined){
     const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
     const redirectUri = 'https://techmark.solutions/add-campaign';
     const clientSecret = "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";
@@ -363,7 +363,7 @@ if(cache.data.gmail != null){
 
 function flow(event){
     const bearer = cache.data.bearer;
-    if(bearer == null){
+    if(bearer == undefined){
         const authorizationCode = extractCodeFromUrl();
         if (authorizationCode) {
             authenticate_code(authorizationCode, event);
@@ -380,6 +380,7 @@ function getCode(gmail){
     }
     if(gmail != ""){
         cache.data.gmail = gmail;
+        console.log(cache)
         sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
