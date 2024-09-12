@@ -93,36 +93,39 @@ function send_mail(){
         replyto = "";
     }
 
-    const payload = {
-        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
-        "from": document.getElementById("sender").textContent,
-        "to": cache["data"]["recipients"],
-        "cc": cc,
-        "bcc": bcc,
-        "replyto": replyto,
-        "subject": document.getElementById("subject").value,
-        "body_text": editor1.getPlainText(),
-        "body_html": editor1.getHTMLCode()
-    }
-
-    
-
     let userResponse = confirm("Do you want to proceed?");
     if (userResponse) {
-      if(payload["from"] == "Select Sender"){
+      if(document.getElementById("sender").textContent == "Select Sender"){
         alert("Please select Sender");
       }else{
         if(cache["data"]["recipients"] == ""){
           alert("Please Select Recipients");
         }else{
+          const payload = {
+                "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
+                "from": document.getElementById("sender").textContent,
+                "to": cache["data"]["recipients"],
+                "cc": cc,
+                "bcc": bcc,
+                "replyto": replyto,
+                "subject": document.getElementById("subject").value,
+                "body_text": editor1.getPlainText(),
+                "body_html": editor1.getHTMLCode()
+            }
           if((payload["from"].split("@"))[1] == "gmail.com"){
+            var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+                backdrop: 'static', // Disable closing by clicking outside the modal
+                keyboard: false     // Disable closing with the Esc key
+            });
+            logmodel.show();
             payload["bearer"] = atob(sessionStorage.getItem("bearer"));
             payload["to"].forEach((gmail, index) => {
                 const delay = 1850 * index;
                 setTimeout(() => {
                     payload["to"] = gmail;
                     payload["requestBody"] = raw(payload)
-                    send_gmail(payload)
+                    let response = send_gmail(payload)
+                    console.loh(response)
                 }, delay);
             });
           }
@@ -131,12 +134,7 @@ function send_mail(){
     }
 }
 
-function display_gmail_log(log, payload){
-    console.log(log, payload)
-}
-
 function send_gmail(payload){
-    console.log(payload.from)
     fetch('https://gmail.googleapis.com/gmail/v1/users/'+ payload.from + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
@@ -152,19 +150,21 @@ function send_gmail(payload){
        }).then(data => {
            console.log(data)
            if(data["id"]){
+               payload["response"] = data;
                payload["sent"] = "True";
                payload["datetime"] = datetime();
-               display_gmail_log(data, payload)
+               return payload
            }else{
+               payload["response"] = data;
                payload["sent"] = "False";
                payload["datetime"] = datetime();
-               display_gmail_log(data, payload)
+               return payload
            }
        }).catch(error => {
-            console.log(error)
+            payload["response"] = error;
             payload["sent"] = "Error";
             payload["datetime"] = datetime();
-            display_gmail_log(error, payload)
+            return payload
    });
 }
 

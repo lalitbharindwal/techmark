@@ -8,10 +8,6 @@
     <meta content="TechMark" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/logo-sm.png">
-    <!-- jsvectormap css -->
-    <link href="assets/libs/jsvectormap/css/jsvectormap.min.css" rel="stylesheet" type="text/css" />
-    <!--Swiper slider css-->
-    <link href="assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
     <!-- Layout config Js -->
     <script src="assets/js/layout.js"></script>
     <!-- Bootstrap Css -->
@@ -380,21 +376,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row mb-3">
-                                                    <!-- Variants -->
-                                                    <table class="table table-nowrap">
-                                                        <thead>
-                                                            <tr>
-                                                                <th scope="col">Sr.No</th>
-                                                                <th scope="col">Email</th>
-                                                                <th scope="col">Status</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="mailLog"></tbody>
-                                                    </table>
-                                                    <span>Emails Sent <span id="seccessEmails">0</span></span>
-                                                    <span>Emails Unsent <span id="failedEmails">0</span></span>
-                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -450,6 +431,68 @@
                                     </div><!-- end card -->
                                 </div>
                                 <!--end col-->
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card-body">
+                                        <div class="live-preview">
+                                            <!--Log Model-->
+                                            <button type="button" class="btn btn-success " data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">Large Modal</button>
+                                            <div class="modal fade bs-example-modal-xl1" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="myExtraLargeModal" aria-hidden="true">
+                                                <div class="modal-dialog modal-xl">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="myExtraLargeModal">SENDING</h5>
+                                                            <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <!-- Variants -->
+                                                            <table class="table table-nowrap">
+                                                                <thead>
+                                                                    <tr class="table-info">
+                                                                        <th scope="col">Sr.No</th>
+                                                                        <th scope="col">From</th>
+                                                                        <th scope="col">To</th>
+                                                                        <th scope="col">Sent on</th>
+                                                                        <th scope="col">Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr class="table-success">
+                                                                        <td>1</td>
+                                                                        <td>lalitbharindwal@gmail.com</td>
+                                                                        <td>bharindwall@gmail.com</td>
+                                                                        <td>01-09-2000 20:30:03</td>
+                                                                        <td><span class="badge bg-success">Sent</span></td>
+                                                                    </tr>
+                                                                    <tr class="table-danger">
+                                                                        <td>2</td>
+                                                                        <td>lalitbharindwal@gmail.com</td>
+                                                                        <td>lbharindwal@gmail.com</td>
+                                                                        <td>01-09-2000 20:30:03</td>
+                                                                        <td><span class="badge bg-danger">Failed</span></td>
+                                                                    </tr>
+                                                                    <tr class="table-warning">
+                                                                        <td>3</td>
+                                                                        <td>lalitbharindwal@gmail.com</td>
+                                                                        <td>lsitdevelopmetns@gmail.com</td>
+                                                                        <td>01-09-2000 20:30:03</td>
+                                                                        <td><span class="badge bg-warning">Error</span></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+                                                            <button type="button" class="btn btn-primary ">Save changes</button>
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div><!-- /.modal -->
+
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <!--end row-->
                         </div>
@@ -561,7 +604,7 @@
                     text-transform: uppercase;
                 }
 
-                @media screen and (max-width: 600px) {
+                @media screen and (max-width: 1200px) {
                 table {
                     border: 0;
                 }
