@@ -125,7 +125,7 @@ function send_mail(){
                     payload["to"] = gmail;
                     payload["requestBody"] = raw(payload)
                     let response = send_gmail(payload)
-                    console.loh(response)
+                    console.log(response)
                 }, delay);
             });
           }
