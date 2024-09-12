@@ -378,7 +378,7 @@ function getCode(gmail){
         "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
         "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
-    if(email != ""){
+    if(gmail != ""){
         cache.data.gmail = gmail;
         sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
