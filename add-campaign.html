@@ -231,7 +231,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-lg-1">
+                                                    <div class="col-xl-1">
                                                         <label for="nameInput" class="form-label">From</label>
                                                     </div>
                                                     <div class="col-lg-4 mb-3">
@@ -304,7 +304,7 @@
                                                                                                                 <label for="newalternateemail" class="form-label">Alias Email</label>
                                                                                                             </div>
                                                                                                             <div class="col-lg-6">
-                                                                                                                <input type="email" class="form-control" id="newaliasemail" placeholder="Alias Email" novalidate>
+                                                                                                                <input type="text" class="form-control" id="newaliasemail" placeholder="Alias Email" novalidate>
                                                                                                             </div>
                                                                                                             <div class="col-lg-4">
                                                                                                                 <span id="domain"></span>
@@ -340,10 +340,10 @@
                                                             </div><!-- /.modal-dialog -->
                                                         </div><!-- /.modal -->
                                                     </div>
-                                                    <div class="col-lg-1">
+                                                    <div class="col-xl-1">
                                                         <label for="nameInput" class="form-label">To (Recipients)</label>
                                                     </div>
-                                                    <div class="col-lg-5 mb-3">
+                                                    <div class="col-xl-5 mb-3">
                                                         <button class="btn btn-light btn-border" data-bs-toggle="modal" id="select-recipient" data-bs-target=".bs-modal-lg2">Select Recipients</button>
                                                     </div>
                                                 </div>
@@ -351,10 +351,10 @@
                                                 <div id="Bcc"></div>
                                                 <div id="Replyto"></div>
                                                 <div class="row mb-3">
-                                                    <div class="col-lg-1">
+                                                    <div class="col-xl-1">
                                                         <label for="subject" class="form-label">Subject</label>
                                                     </div>
-                                                    <div class="col-lg-6">
+                                                    <div class="col-xl-6">
                                                         <input type="text" class="form-control" id="subject" placeholder="Enter your email subject">
                                                     </div>
                                                 </div>
@@ -369,7 +369,7 @@
                                                             <script type="text/javascript" src='assets/editor/richtexteditor/plugins/all_plugins.js'></script>
                                                             <div id="div_editor1"></div>
                                                             <div class="d-grid gap-2" style="margin-top: -24px;" id="send_emails_log_btn">
-                                                                <button class="btn btn-light" type="button" onclick="send_mail()" id="send_emails_btn">SEND EMAILS <i class="ri-send-plane-2-fill fs-10"></i></button>
+                                                                <button class="btn btn-light" type="button" id="send_emails_btn">SEND EMAILS <i class="ri-send-plane-2-fill fs-10"></i></button>
                                                             </div>
                                                             <script>
                                                                 var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "default" });
@@ -525,7 +525,7 @@
             <!-- End Page-content -->
             <style>
                 #div_editor1 {
-                    background-color: white !important;
+                    
                     border-color: white !important;
                     height: auto;
                     min-height: 12cm;

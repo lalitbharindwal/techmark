@@ -22,6 +22,8 @@ for (let key in cache["data"]["email-credentials"]) {
     }
   }
 
+console.log(cache)
+
 function select_sender(obj){
     if(cache["data"]["email-credentials"][obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
@@ -159,11 +161,11 @@ function display_log(payload){
        sent++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
-            <td>${sendingCount}</td>
-            <td>${payload.from}</td>
-            <td>${payload.to}</td>
-            <td>${payload.datetime}</td>
-            <td><span class="badge bg-success">Sent</span></td>
+            <td data-label="Sr No.">${sendingCount}</td>
+            <td data-label="From">${payload.from}</td>
+            <td data-label="To">${payload.to}</td>
+            <td data-label="Datetime">${payload.datetime}</td>
+            <td data-label="Status"><span class="badge bg-success">Sent</span></td>
         </tr>`;
     }
 
@@ -171,23 +173,23 @@ function display_log(payload){
        failed++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
-            <td>${sendingCount}</td>
-            <td>${payload.from}</td>
-            <td>${payload.to}</td>
-            <td>${payload.datetime}</td>
-            <td><span class="badge bg-danger">Failed</span></td>
+            <td data-label="Sr No.">${sendingCount}</td>
+            <td data-label="From">${payload.from}</td>
+            <td data-label="To">${payload.to}</td>
+            <td data-label="Datetime">${payload.datetime}</td>
+            <td data-label="Status"><span class="badge bg-danger">Failed</span></td>
         </tr>`;
     }
 
     if(payload["sent"] == "Error"){
         error++;
-        document.getElementById("emaillog").innerHTML += 
+        document.getElementById("emaillog").innerHTML +=
          `<tr class="table-warning">
-             <td>${sendingCount}</td>
-             <td>${payload.from}</td>
-             <td>${payload.to}</td>
-             <td>${payload.datetime}</td>
-             <td><span class="badge bg-warning">Error</span></td>
+             <td data-label="Sr No.">${sendingCount}</td>
+             <td data-label="From">${payload.from}</td>
+             <td data-label="To">${payload.to}</td>
+             <td data-label="Datetime">${payload.datetime}</td>
+             <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
      }
 
@@ -330,7 +332,7 @@ function saveContacts(){
             emails.push(email.trim())
         });
     }
-    cache["data"]["recipients"] = emails;
+    cache.data.recipients = emails;
     document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
 }
 
