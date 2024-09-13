@@ -437,7 +437,8 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
-                alert("Please Verify " + event["email"]);
+                alert("Please Authenticate " + event["email"]);
+                document.getElementById("sender").innerHTML = "Session Expired";
             }
             return response.json();
         }).then(data => {

@@ -51,15 +51,15 @@ RTE_DefaultConfig.showPlusButton = false;
 // Specifies whether to display the editor plus button.
 RTE_DefaultConfig.showTagList = false;
 // Specifies whether to display the tag selector in the editor bottom bar.
-RTE_DefaultConfig.showStatistics = true;
+RTE_DefaultConfig.showStatistics = false;
 //Specifies whether to display the content statistics in the editor bottom bar.
-RTE_DefaultConfig.showSelectedBlock = true;
+RTE_DefaultConfig.showSelectedBlock = false;
 //show selected paragraph as [__rte_select_block]{...}
 RTE_DefaultConfig.focusOnLoad = true;
 // Specifies whether the editor grabs focus when the page loads. If this property is set to true then the editor will take focus, if it is set to false it will not.
 RTE_DefaultConfig.allowScriptCode = true;
 //Specifies whether to strip all script elements and script contents from the html to prevent javaScript injection. When this property is set to false (the default) Rich Text Editor strips all script elements and script contents from the html.
-RTE_DefaultConfig.showFloatTextToolBar = false;
+RTE_DefaultConfig.showFloatTextToolBar = true;
 // Specifies whether to display the FloatTextToolBar.
 RTE_DefaultConfig.showFloatLinkToolBar = true;
 // Specifies whether to display the FloatLinkToolBar.
@@ -179,7 +179,7 @@ RTE_DefaultConfig.linkItems = ["https://www.intel.com", "https://www.ibm.com", "
 RTE_DefaultConfig.imageItems = ["http://richtexteditor.com/uploads/1.jpg", "http://richtexteditor.com/uploads/2.jpg", "http://richtexteditor.com/uploads/3.jpg", "http://richtexteditor.com/uploads/4.jpg", "http://richtexteditor.com/uploads/5.jpg", "http://richtexteditor.com/uploads/6.jpg"]
 // For insert image by URL
 
-RTE_DefaultConfig.galleryImages = ["http://richtexteditor.com/uploads/1.jpg", "http://richtexteditor.com/uploads/2.jpg", "http://richtexteditor.com/uploads/3.jpg", "http://richtexteditor.com/uploads/4.jpg", "http://richtexteditor.com/uploads/5.jpg", "http://richtexteditor.com/uploads/6.jpg"];
+RTE_DefaultConfig.galleryImages = ["https://static.toiimg.com/photo/80387978.cms", "http://richtexteditor.com/uploads/2.jpg", "http://richtexteditor.com/uploads/3.jpg", "http://richtexteditor.com/uploads/4.jpg", "http://richtexteditor.com/uploads/5.jpg", "http://richtexteditor.com/uploads/6.jpg"];
 // Default images for gallery Images dialog. 
 
 RTE_DefaultConfig.htmlTemplates = [["My Doc 1", "<h2>MyTitleMyTitleMyTitleMyTitleMyTitleMyTitleMyTitle</h2><p>Paragraph 1 </p><p>Paragraph 2 </p><p>Paragraph 3 </p><p>Paragraph 4 </p><p>Paragraph 5 </p>"], ["My Doc 1", "<h2>MyTitleMyTitleMyTitle</h2><p>Paragraph 1 </p><p>Paragraph 2 </p><p>Paragraph 3 </p><p>Paragraph 4 </p><p>Paragraph 5 </p>"]];
@@ -249,7 +249,8 @@ RTE_DefaultConfig.controltoolbar_A = "{linkstyle,insertlink,unlink}";
 // A set of buttons that appears in the link selection float toolbar.
 RTE_DefaultConfig.controltoolbar_TD = "{tableheader,menu_tablecell,menu_tablerow,menu_tablecolumn,menu_table}";
 //"{menu_tablecell,menu_tableinsert,menu_tabledelete,menu_table}",
-RTE_DefaultConfig.controltoolbar_IMG = "{menu_controlsize,imagecaption,controlalt,controlinsertlink,controleditlink,controlopenlink,controlunlink}/{menu_controljustify,imagestyle,imageeditor,delete}";
+//RTE_DefaultConfig.controltoolbar_IMG = "{menu_controlsize,imagecaption,controlalt,controlinsertlink,controleditlink,controlopenlink,controlunlink}/{menu_controljustify,imagestyle,imageeditor,delete}";
+RTE_DefaultConfig.controltoolbar_IMG = "{menu_controlsize,imagecaption,controlalt,controleditlink,controlopenlink,controlunlink}/{controlinsertlink,imagestyle,delete}";
 //justifyleft,justifycenter,justifyright
 
 //RTE_DefaultConfig.svgCode_menu_tablerow='<svg viewBox="0 0 20 20" fill="#5F6368"><path d="M10.21 15c2.106 0 3.412-1.087 3.412-2.823 0-1.306-.984-2.283-2.324-2.386v-.055a2.176 2.176 0 001.852-2.14c0-1.51-1.162-2.46-3.014-2.46H5.843V15h4.368zM7.908 6.674h1.696c.963 0 1.517.451 1.517 1.244 0 .834-.629 1.32-1.73 1.32H7.908V6.673zm0 6.788v-2.864h1.73c1.216 0 1.88.492 1.88 1.415 0 .943-.643 1.449-1.832 1.449H7.907z"/></svg>';
@@ -583,8 +584,8 @@ RTE_DefaultConfig.text_tablecolumn = "Table Column";
 
 RTE_DefaultConfig.text_colorauto = "Automatic";
 
-RTE_DefaultConfig.text_colormore = "More";
-RTE_DefaultConfig.text_colorpicker = "Color Picker";
+//RTE_DefaultConfig.text_colormore = "More";
+//RTE_DefaultConfig.text_colorpicker = "Color Picker";
 
 RTE_DefaultConfig.text_colorwebpalette = "Web Palette";
 
