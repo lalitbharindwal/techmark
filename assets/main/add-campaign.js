@@ -437,8 +437,10 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
+                cache.data.bearer = undefined;
+                sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                document.getElementById("sender").innerHTML = "Session Expired";                
                 alert("Please Authenticate " + event["email"]);
-                document.getElementById("sender").innerHTML = "Session Expired";
             }
             return response.json();
         }).then(data => {
