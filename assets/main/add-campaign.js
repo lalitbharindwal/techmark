@@ -111,9 +111,10 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                 alert("Please select Sender");
             }else{
                 if(cache.data.recipients == undefined){
-                alert("Please Select Recipients");
+                    alert("Please Select Recipients");
                 }else{
-                const payload = {
+                    const payload = {
+                        "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
                         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
                         "from": document.getElementById("sender").textContent,
                         "to": cache["data"]["recipients"],
@@ -147,29 +148,34 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 send_gmail(payload)
                             }, delay);
                         });
+                    }else{
+                        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+                            backdrop: 'static', // Disable closing by clicking outside the modal
+                            keyboard: false     // Disable closing with the Esc key
+                        });
+                        logmodel.show();
+                        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+                        document.getElementById("log-title").innerHTML = payload.subject;
+                        document.getElementById("log-from").innerHTML = payload.from;
+                        document.getElementById("log-subject").innerHTML = payload.subject;
+                        document.getElementById("log-name").innerHTML = payload.fullname;
+                        document.getElementById("log-cc").innerHTML = payload.cc;
+                        document.getElementById("log-bcc").innerHTML = payload.bcc;
+                        document.getElementById("log-replyto").innerHTML = payload.replyto;
+                        payload["smtp_server"] = cache["data"]["email-credentials"]["support@lavoroindia.online"]["data"]["domaininfo"]["smtp_server"];
+                        payload["to"].forEach((email, index) => {
+                            const delay = 2850 * index;
+                            setTimeout(() => {
+                                payload["to"] = email;
+                                send_email(payload)
+                            }, delay);
+                        });
                     }
                 }
             }
         }
     })
 })
-
-var data1 = `event = {
-    "action": "send_email"
-    "name": "Lalit Sharma",
-    "email": "support@lavoroindia.online",
-    "password": "Harshad@999",
-    "to": "lalitbharindwal@gmail.com",
-    "cc": "techmark.hr@gmail.com",
-    "bcc": "",
-    "replyto": "",
-    "subject": "Test Email",
-    "body_text": "This is a plain text email",
-    "body_html": "<h1>This is an HTML email</h1>",
-    "smtp_server": "smtp.hostinger.com",
-    "smtp_port": 587
-}`
-
 
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
@@ -274,6 +280,58 @@ function send_gmail(payload){
             display_log(payload);
             savepayload(payload);
    });
+}
+
+function send_email(payload){
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
+      mode: 'cors',
+      headers: headers,
+      "method": "POST",
+      "body": JSON.stringify({
+        "action": "send_email",
+        "name": payload["fullname"],
+        "email": payload["from"],
+        "useremail": payload["useremail"],
+        "password": atob(cache["data"]["email-credentials"][document.getElementById("sender").textContent]["password"]),
+        "to": payload["to"],
+        "cc": payload["cc"],
+        "bcc": payload["bcc"],
+        "replyto": payload["replyto"],
+        "subject": payload["subject"],
+        "body_text": payload["body_text"],
+        "body_html": payload["body_html"],
+        "smtp_server": payload["smtp_server"]
+    })}).then(response => {
+        if (!response.ok) {
+          location = "auth-offline.html";
+        }
+        return response.json()
+    }).then(data => {
+        if(!data.error){
+            if(data.body.status == 'success'){
+                payload["response"] = data.body;
+                payload["sent"] = "True";
+                payload["datetime"] = datetime();
+                display_log(payload);
+                savepayload(payload);
+            }else{
+                payload["response"] = data.body;
+                payload["sent"] = "False";
+                payload["datetime"] = datetime();
+                display_log(payload);
+                savepayload(payload);
+            }
+        }
+
+    }).catch(error => {
+        payload["response"] = error;
+        payload["sent"] = "Error";
+        payload["datetime"] = datetime();
+        display_log(payload);
+        savepayload(payload);
+    });
 }
 
 function getEmail(){
@@ -519,7 +577,7 @@ function select_sender(obj){
           "body": JSON.stringify({
             "action": "authenticate",
             "email": payload.useremail,
-            "password": payload.password
+            "password": atob(payload.password)
         })}).then(response => {
             if (!response.ok) {
               location = "auth-offline.html";
@@ -878,7 +936,7 @@ function verifymail(){
     const payload = {
         "name": document.getElementById("newemailname").value,
         "useremail": document.getElementById("newemail").value,
-        "password": document.getElementById("newemailpassword").value,
+        "password": btoa(document.getElementById("newemailpassword").value),
         "alias-email": (document.getElementById("newaliasemail").value == "")?"":document.getElementById("newaliasemail").value+document.getElementById("domain").textContent,
         "domain": document.getElementById("domain").textContent,
         "created": datetime()
@@ -897,7 +955,7 @@ function verifymail(){
           "body": JSON.stringify({
             "action": "authenticate",
             "email": payload.useremail,
-            "password": payload.password
+            "password": atob(payload.password)
         })}).then(response => {
             if (!response.ok) {
               location = "auth-offline.html";
