@@ -524,8 +524,7 @@ function getProfile(token, event){
     });
   }
 
-function putCredentials(payload){
-  cache["data"]["email-credentials"][payload["useremail"]] = payload;
+function putCredentials(){
   var condition_expression = "#useremail = :value1";
   var update_expression = "SET #useremailcredentials = :value2";
   var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
@@ -941,8 +940,9 @@ function verifymail(){
         "domain": document.getElementById("domain").textContent,
         "created": datetime()
     }
-    if(document.getElementById("domain").textContent == "@gmail.com"){
-        putCredentials(payload);
+    if(payload.domain == "@gmail.com"){
+        cache["data"]["email-credentials"][payload["useremail"]] = payload;
+        putCredentials();
         getCode(payload.useremail);
     }else{
         let headers = new Headers();
