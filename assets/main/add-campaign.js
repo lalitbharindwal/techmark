@@ -162,7 +162,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-cc").innerHTML = payload.cc;
                         document.getElementById("log-bcc").innerHTML = payload.bcc;
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
-                        payload["smtp_server"] = cache["data"]["email-credentials"]["support@lavoroindia.online"]["data"]["domaininfo"]["smtp_server"];
+                        payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
                         payload["to"].forEach((email, index) => {
                             const delay = 2850 * index;
                             setTimeout(() => {
@@ -176,6 +176,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
         }
     })
 })
+
+console.log(cache["data"]["email-credentials"]["support@lavoroindia.online"]["data"]["domaininfo"]["smtp_server"])
 
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(payload){
