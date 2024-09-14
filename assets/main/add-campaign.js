@@ -9,27 +9,35 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-for (let key in cache["data"]["email-credentials"]) {
-    if (cache["data"]["email-credentials"].hasOwnProperty(key)) {
-      document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
-      document.getElementById("verifiedemailslist").innerHTML += 
-            `<tr>
-                <td data-label="Name">${cache["data"]["email-credentials"][key]["name"]}</td>
-                <td data-label="Email">${key}</td>
-                <td data-label="Alias Email">${cache["data"]["email-credentials"][key]["alias-email"]}-</td>
-                <td data-label="Verified on">${cache["data"]["email-credentials"][key]["created"]}</td>
-                <td data-label="Status"><span class="badge bg-success">Authenticated</span></td>
-            </tr>`;
+function show_aliases(){
+    document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" data-bs-toggle="modal" data-bs-target=".bs-modal-xl1" href="javascript:void(0);">Manage Sender</a>`;
+    document.getElementById("verifiedemailslist").innerHTML = '';
+    for (let key in cache["data"]["email-credentials"]) {
+        if (cache["data"]["email-credentials"].hasOwnProperty(key)) {
+          document.getElementById("sender-list").innerHTML += `<a class="dropdown-item" id="${key}" onclick="select_sender(this)" href="javascript:void(0);">${key}</a>`;
+          document.getElementById("verifiedemailslist").innerHTML += 
+                `<tr>
+                    <td data-label="Name">${cache["data"]["email-credentials"][key]["name"]}</td>
+                    <td data-label="Email">${key}</td>
+                    <td data-label="Alias Email">${cache["data"]["email-credentials"][key]["alias-email"]}-</td>
+                    <td data-label="Verified on">${cache["data"]["email-credentials"][key]["created"]}</td>
+                    <td data-label="Status" id="status-badge-${key}"><span class="badge bg-light text-body" id="${key}" onclick="select_sender(this)">Select</span></td>
+                </tr>`;
+        }
     }
-  }
+}
 
-console.log(cache)
 
 function select_sender(obj){
     if(cache["data"]["email-credentials"][obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
+    }else{
+        console.log(obj.id)
     }
 }
+
+console.log(cache)
+show_aliases()
 
 function customBase64Encode(str) {
     let utf8Bytes = unescape(encodeURIComponent(str));
@@ -354,6 +362,156 @@ function saveContacts(){
     document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
 }
 
+function extractCodeFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('code');
+  }
+
+if(cache.data.gmail != undefined){
+    document.getElementById("sender").innerHTML = "Authenticating access...";
+    document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
+    const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
+    const redirectUri = 'https://techmark.solutions/add-campaign';
+    const clientSecret = "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";
+    const event = {
+        "email": cache.data.gmail,
+        "clientId": clientId,
+        "clientSecret": clientSecret,
+        "redirect_uri": redirectUri
+    }
+    flow(event);
+  }
+
+function flow(event){
+    const bearer = cache.data.bearer;
+    if(bearer == undefined){
+        const authorizationCode = extractCodeFromUrl();
+        if (authorizationCode) {
+            authenticate_code(authorizationCode, event);
+        }
+    }else{
+        getProfile(atob(bearer), event)
+    }
+  }
+
+function getCode(gmail){
+    const event = {
+        "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
+        "redirect_uri": 'https://techmark.solutions/add-campaign'
+    }
+    if(gmail != ""){
+        cache.data.gmail = gmail;
+        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+        startOAuthFlow(event["clientId"], event["redirect_uri"]);
+    }else{
+        alert("Please enter valid Gmail");
+    }
+  }
+
+// Function to initiate OAuth flow
+function startOAuthFlow(clientId, redirect_uri) {
+    const authorizationEndpoint = 'https://accounts.google.com/o/oauth2/auth';
+    const scope = 'https://mail.google.com/'; // Scopes required by your application
+    const responseType = 'code';
+    // Construct the authorization URL
+    const authUrl = `${authorizationEndpoint}?client_id=${clientId}&redirect_uri=${redirect_uri}&response_type=${responseType}&scope=${scope}`;
+    // Redirect user to the authorization URL
+    window.location.href = authUrl;
+  }
+
+function authenticate_code(authCode, event){
+    fetch('https://fejo93w844.execute-api.us-east-1.amazonaws.com/techmark-oauth', {
+        method: 'POST',
+        body: JSON.stringify({
+            "client_id": event["clientId"],
+            "client_secret": event["clientSecret"],
+            "redirect_uri": event["redirect_uri"],
+            "code": authCode
+        })
+        }).then((data)=>{
+            return data.text();
+        }).then((data2)=>{
+            const token_json = JSON.parse(data2)
+            getProfile(JSON.parse(token_json["body"])["access_token"], event)
+    });
+  }
+
+function getProfile(token, event){
+    document.getElementById("sender").innerHTML = "Verifying...";
+    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ event["email"] +'/profile', {
+        method: 'GET', // Change the method accordingly (POST, PUT, etc.)
+        headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+        }
+        }).then(response => {
+            if (!response.ok) {
+                cache.data.bearer = undefined;
+                sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                document.getElementById("sender").innerHTML = "Session Expired";                
+                alert("Please Authenticate " + event["email"]);
+            }
+            return response.json();
+        }).then(data => {
+            try{
+                if(data["error"]["status"] == "PERMISSION_DENIED"){
+                    cache.data.bearer = btoa(token);
+                    cache.data.gmail = ((data["error"]["message"]).split(" ")[3]);
+                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                    document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
+                    document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
+                }
+            }catch{
+                    sessionStorage.setItem("bearer", btoa(token));
+                    cache.data.bearer = btoa(token);
+                    cache.data.gmail = data["emailAddress"];
+                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                    document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
+                    document.getElementById("sender").innerHTML = data["emailAddress"];
+            }
+        }).catch(error => {
+            cache.data.bearer = btoa(token);
+            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+            alert("verification Failed!")
+    });
+  }
+
+function putCredentials(email, payload){
+  cache["data"]["email-credentials"][email] = payload;
+  var condition_expression = "#useremail = :value1";
+  var update_expression = "SET #useremailcredentials = :value2";
+  var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
+  var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["data"]["email-credentials"]};
+  let headers = new Headers();
+  headers.append('Origin', '*');
+  fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+      "method": "update",
+      "table_name": "techmark-solutions",
+      "primary_key": {"email": cache["data"]["email"]},
+      "condition_expression": condition_expression,
+      "update_expression": update_expression,
+      "expression_attribute_names": expression_attribute_names,
+      "expression_attribute_values": expression_attribute_values
+    })
+  }).then(response => {
+      if (!response.ok) {
+        location = "auth-offline.html";
+      }
+      return response.json()
+  }).then(data => {
+      if(JSON.parse(data["body"])["error"] == "true"){
+          location = "auth-500.html";
+      }else{
+          sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+      }
+  }).catch(error => {
+      location = "auth-offline.html";
+  });
+}
 
 function verifymail(){
     const mail = document.getElementById("newemail").value;
@@ -685,153 +843,6 @@ function verifymail(){
             //location = "auth-offline.html";
         });
     }
-}
-
-function extractCodeFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('code');
-  }
-
-if(cache.data.gmail != undefined){
-    document.getElementById("sender").innerHTML = "Authenticating access...";
-    const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
-    const redirectUri = 'https://techmark.solutions/add-campaign';
-    const clientSecret = "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";
-    const event = {
-        "email": cache.data.gmail,
-        "clientId": clientId,
-        "clientSecret": clientSecret,
-        "redirect_uri": redirectUri
-    }
-    flow(event);
-  }
-
-function flow(event){
-    const bearer = cache.data.bearer;
-    if(bearer == undefined){
-        const authorizationCode = extractCodeFromUrl();
-        if (authorizationCode) {
-            authenticate_code(authorizationCode, event);
-        }
-    }else{
-        getProfile(atob(bearer), event)
-    }
-  }
-
-function getCode(gmail){
-    const event = {
-        "clientId": '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com',
-        "redirect_uri": 'https://techmark.solutions/add-campaign'
-    }
-    if(gmail != ""){
-        cache.data.gmail = gmail;
-        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-        startOAuthFlow(event["clientId"], event["redirect_uri"]);
-    }else{
-        alert("Please enter valid Gmail");
-    }
-  }
-
-// Function to initiate OAuth flow
-function startOAuthFlow(clientId, redirect_uri) {
-    const authorizationEndpoint = 'https://accounts.google.com/o/oauth2/auth';
-    const scope = 'https://mail.google.com/'; // Scopes required by your application
-    const responseType = 'code';
-    // Construct the authorization URL
-    const authUrl = `${authorizationEndpoint}?client_id=${clientId}&redirect_uri=${redirect_uri}&response_type=${responseType}&scope=${scope}`;
-    // Redirect user to the authorization URL
-    window.location.href = authUrl;
-  }
-
-function authenticate_code(authCode, event){
-    fetch('https://fejo93w844.execute-api.us-east-1.amazonaws.com/techmark-oauth', {
-        method: 'POST',
-        body: JSON.stringify({
-            "client_id": event["clientId"],
-            "client_secret": event["clientSecret"],
-            "redirect_uri": event["redirect_uri"],
-            "code": authCode
-        })
-        }).then((data)=>{
-            return data.text();
-        }).then((data2)=>{
-            const token_json = JSON.parse(data2)
-            getProfile(JSON.parse(token_json["body"])["access_token"], event)
-    });
-  }
-
-function getProfile(token, event){
-    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ event["email"] +'/profile', {
-        method: 'GET', // Change the method accordingly (POST, PUT, etc.)
-        headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-        }
-        }).then(response => {
-            if (!response.ok) {
-                cache.data.bearer = undefined;
-                sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-                document.getElementById("sender").innerHTML = "Session Expired";                
-                alert("Please Authenticate " + event["email"]);
-            }
-            return response.json();
-        }).then(data => {
-            try{
-                if(data["error"]["status"] == "PERMISSION_DENIED"){
-                    cache.data.bearer = btoa(token);
-                    cache.data.gmail = ((data["error"]["message"]).split(" ")[3]);
-                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-                    document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
-                }
-            }catch{
-                    sessionStorage.setItem("bearer", btoa(token));
-                    cache.data.bearer = btoa(token);
-                    cache.data.gmail = data["emailAddress"];
-                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-                    document.getElementById("sender").innerHTML = data["emailAddress"];
-            }
-        }).catch(error => {
-            cache.data.bearer = btoa(token);
-            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-            alert("verification Failed!")
-    });
-  }
-
-function putCredentials(email, payload){
-  cache["data"]["email-credentials"][email] = payload;
-  var condition_expression = "#useremail = :value1";
-  var update_expression = "SET #useremailcredentials = :value2";
-  var expression_attribute_names = {"#useremail": "email", "#useremailcredentials": "email-credentials"};
-  var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["data"]["email-credentials"]};
-  let headers = new Headers();
-  headers.append('Origin', '*');
-  fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
-    mode: 'cors',
-    headers: headers,
-    "method": "POST",
-    "body": JSON.stringify({
-      "method": "update",
-      "table_name": "techmark-solutions",
-      "primary_key": {"email": cache["data"]["email"]},
-      "condition_expression": condition_expression,
-      "update_expression": update_expression,
-      "expression_attribute_names": expression_attribute_names,
-      "expression_attribute_values": expression_attribute_values
-    })
-  }).then(response => {
-      if (!response.ok) {
-        location = "auth-offline.html";
-      }
-      return response.json()
-  }).then(data => {
-      if(JSON.parse(data["body"])["error"] == "true"){
-          location = "auth-500.html";
-      }else{
-          sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-      }
-  }).catch(error => {
-      location = "auth-offline.html";
-  });
 }
 
 function dropdown(obj){
