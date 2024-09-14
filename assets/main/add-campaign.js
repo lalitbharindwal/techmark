@@ -446,10 +446,10 @@ function getProfile(token, event){
         }
         }).then(response => {
             if (!response.ok) {
-                cache.data.bearer = undefined;
+                cache.data.bearer = btoa(token);
                 sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-                document.getElementById("sender").innerHTML = "Session Expired";                
-                alert("Please Authenticate " + event["email"]);
+                document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
+                document.getElementById("sender").innerHTML = "Authentication Failed";
             }
             return response.json();
         }).then(data => {
@@ -470,9 +470,9 @@ function getProfile(token, event){
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
-            cache.data.bearer = btoa(token);
-            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-            alert("verification Failed!")
+            //cache.data.bearer = btoa(token);
+            //sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+            alert("Please Authenticate " + event["email"]);
     });
   }
 
