@@ -453,14 +453,13 @@ function getProfile(token, event){
         }).then(data => {
             try{
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
-                    cache.data.bearer = btoa(token);
-                    cache.data.gmail = ((data["error"]["message"]).split(" ")[3]);
+                    cache.data.bearer = undefined;
+                    cache.data.gmail = undefined;
                     sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
-                    document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
+                    document.getElementById("status-badge-"+event["email"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
-                    sessionStorage.setItem("bearer", btoa(token));
                     cache.data.bearer = btoa(token);
                     cache.data.gmail = data["emailAddress"];
                     sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
@@ -468,8 +467,6 @@ function getProfile(token, event){
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
-            //cache.data.bearer = btoa(token);
-            //sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
             cache.data.bearer = undefined;
             cache.data.gmail = undefined;
             sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
