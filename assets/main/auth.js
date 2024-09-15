@@ -10,8 +10,6 @@ function sendOTP(){
             "subject": "Verify your Email for TechMark",
             "content": content
         })
-    }).then(response => {
-        alert("OTP sent on "+ payload["email"])
     }).catch(error => {
         //handle error
         location = "auth-offline.html";
@@ -143,7 +141,7 @@ function put_data(table_name, items){
 
 function verify(code){
     if(code==payload["code"]){
-        const data = {
+        const data1 = {
             "email": payload["email"],
             "userdata": {
                 "fullname": payload["fullname"],
@@ -152,7 +150,13 @@ function verify(code){
             },
             "email-credentials": {}
         }
-        put_data("techmark-solutions", data);
+
+        const data2 = {
+            "email": payload["email"]
+        }
+
+        put_data("techmark-solutions", data1);
+        put_data("techmark-email-campaigns", data2);
     }else{
         console.log("failed")
         document.getElementById("alert").innerHTML = "Incorrect OTP";

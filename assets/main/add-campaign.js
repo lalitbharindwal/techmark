@@ -72,6 +72,44 @@ ${payload["body_html"]}
 return {"raw": customBase64Encode(raw)}
 }
 
+function getid(){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${day}${month}${year}${hours}${minutes}${seconds}`;
+}
+
+function generatePayload(payload){
+    cache.data.campaignid = getid();
+    cache.data.payload = {
+        "useremail": payload["useremail"],
+        "fullname": payload["fullname"],
+        "from": payload["from"],
+        "cc": payload["cc"],
+        "bcc": payload["bcc"],
+        "replyto": payload["replyto"],
+        "subject": payload["subject"],
+        "body_text": payload["body_text"],
+        "body_html": payload["body_html"],
+        "smtp_server": payload["smtp_server"],
+        "to":{}
+    };
+    payload["to"].forEach((email, index) => {
+            cache.data.payload["to"][email] = {
+                "body_text": payload["body_text"],
+                "body_html": payload["body_html"],
+                "sent": "PENDING",
+                "datetime": "",
+                "response": {},
+                "attributes": {}
+            };
+    });
+}
+
 document.getElementById("send_emails_btn") && document.getElementById("send_emails_btn").addEventListener("click", function() {
     Swal.fire({
         title: "Do you want to start campaign?",
@@ -113,7 +151,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                 if(cache.data.recipients == undefined){
                     alert("Please Select Recipients");
                 }else{
-                    const payload = {
+                    var payload = {
                         "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
                         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
                         "from": document.getElementById("sender").textContent,
@@ -139,14 +177,47 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-cc").innerHTML = payload.cc;
                         document.getElementById("log-bcc").innerHTML = payload.bcc;
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
-                        payload["bearer"] = atob(cache.data.bearer);
-                        payload["to"].forEach((gmail, index) => {
-                            const delay = 2850 * index;
-                            setTimeout(() => {
-                                payload["to"] = gmail;
-                                payload["requestBody"] = raw(payload)
-                                send_gmail(payload)
-                            }, delay);
+                        generatePayload(payload);
+                        var condition_expression = "#useremail = :value1";
+                        var update_expression = "SET #campaignid = :value2";
+                        var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid};
+                        var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache.data.payload};
+                        let headers = new Headers();
+                        headers.append('Origin', '*');
+                        fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+                        mode: 'cors',
+                        headers: headers,
+                        "method": "POST",
+                        "body": JSON.stringify({
+                            "method": "update",
+                            "table_name": "techmark-email-campaigns",
+                            "primary_key": {"email": cache["data"]["email"]},
+                            "condition_expression": condition_expression,
+                            "update_expression": update_expression,
+                            "expression_attribute_names": expression_attribute_names,
+                            "expression_attribute_values": expression_attribute_values
+                        })
+                        }).then(response => {
+                            if (!response.ok) {
+                                location = "auth-offline.html";
+                            }
+                            return response.json()
+                        }).then(data => {
+                            if(JSON.parse(data["body"])["error"] == "true"){
+                                location = "auth-500.html";
+                                //console.log(data)
+                            }else{
+                                cache.data.payload.bearer = atob(cache.data.bearer);
+                                cache["data"]["recipients"].forEach((gmail, index) => {
+                                    const delay = 2850 * index;
+                                    setTimeout(() => {
+                                        cache.data.payload.requestBody = raw(payload)
+                                        send_gmail(gmail)
+                                    }, delay);
+                                });
+                            }
+                        }).catch(error => {
+                            location = "auth-offline.html";
                         });
                     }else{
                         var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
@@ -163,12 +234,45 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-bcc").innerHTML = payload.bcc;
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
                         payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
-                        payload["to"].forEach((email, index) => {
-                            const delay = 2850 * index;
-                            setTimeout(() => {
-                                payload["to"] = email;
-                                send_email(payload)
-                            }, delay);
+                        generatePayload(payload);
+                        var condition_expression = "#useremail = :value1";
+                        var update_expression = "SET #campaignid = :value2";
+                        var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid};
+                        var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache.data.payload};
+                        let headers = new Headers();
+                        headers.append('Origin', '*');
+                        fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+                        mode: 'cors',
+                        headers: headers,
+                        "method": "POST",
+                        "body": JSON.stringify({
+                            "method": "update",
+                            "table_name": "techmark-email-campaigns",
+                            "primary_key": {"email": cache["data"]["email"]},
+                            "condition_expression": condition_expression,
+                            "update_expression": update_expression,
+                            "expression_attribute_names": expression_attribute_names,
+                            "expression_attribute_values": expression_attribute_values
+                        })
+                        }).then(response => {
+                            if (!response.ok) {
+                                location = "auth-offline.html";
+                            }
+                            return response.json()
+                        }).then(data => {
+                            if(JSON.parse(data["body"])["error"] == "true"){
+                                location = "auth-500.html";
+                                //console.log(data)
+                            }else{
+                                cache["data"]["recipients"].forEach((email, index) => {
+                                    const delay = 250 * index;
+                                    setTimeout(() => {
+                                        send_email(email)
+                                    }, delay);
+                                });
+                            }
+                        }).catch(error => {
+                            location = "auth-offline.html";
                         });
                     }
                 }
@@ -177,43 +281,41 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
     })
 })
 
-console.log(cache["data"]["email-credentials"]["support@lavoroindia.online"]["data"]["domaininfo"]["smtp_server"])
-
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
-function display_log(payload){
+function display_log(email){
     sendingCount++;
-    if(payload["sent"] == "True"){
+    if(cache.data.payload.to[email]["sent"] == "True"){
        sent++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${payload.from}</td>
-            <td data-label="To">${payload.to}</td>
-            <td data-label="Datetime">${payload.datetime}</td>
+            <td data-label="From">${cache.data.payload.from}</td>
+            <td data-label="To">${email}</td>
+            <td data-label="Datetime">${cache.data.payload.to[email]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-success">Sent</span></td>
         </tr>`;
     }
 
-    if(payload["sent"] == "False"){
+    if(cache.data.payload.to[email]["sent"] == "False"){
        failed++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${payload.from}</td>
-            <td data-label="To">${payload.to}</td>
-            <td data-label="Datetime">${payload.datetime}</td>
+            <td data-label="From">${cache.data.payload.from}</td>
+            <td data-label="To">${email}</td>
+            <td data-label="Datetime">${cache.data.payload.to[email]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-danger">Failed</span></td>
         </tr>`;
     }
 
-    if(payload["sent"] == "Error"){
+    if(cache.data.payload.to[email]["sent"] == "Error"){
         error++;
         document.getElementById("emaillog").innerHTML +=
          `<tr class="table-warning">
              <td data-label="Sr No.">${sendingCount}</td>
-             <td data-label="From">${payload.from}</td>
-             <td data-label="To">${payload.to}</td>
-             <td data-label="Datetime">${payload.datetime}</td>
+            <td data-label="From">${cache.data.payload.from}</td>
+            <td data-label="To">${email}</td>
+            <td data-label="Datetime">${cache.data.payload.to[email]["datetime"]}</td>
              <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
      }
@@ -244,18 +346,49 @@ function updateProgressBars(sent, failed, error) {
     document.querySelector('.progress-bar.bg-warning').style.width = `${errorPercentage}%`;
 }
 
-function savepayload(payload){
-    console.log(payload)
+function savepayload(email){
+    var condition_expression = "#useremail = :value1";
+    var update_expression = "SET #campaignid.#to.#email.#sent = :value2, #campaignid.#to.#email.#datetime = :value3, #campaignid.#to.#email.#response = :value4";
+    var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid, "#to": "to", "#email": email, "#sent": "sent", "#datetime": "datetime", "#response": "response"};
+    var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache.data.payload.to[email]["sent"], ":value3": cache.data.payload.to[email]["datetime"], ":value4": cache.data.payload.to[email]["response"]};
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+        "method": "update",
+        "table_name": "techmark-email-campaigns",
+        "primary_key": {"email": cache["data"]["email"]},
+        "condition_expression": condition_expression,
+        "update_expression": update_expression,
+        "expression_attribute_names": expression_attribute_names,
+        "expression_attribute_values": expression_attribute_values
+    })
+    }).then(response => {
+        if (!response.ok) {
+            location = "auth-offline.html";
+        }
+        return response.json()
+    }).then(data => {
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+            //console.log(data)
+        }
+    }).catch(error => {
+        location = "auth-offline.html";
+    });
 }
 
-function send_gmail(payload){
-    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ payload.from + '/messages/send', {
+function send_gmail(gmail){
+    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache.data.payload.from + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
-           'Authorization': `Bearer ${payload.bearer}`,
+           'Authorization': `Bearer ${cache.data.payload.bearer}`,
            'Content-Type': 'application/json'
        },
-            body: JSON.stringify(payload.requestBody) // Convert the request body to JSON string
+            body: JSON.stringify(cache.data.payload.requestBody) // Convert the request body to JSON string
        }).then(response => {
             if (!response.ok) {
                return false
@@ -263,28 +396,28 @@ function send_gmail(payload){
             return response.json();
        }).then(data => {
            if(data["id"]){
-               payload["response"] = data;
-               payload["sent"] = "True";
-               payload["datetime"] = datetime();
-               display_log(payload);
-               savepayload(payload);
+                cache.data.payload.to[gmail]["response"] = data.body;
+                cache.data.payload.to[gmail]["sent"] = "True";
+                cache.data.payload.to[gmail]["datetime"] = datetime();
+                display_log(gmail);
+                savepayload(gmail);
            }else{
-               payload["response"] = data;
-               payload["sent"] = "False";
-               payload["datetime"] = datetime();
-               display_log(payload);
-               savepayload(payload);
+                cache.data.payload.to[gmail]["response"] = data.body;
+                cache.data.payload.to[gmail]["sent"] = "False";
+                cache.data.payload.to[gmail]["datetime"] = datetime();
+                display_log(gmail);
+                savepayload(gmail);
            }
        }).catch(error => {
-            payload["response"] = error;
-            payload["sent"] = "Error";
-            payload["datetime"] = datetime();
-            display_log(payload);
-            savepayload(payload);
+            cache.data.payload.to[gmail]["response"] = error;
+            cache.data.payload.to[gmail]["sent"] = "Error";
+            cache.data.payload.to[gmail]["datetime"] = datetime();
+            display_log(gmail);
+            savepayload(gmail);
    });
 }
 
-function send_email(payload){
+function send_email(email){
     let headers = new Headers();
     headers.append('Origin', '*');
     fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
@@ -293,18 +426,18 @@ function send_email(payload){
       "method": "POST",
       "body": JSON.stringify({
         "action": "send_email",
-        "name": payload["fullname"],
-        "email": payload["from"],
-        "useremail": payload["useremail"],
-        "password": atob(cache["data"]["email-credentials"][document.getElementById("sender").textContent]["password"]),
-        "to": payload["to"],
-        "cc": payload["cc"],
-        "bcc": payload["bcc"],
-        "replyto": payload["replyto"],
-        "subject": payload["subject"],
-        "body_text": payload["body_text"],
-        "body_html": payload["body_html"],
-        "smtp_server": payload["smtp_server"]
+        "name": cache.data.payload.fullname,
+        "email": cache.data.payload.from,
+        "useremail": cache.data.payload.useremail,
+        "password": atob(cache["data"]["email-credentials"][cache.data.payload.from]["password"]),
+        "to": email,
+        "cc": cache.data.payload.cc,
+        "bcc": cache.data.payload.bcc,
+        "replyto": cache.data.payload.replyto,
+        "subject": cache.data.payload.subject,
+        "body_text": cache.data.payload.to[email]["body_text"],
+        "body_html": cache.data.payload.to[email]["body_html"],
+        "smtp_server": cache.data.payload.smtp_server
     })}).then(response => {
         if (!response.ok) {
           location = "auth-offline.html";
@@ -313,26 +446,26 @@ function send_email(payload){
     }).then(data => {
         if(!data.error){
             if(data.body.status == 'success'){
-                payload["response"] = data.body;
-                payload["sent"] = "True";
-                payload["datetime"] = datetime();
-                display_log(payload);
-                savepayload(payload);
+                cache.data.payload.to[email]["response"] = data.body;
+                cache.data.payload.to[email]["sent"] = "True";
+                cache.data.payload.to[email]["datetime"] = datetime();
+                display_log(email);
+                savepayload(email);
             }else{
-                payload["response"] = data.body;
-                payload["sent"] = "False";
-                payload["datetime"] = datetime();
-                display_log(payload);
-                savepayload(payload);
+                cache.data.payload.to[email]["response"] = data.body;
+                cache.data.payload.to[email]["sent"] = "False";
+                cache.data.payload.to[email]["datetime"] = datetime();
+                display_log(email);
+                savepayload(email);
             }
         }
 
     }).catch(error => {
-        payload["response"] = error;
-        payload["sent"] = "Error";
-        payload["datetime"] = datetime();
-        display_log(payload);
-        savepayload(payload);
+        cache.data.payload.to[email]["response"] = error;
+        cache.data.payload.to[email]["sent"] = "Error";
+        cache.data.payload.to[email]["datetime"] = datetime();
+        display_log(email);
+        savepayload(email);
     });
 }
 
