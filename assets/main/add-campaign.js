@@ -373,8 +373,8 @@ function savepayload(email){
         return response.json()
     }).then(data => {
         if(JSON.parse(data["body"])["error"] == "true"){
-            location = "auth-500.html";
-            //console.log(data)
+            //location = "auth-500.html";
+            console.log(data)
         }
     }).catch(error => {
         location = "auth-offline.html";
