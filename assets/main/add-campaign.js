@@ -396,13 +396,13 @@ function send_gmail(gmail){
             return response.json();
        }).then(data => {
            if(data["id"]){
-                cache.data.payload.to[gmail]["response"] = data.body;
+                cache.data.payload.to[gmail]["response"] = data;
                 cache.data.payload.to[gmail]["sent"] = "True";
                 cache.data.payload.to[gmail]["datetime"] = datetime();
                 display_log(gmail);
                 savepayload(gmail);
            }else{
-                cache.data.payload.to[gmail]["response"] = data.body;
+                cache.data.payload.to[gmail]["response"] = data;
                 cache.data.payload.to[gmail]["sent"] = "False";
                 cache.data.payload.to[gmail]["datetime"] = datetime();
                 display_log(gmail);
