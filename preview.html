@@ -1,0 +1,203 @@
+<section class="preview">
+    <ul class="devices">
+      <li><a href="#desktop">Desktop</a></li>
+      <li><a href="#tablet-p">Tablet</a></li>
+      <li><a href="#tablet-l">Tablet Landscape</a></li>
+      <li><a href="#mobile-p">Mobile</a></li>
+      <li><a href="#mobile-l">Mobile Landscape</a></li>
+    </ul>
+    <div class="device device-desktop">
+      <iframe id="preview"></iframe>
+    </div>
+</section>
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+if(code){
+    document.getElementById("preview").srcdoc = code;
+    document.addEventListener('DOMContentLoaded', function() {
+    var devices = document.querySelector('.devices');
+    devices.addEventListener('click', function(event) {
+        if (event.target.tagName === 'A') {
+            event.preventDefault(); // Prevent the default behavior of <a> tags
+            var href = event.target.getAttribute('href');
+            var device_selected = href.replace('#', '');
+            var device = document.querySelector('.device');
+            device.className = 'device device-' + device_selected;
+            }
+        });
+    });
+}
+
+/*(function($) {
+    $(document).ready( function() {
+    $('.devices').on('click', 'a', function() {
+      var device_selected = $(this).attr('href').replace('#', '');
+      $('.device').removeClass().addClass('device device-' + device_selected);
+    })
+  });
+})(jQuery);*/
+</script>
+<style>
+    .preview {
+    overflow: hidden;
+  
+    .device {
+        position: relative;
+        width: 680px;
+        height: 400px;
+        margin: 0 auto;
+        border: 1px solid #999;
+        
+        &,
+        &:after,
+        iframe {
+        transition: all 0.5s ease;
+        }
+        
+        iframe {
+        transform: scale(0.5);
+        border-radius: 1em;
+        }
+        
+        &:after {
+            background-image: url('assets/images/logo-sm.png');
+            content: '';
+            background-color: '';
+            position: absolute;
+            background-size: contain; /* Adjust as per your image size */
+            background-repeat: no-repeat;
+            width: 20px; /* Adjust dimensions as needed */
+            height: 20px;
+        }
+    }
+    
+    .device-desktop {
+        width: 680px;
+        height: 400px;
+        padding: 1em  1em 5em;
+        border-radius: 1em;
+
+        &:after {
+        width: 3em;
+        height: 3em;
+        bottom: 1em;
+        left: 47.5%;
+        border-radius: 100em;
+        }
+        
+        iframe {
+        width: 1360px;
+        height: 800px;
+        }
+    }
+    
+    .device-tablet-p {
+        width: 384px;
+        height: 512px;
+        padding: 1em 1em 3em;
+        border-radius: 1em;
+
+        &:after {
+        width: 1.5em;
+        height: 1.5em;
+        bottom: .75em;
+        left: 47%;
+        border-radius: 100em;
+        }
+
+        iframe {
+        width: 768px;
+        height: 1024px;
+        }
+    }
+    
+    .device-tablet-l {
+        width: 512px;
+        height: 384px;
+        padding: 1em 3em 1em 1em;
+        border-radius: 1em;
+
+        &:after {
+        width: 1.5em;
+        height: 1.5em;
+        left: 93.5%;
+        bottom: 47%;
+        border-radius: 100em;
+        }
+
+        iframe {
+        width: 1024px;
+        height: 768px;
+        }
+    }
+  
+    .device-mobile-p,
+    .device-mobile-l {
+        iframe {
+        transform: scale(0.75);
+        }
+    }
+    
+    .device-mobile-p {
+        width: 240px;
+        height: 420px;
+        padding: 1em 1em 3em;
+        border-radius: 1em;
+
+        &:after {
+        width: 2em;
+        height: 2em;
+        bottom: .5em;
+        left: 45%;
+        border-radius: 100em;
+        }
+
+        iframe {
+        width: 320px;
+        height: 560px;
+        }
+    }
+        
+    .device-mobile-l {
+        width: 420px;
+        height: 240px;
+        padding: 1em 3em 1em 1em;
+        border-radius: 1em;
+
+        &:after {
+        width: 2em;
+        height: 2em;
+        left: 91.5%;
+        bottom: 45%;
+        border-radius: 100em;
+        }
+
+        iframe {
+        width: 560px;
+        height: 320px;
+        }
+    }
+
+    iframe {
+        margin: 0;
+        border: 0;
+        transform-origin: 0 0;
+    }
+    }
+
+    .devices {
+    list-style: none;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    margin: 0 0 2rem;
+    padding: 0;
+    
+    & > li {
+        display: inline-block;
+        line-height: 2em;
+        margin: 0 1em 0 0;
+    }
+    }
+</style>

@@ -24,6 +24,8 @@
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -197,16 +199,130 @@
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0 flex-grow-1">Email Campaigns</h4>
+                                    <h4 class="card-title mb-0 flex-grow-1" id="subject">-</h4>
                                 </div><!-- end card header -->
-
                                 <div class="card-body">
-                                    <div id="campaigns"></div>
+                                    <div class="row">
+                                        <div class="col-xxl-4">
+                                            <div class="table-responsive">
+                                                <table class="table table-borderless mb-0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">From :</th>
+                                                            <td class="text-muted" id="from">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Sender Name :</th>
+                                                            <td class="text-muted" id="name">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Useremail :</th>
+                                                            <td class="text-muted" id="user-email">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Cc :</th>
+                                                            <td class="text-muted" id="cc">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Bcc :</th>
+                                                            <td class="text-muted" id="bcc">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Reply-to :</th>
+                                                            <td class="text-muted" id="replyto">-</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-4">
+                                            <div class="table-responsive">
+                                                <table class="table table-borderless mb-0" id="dnsinfo">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Domain Name :</th>
+                                                            <td class="text-muted" id="domain-name">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Created On :</th>
+                                                            <td class="text-muted" id="created-on">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Expiry Date :</th>
+                                                            <td class="text-muted" id="expire-on">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Name Servers :</th>
+                                                            <td class="text-muted" id="nameservers">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Registerer :</th>
+                                                            <td class="text-muted" id="registerer">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">IP Address :</th>
+                                                            <td class="text-muted" id="ipaddress">-</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-4">
+                                            <div class="table-responsive">
+                                                <table class="table table-borderless mb-0" id="ipinfo">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">A :</th>
+                                                            <td class="text-muted" id="a">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="mx">MX :</th>
+                                                            <td class="text-muted" id="mx">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">NS :</th>
+                                                            <td class="text-muted" id="ns">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">TXT :</th>
+                                                            <td class="text-muted" id="txt">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Organization :</th>
+                                                            <td class="text-muted" id="organization">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0" scope="row">Location :</th>
+                                                            <td class="text-muted" id="location">-</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr><div id="campaign-detail"></div>
                                 </div><!-- end card-body -->
                             </div><!-- end card -->
                         </div>
                         <!-- end col -->
                     </div>
+                    <!--  Large modal example -->
+                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="myLargeModalLabel"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                        <iframe width="100%" height="650" id="preview"></iframe>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
                 </div>
                 <!-- container-fluid -->
             </div>
@@ -232,7 +348,6 @@
         <i class="ri-arrow-up-line"></i>
     </button>
     <!--end back-to-top-->
-
     <!--preloader-->
     <div id="preloader">
         <div id="status">
