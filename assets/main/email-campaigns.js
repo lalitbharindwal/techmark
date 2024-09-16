@@ -142,34 +142,29 @@ function resizeDevice(deviceType) {
             //iframe1.style.height = "12cm";
             iframe2.style.width = "15cm";
             iframe2.style.height = "10cm";
-            iframe2.style.padding = "1cm 0cm 0cm 0cm";
             break;
         case 'tablet-p':
             //iframe1.style.width = "10cm";
             //iframe1.style.height = "12cm";
             iframe2.style.width = "10cm";
             iframe2.style.height = "12cm";
-            iframe2.style.padding = "1cm 0cm 0cm 0cm";
             break;
         case 'mobile-p':
             //iframe1.style.width = "7cm";
             //iframe1.style.height = "12cm";
             iframe2.style.width = "7cm";
             iframe2.style.height = "13cm";
-            iframe2.style.padding = "1cm 0cm 0cm 0cm";
             break;
         case 'mobile-l':
             //iframe1.style.width = "15cm";
             //iframe1.style.height = "7cm";
             iframe2.style.width = "13cm";
             iframe2.style.height = "6cm";
-            iframe2.style.padding = "0cm";
             break;
         default:
             //iframe1.style.width = "100%";
             //iframe1.style.height = "800px";
             iframe2.style.width = "15cm";
             iframe2.style.height = "10cm";
-            iframe2.style.padding = "1cm 0cm 0cm 0cm";
     }
 }

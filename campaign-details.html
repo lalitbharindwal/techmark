@@ -324,7 +324,6 @@
                                         </ul>
                                         
                                         <div class="device" id="preview">
-                                            <i class="ri-apple-fill fs-24" id="device-icon"></i>
                                             <iframe id="preview-frame" frameborder="0"></iframe>
                                         </div>
                                     </section>
@@ -368,14 +367,7 @@
         #preview-frame{
             width: 15cm;
             height: 10cm;
-
-        }
-
-        #device-icon{
-            margin-top: 42px;
-            position: absolute;
-            width: 37px;
-            height: 37px;
+            box-shadow: 20px 20px 22px rgba(0, 0, 0.2, 0.5);
         }
 
         .preview {
@@ -385,7 +377,6 @@
                 width: 15cm;
                 height: 16cm;
                 margin: 0 auto;
-                text-align: center;
                 &, &:after, iframe {
                     transform: scale(1);
                     transition: all 0.5s ease;
@@ -393,8 +384,6 @@
 
             iframe {
                     border-radius: 1em;
-                    padding-top: 1.3cm;
-                    margin-top: 1cm;
                 }
             }
         }
@@ -406,7 +395,6 @@
             gap: 10px;
             padding: 0;
         }
-
 
         .devices li a {
             text-decoration: none;
@@ -425,7 +413,7 @@
         /* Default iframe styling */
         .device iframe {
             border: 1px solid #ccc;
-            transition: width 0.3s, height 0.3s;
+            transition: width 0.5s, height 0.5s;
             max-width: 100%;
             max-height: 100%;
         }
