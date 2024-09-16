@@ -1,10 +1,5 @@
-
-
-console.log(cache["email-campaigns"].data)
 var data = [];
 var count = 0
-
-
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 if(id){
@@ -74,7 +69,7 @@ if(id){
             }
         }],
         pagination: {
-            limit: 5
+            limit: 10
         },
         sort: !0,
         search: !0,
@@ -83,7 +78,6 @@ if(id){
 }else{
     for (const key in cache["email-campaigns"].data) {
         if(key != "email"){
-          console.log(cache["email-campaigns"]["data"][key].subject)
           data.push([++count, key, cache["email-campaigns"]["data"][key].subject, cache["email-campaigns"]["data"][key].from, cache["email-campaigns"]["data"][key].fullname, cache["email-campaigns"]["data"][key].useremail, key]);
         }
     }
@@ -120,7 +114,7 @@ if(id){
             }
         }],
         pagination: {
-            limit: 5
+            limit: 10
         },
         sort: !0,
         search: !0,
