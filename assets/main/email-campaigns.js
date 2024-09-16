@@ -129,6 +129,47 @@ if(id){
 }
 
 function view_email(obj){
-    document.getElementById("preview").src = `https://techmark.solutions/preview.html?code=${cache["email-campaigns"]["data"][id]["to"][obj.id]["body_html"]}`;
+    document.getElementById("preview-frame").srcdoc = cache["email-campaigns"]["data"][id]["to"][obj.id]["body_html"];
 }
 
+function resizeDevice(deviceType) {
+    const iframe1 = document.getElementById("preview");
+    const iframe2 = document.getElementById("preview-frame");
+    // Set iframe dimensions based on the selected device type
+    switch (deviceType) {
+        case 'desktop':
+            //iframe1.style.width = "17cm";
+            //iframe1.style.height = "12cm";
+            iframe2.style.width = "15cm";
+            iframe2.style.height = "10cm";
+            iframe2.style.padding = "1cm 0cm 0cm 0cm";
+            break;
+        case 'tablet-p':
+            //iframe1.style.width = "10cm";
+            //iframe1.style.height = "12cm";
+            iframe2.style.width = "10cm";
+            iframe2.style.height = "12cm";
+            iframe2.style.padding = "1cm 0cm 0cm 0cm";
+            break;
+        case 'mobile-p':
+            //iframe1.style.width = "7cm";
+            //iframe1.style.height = "12cm";
+            iframe2.style.width = "7cm";
+            iframe2.style.height = "13cm";
+            iframe2.style.padding = "1cm 0cm 0cm 0cm";
+            break;
+        case 'mobile-l':
+            //iframe1.style.width = "15cm";
+            //iframe1.style.height = "7cm";
+            iframe2.style.width = "13cm";
+            iframe2.style.height = "6cm";
+            iframe2.style.padding = "0cm";
+            break;
+        default:
+            //iframe1.style.width = "100%";
+            //iframe1.style.height = "800px";
+            iframe2.style.width = "15cm";
+            iframe2.style.height = "10cm";
+            iframe2.style.padding = "1cm 0cm 0cm 0cm";
+    }
+}

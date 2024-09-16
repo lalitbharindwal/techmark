@@ -315,10 +315,19 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <iframe width="100%" height="650" id="preview"></iframe>
-                                </div>
-                                <div class="modal-footer">
-                                    <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+                                    <section class="preview">
+                                        <ul class="devices">
+                                            <li><i class="fs-24 bx bx-desktop" onclick="resizeDevice('desktop')"></i></li>
+                                            <li><i class="fs-24 bx bx-tab" onclick="resizeDevice('tablet-p')"></i></li>
+                                            <li><i class="fs-24 bx bx-mobile-alt" onclick="resizeDevice('mobile-p')"></i></li>
+                                            <li><i class="fs-24 bx bx-mobile-landscape" onclick="resizeDevice('mobile-l')"></i></li>
+                                        </ul>
+                                        
+                                        <div class="device" id="preview">
+                                            <i class="ri-apple-fill fs-24" id="device-icon"></i>
+                                            <iframe id="preview-frame" frameborder="0"></iframe>
+                                        </div>
+                                    </section>
                                 </div>
                             </div><!-- /.modal-content -->
                         </div><!-- /.modal-dialog -->
@@ -339,7 +348,6 @@
             </footer>
         </div>
         <!-- end main content-->
-
     </div>
     <!-- END layout-wrapper -->
 
@@ -356,7 +364,79 @@
             </div>
         </div>
     </div>
+    <style>
+        #preview-frame{
+            width: 15cm;
+            height: 10cm;
 
+        }
+
+        #device-icon{
+            margin-top: 42px;
+            position: absolute;
+            width: 37px;
+            height: 37px;
+        }
+
+        .preview {
+            overflow-x: auto;
+            #preview{
+                position: relative;
+                width: 15cm;
+                height: 16cm;
+                margin: 0 auto;
+                text-align: center;
+                &, &:after, iframe {
+                    transform: scale(1);
+                    transition: all 0.5s ease;
+                }
+
+            iframe {
+                    border-radius: 1em;
+                    padding-top: 1.3cm;
+                    margin-top: 1cm;
+                }
+            }
+        }
+
+        .devices {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 0;
+        }
+
+
+        .devices li a {
+            text-decoration: none;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            color: #333;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s;
+        }
+
+        .devices li a:hover {
+            background-color: #ddd;
+        }
+
+        /* Default iframe styling */
+        .device iframe {
+            border: 1px solid #ccc;
+            transition: width 0.3s, height 0.3s;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Centering the iframe */
+        .device {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
     <!-- JAVASCRIPT -->
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
