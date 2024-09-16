@@ -129,6 +129,6 @@ if(id){
 }
 
 function view_email(obj){
-    document.getElementById("preview").src = `preview.html?code=${cache["email-campaigns"]["data"][id]["to"][obj.id]["body_html"]}`;
+    document.getElementById("preview").src = `https://techmark.solutions/preview.html?code=${cache["email-campaigns"]["data"][id]["to"][obj.id]["body_html"]}`;
 }
 
