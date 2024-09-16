@@ -386,10 +386,10 @@ function savepayload(email){
 }
 
 function send_gmail(gmail){
-    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache["email-campaigns"]["data"][cache.data.campaignid][from] + '/messages/send', {
+    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache["email-campaigns"]["data"][cache.data.campaignid]["from"] + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
-           'Authorization': `Bearer ${cache["email-campaigns"]["data"][cache.data.campaignid][bearer]}`,
+           'Authorization': `Bearer ${cache["email-campaigns"]["data"][cache.data.campaignid]["bearer"]}`,
            'Content-Type': 'application/json'
        },
             body: JSON.stringify(cache["email-campaigns"]["data"][cache.data.campaignid]["requestBody"]) // Convert the request body to JSON string
