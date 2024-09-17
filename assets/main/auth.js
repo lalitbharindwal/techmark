@@ -111,7 +111,7 @@ function login(){
                     })
                     }).then(response => {
                         if (!response.ok) {
-                        location = "auth-offline.html";
+                         location = "auth-offline.html";
                         }
                         return response.json();
                     })
@@ -135,8 +135,8 @@ function login(){
             }
         }
       }).catch(error => {
-        console.log(error)
-        //location = "auth-offline.html";
+        //console.log(error)
+        location = "auth-offline.html";
     });
 }
 

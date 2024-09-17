@@ -207,7 +207,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 location = "auth-500.html";
                             }else{
                                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                                sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                                 cache["email-campaigns"]["data"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
                                 cache["data"]["recipients"].forEach((gmail, index) => {
                                     const delay = 2850 * index;
@@ -218,6 +218,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 });
                             }
                         }).catch(error => {
+                            console.log(error)
                             location = "auth-offline.html";
                         });
                     }else{
@@ -236,6 +237,10 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
                         payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
                         generatePayload(payload);
+                        console.log(cache["email-campaigns"]["data"][cache.data.campaignid]);
+                        const jsonString = JSON.stringify(cache["email-campaigns"]["data"][cache.data.campaignid]);
+                        const sizeInKB = jsonString.length / (1024);
+                        console.log(`Size: ${sizeInKB.toFixed(2)} KB`);
                         var condition_expression = "#useremail = :value1";
                         var update_expression = "SET #campaignid = :value2";
                         var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid};
@@ -262,11 +267,11 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                             return response.json()
                         }).then(data => {
                             if(JSON.parse(data["body"])["error"] == "true"){
-                                location = "auth-500.html";
-                                //console.log(data)
+                                //location = "auth-500.html";
+                                console.log(data)
                             }else{
                                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                                sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                                 cache["data"]["recipients"].forEach((email, index) => {
                                     const delay = 250 * index;
                                     setTimeout(() => {
@@ -275,6 +280,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 });
                             }
                         }).catch(error => {
+                            console.log(error)
                             location = "auth-offline.html";
                         });
                     }
@@ -379,9 +385,10 @@ function savepayload(email){
             //location = "auth-500.html";
             console.log(data)
         }else{
-            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
         }
     }).catch(error => {
+        console.log(error)
         location = "auth-offline.html";
     });
 }
@@ -604,7 +611,7 @@ function getCode(gmail){
     }
     if(gmail != ""){
         cache.data.gmail = gmail;
-        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
         alert("Please enter valid Gmail");
@@ -654,21 +661,21 @@ function getProfile(token, event){
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     cache.data.bearer = undefined;
                     cache.data.gmail = undefined;
-                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                    sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                     document.getElementById("status-badge-"+event["email"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
                     cache.data.bearer = btoa(token);
                     cache.data.gmail = data["emailAddress"];
-                    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                    sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                     document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
             cache.data.bearer = undefined;
             cache.data.gmail = undefined;
-            sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
             document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
             document.getElementById("sender").innerHTML = "Authentication Failed";
             alert("Please Authenticate " + event["email"]);
@@ -704,7 +711,7 @@ function putCredentials(){
       if(JSON.parse(data["body"])["error"] == "true"){
           location = "auth-500.html";
       }else{
-          sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
       }
   }).catch(error => {
       location = "auth-offline.html";
@@ -1219,7 +1226,7 @@ function verifymail(){
                     if(payload["alias-email"] == ""){
                         payload["data"] = domaininfo;
                         cache["data"]["email-credentials"][payload.useremail] = payload;
-                        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                         show_aliases();
                         putCredentials(payload);
                         document.getElementById("status-badge-"+payload.useremail).innerHTML = `<span class="badge bg-success">Selected</span>`;
@@ -1230,7 +1237,7 @@ function verifymail(){
                     }else{
                         payload["data"] = JSON.parse(data.body.domaininfo)
                         cache["data"]["email-credentials"][payload["alias-email"]] = payload;
-                        sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+                        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
                         show_aliases();
                         putCredentials(payload);
                         document.getElementById("status-badge-"+payload["alias-email"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
