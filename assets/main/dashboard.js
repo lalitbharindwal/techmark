@@ -1,51 +1,96 @@
+function getChartColorsArray(e) {
+    if (null !== document.getElementById(e)) {
+        var t = document.getElementById(e).getAttribute("data-colors");
+        if (t)
+            return (t = JSON.parse(t)).map(function(e) {
+                var t = e.replace(" ", "");
+                return -1 === t.indexOf(",") ? getComputedStyle(document.documentElement).getPropertyValue(t) || t : 2 == (e = e.split(",")).length ? "rgba(" + getComputedStyle(document.documentElement).getPropertyValue(e[0]) + "," + e[1] + ")" : t
+            });
+        console.warn("data-colors atributes not found on", e)
+    }
+}
 
-function emails_sent_today(){
-    var total_emails_sent_monthly = 0;
-    var total_emails_sent_today = 0;
-    var months =  [0,0,0,0,0,0,0,0,0,0,0,0];
-    var days = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+
+
+function emailsSendingLog() {
+    // Initialize counters and arrays
+    let totalEmailsSentMonthly = 0;
+    let totalEmailsSentToday = 0;
+    let totalEmailsSentYearly = 0;
+    // Define years of interest including 2024
+    const yearsOfInterest = [2023, 2024, 2025, 2026];
+
+    // Initialize a structure to hold day counts for each year and month
+    const data = {};
+    yearsOfInterest.forEach(year => {
+        data[year] = Array.from({ length: 12 }, () => Array(31).fill(0)); // 12 months, 31 data each
+    });
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-based index
+    const currentDay = now.getDate();
+
+    // Iterate through cached email data
     for (const key in cache["email-campaigns"].data) {
-        if(key != "email"){
-          //console.log(cache["email-campaigns"]["data"][key])
-            //console.log(key)
-            for (const recipients in cache["email-campaigns"]["data"][key]["to"]){
-                 // Parse the given date string
-                const [datePart, timePart] = cache["email-campaigns"]["data"][key]["to"][recipients]["datetime"].split(' ');
-                const [day, month, year] = datePart.split('-');
+        if (key !== "email") {
+            const campaign = cache["email-campaigns"].data[key];
+            for (const recipient of Object.values(campaign.to)) {
+                if (recipient.sent) {
+                    const [datePart] = recipient.datetime.split(' ');
+                    const [day, month, year] = datePart.split('-').map(Number);
 
-                // Create a Date object from the parsed components
-                const givenDate = new Date(year, month - 1, day);
-                // Create a new Date object for the current date
-                const now = new Date();
+                    const givenDate = new Date(year, month - 1, day); // Date object for comparison
+                    const givenYear = givenDate.getFullYear();
+                    const givenMonth = givenDate.getMonth(); // 0-based index
+                    const givenDay = givenDate.getDate();
 
-                // Extract current year, month, and day
-                const currentYear = now.getFullYear();
-                const currentMonth = now.getMonth() + 1; // Note: 0-based month index
-                const currentDay = now.getDate(); // Gets the day of the month
-                const givenYear = givenDate.getFullYear();
-                const givenMonth = givenDate.getMonth(); // Note: 0-based month index
-                const givenDay = givenDate.getDate(); // Gets the day of the month
-                days[givenDay]++;
-                months[givenMonth]++;
-                if((givenMonth+1) == currentMonth && givenYear == currentYear){
-                    total_emails_sent_monthly++;
-                }
+                    // Check if the year is one of the specified years
+                    if (yearsOfInterest.includes(givenYear) && givenDay <= 31 && givenMonth < 12) {
+                        data[givenYear][givenMonth][givenDay - 1]++;
+                    }
 
-                if(givenDay == currentDay && (givenMonth+1) == currentMonth && givenYear == currentYear){
-                    total_emails_sent_today++;
+                    // Count emails by month for the current year
+                    if (givenYear === currentYear && givenMonth < 12) {
+                        totalEmailsSentMonthly++;
+                    }
+
+                    // Count emails by year
+                    if (yearsOfInterest.includes(givenYear)) {
+                        totalEmailsSentYearly++;
+                    }
+
+                    // Count emails for today
+                    if (givenYear === currentYear) {
+                        if (givenMonth === currentMonth) {
+                            if (givenDay === currentDay) {
+                                totalEmailsSentToday++;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    document.getElementById("emails-sent-today").innerHTML = total_emails_sent_today;
-    document.getElementById("total-emails-sent").innerHTML = total_emails_sent_monthly;
-    document.getElementById("quota-limit").innerHTML = 2000 - total_emails_sent_today;
-    var options, chart, linechartcustomerColor= getChartColorsArray("total-emails-sent-today"), chartDonutBasicColors = ((options = {
+    var EmaildSentDaily = data[currentYear][currentMonth];
+    var EmaildSentMonthly = [];
+    for(var i=0;i<12;i++){
+        const sum = data[currentYear][i].reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        EmaildSentMonthly.push(sum)
+    }
+
+    document.getElementById("emails-sent-today").innerHTML = totalEmailsSentToday;
+    document.getElementById("total-emails-sent").innerHTML = totalEmailsSentMonthly;
+    document.getElementById("quota-limit").innerHTML = 2000 - totalEmailsSentToday;
+    cache.data.todaysmailsquota = 2000 - totalEmailsSentToday;
+    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+    var options, chart, linechartcustomerColor= getChartColorsArray("total-emails-sent-month"), chartDonutBasicColors = ((options = {
         series: [{
             name: "Emails Sent",
             type: "bar",
-            data: months
+            data: EmaildSentMonthly
         }],
         chart: {
             height: 370,
@@ -120,14 +165,14 @@ function emails_sent_today(){
         },
         colors: linechartcustomerColors
     },
-    (chart = new ApexCharts(document.querySelector("#total-emails-sent-today"),options)).render()));
+    (chart = new ApexCharts(document.querySelector("#total-emails-sent-month"),options)).render()));
 
 
-    var options, chart, linechartcustomerColors= getChartColorsArray("total-emails-sent-month"), chartDonutBasicColors = ((options = {
+    var options, chart, linechartcustomerColors= getChartColorsArray("total-emails-sent-today"), chartDonutBasicColors = ((options = {
         series: [{
             name: "Emails Sent",
             type: "line",
-            data: days
+            data: EmaildSentDaily
         }],
         chart: {
             height: 370,
@@ -204,19 +249,7 @@ function emails_sent_today(){
         },
         colors: linechartcustomerColors
     },
-    (chart = new ApexCharts(document.querySelector("#total-emails-sent-month"),options)).render()))
+    (chart = new ApexCharts(document.querySelector("#total-emails-sent-today"),options)).render()))
 }
 
-emails_sent_today()
-
-function getChartColorsArray(e) {
-    if (null !== document.getElementById(e)) {
-        var t = document.getElementById(e).getAttribute("data-colors");
-        if (t)
-            return (t = JSON.parse(t)).map(function(e) {
-                var t = e.replace(" ", "");
-                return -1 === t.indexOf(",") ? getComputedStyle(document.documentElement).getPropertyValue(t) || t : 2 == (e = e.split(",")).length ? "rgba(" + getComputedStyle(document.documentElement).getPropertyValue(e[0]) + "," + e[1] + ")" : t
-            });
-        console.warn("data-colors atributes not found on", e)
-    }
-}
+emailsSendingLog()

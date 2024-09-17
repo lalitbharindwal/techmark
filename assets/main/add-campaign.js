@@ -205,8 +205,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         }).then(data => {
                             if(JSON.parse(data["body"])["error"] == "true"){
                                 location = "auth-500.html";
-                                //console.log(data)
                             }else{
+                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                                 sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
                                 cache["email-campaigns"]["data"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
                                 cache["data"]["recipients"].forEach((gmail, index) => {
@@ -265,6 +265,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 location = "auth-500.html";
                                 //console.log(data)
                             }else{
+                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                                 sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
                                 cache["data"]["recipients"].forEach((email, index) => {
                                     const delay = 250 * index;
@@ -487,6 +488,10 @@ function validateContactList(){
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
     var validEmails = text.match(emailRegex);
+    if(validEmails == null){
+        alert("Please Enter Recipients");
+        return
+    }
     document.getElementById("emailslist").innerHTML = 
     `<div class="card-header">
         <h4 class="card-title mb-0">Valid Emails</h4>
@@ -546,8 +551,15 @@ function saveContacts(){
             emails.push(email.trim())
         });
     }
-    cache.data.recipients = emails;
-    document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+
+    if((cache.data.todaysmailsquota-emails.length) >= 0){
+        cache.data.recipients = emails;
+        document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+    }else{
+        cache.data.recipients = undefined;
+        document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
+        alert("Quota Limit Excedding");
+    }
 }
 
 function extractCodeFromUrl() {
