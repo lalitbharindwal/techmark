@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2024, richtexteditor - CuteSoft Components Inc. All rights reserved.
+  @ license Copyright (c) 2003-2024, richtexteditor - CuteSoft Components Inc. All rights reserved.
  * For licensing, see http://richtexteditor.com/license.aspx
  */
 
@@ -100,7 +100,7 @@ RTE_DefaultConfig.previewCssUrl = "%url_base%/runtime/richtexteditor_preview.css
 // Specifies the location of the style sheet that will be used by the preview window.
 RTE_DefaultConfig.previewScriptUrl = "%url_base%/runtime/richtexteditor_preview.js";
 // Specifies the location of javascript file that will be used by the preview window.
-RTE_DefaultConfig.helpUrl = "%url_base%/runtime/help.htm"
+RTE_DefaultConfig.helpUrl = "faqs.html"
 
 RTE_DefaultConfig.contentCssText = "";
 //"body{background-color:#eee}"; 	Gets or sets inline CSS text that will be used by the editable area. 	//TODO:add api example
@@ -198,25 +198,29 @@ RTE_DefaultConfig.linkStyles = [["Margin10", "margin:10px"], ["Padding:10", "pad
 //RTE_DefaultConfig.toolbar_mobile = "{bold,italic,underline|fontname:toggle,fontsize:toggle,menu_paragraphop|forecolor,backcolor}" + "{insertlink,insertemoji,inserttable,insertimage,removeformat}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 //RTE_DefaultConfig.toolbar_basic = "{bold,italic,underline}|{fontname,fontsize}|{insertlink,insertemoji,insertimage,insertvideo}|removeformat|code" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 //RTE_DefaultConfig.toolbar_full = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent}{superscript,subscript}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,unlink,insertblockquote,insertemoji,insertchars,inserttable,insertimage,insertgallery,insertvideo,insertdocument,inserttemplate,insertcode}" + "#{preview,code,selectall}" + " /{paragraphs:dropdown | fontname:dropdown | fontsize:dropdown} {paragraphstyle,toggle_paragraphop,menu_paragraphop}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
-RTE_DefaultConfig.toolbar_default = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent,insertblockquote,insertemoji}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,insertchars,inserttable,insertvideo,insertgallery,inserttemplate,insertcode}|{preview,code,selectall}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+//RTE_DefaultConfig.toolbar_office = "<@COMMON,ribbonpaste,pastetext,pasteword,{save,new,print}/{cut,copy,delete,find}/{undo,redo|formatpainter}><@FORMAT,[fontname,fontsize]/{bold,italic,underlinemenu|forecolor,backcolor}/{superscript,subscript,changecase|removeformat,cleancode,selectall}><@PARAGRAPHS,[paragraphs,styles]/{justifymenu,lineheight,ltr,rtl,insertlinemenu}/{insertorderedlist,insertunorderedlist,indent,outdent,insertblockquote}><@INSERT,ribbontable,insertgallery,insertimage,{insertform,insertbox,insertlayer,insertfieldset,pageproperties,help,toggleborder,fullscreen}/{insertlink,unlink,insertanchor,insertimagemap,insertdate,insertchars,virtualkeyboard}/{inserttemplate,insertdocument,insertvideo,syntaxhighlighter,insertyoutube,html5,googlemap}>";
+
+RTE_DefaultConfig.toolbar_default = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent,insertblockquote,insertemoji}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,insertchars,inserttable,insertgallery,inserttemplate,insertcode}|{preview,code,selectall}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 // Default set of buttons that appears in the rich text editor's toolbar on desktop.
 
-RTE_DefaultConfig.toolbar_mobile = "{bold,italic,underline|fontname:toggle,fontsize:toggle,menu_paragraphop|forecolor,backcolor}" + "{insertlink,insertemoji,inserttable,insertvideo,insertgallery,removeformat,code}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+RTE_DefaultConfig.toolbar_mobile = "{bold,italic,underline|fontname:toggle,fontsize:toggle,menu_paragraphop|forecolor,backcolor}" + "{insertlink,insertemoji,inserttable,insertgallery,removeformat,code}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 // Default set of buttons that appears in the rich text editor's toolbar on mobile.
 
-RTE_DefaultConfig.toolbar_basic = "{bold,italic,underline}|{fontname,fontsize}|{insertlink,insertemoji,insertvideo,insertgallery}|removeformat|code" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+RTE_DefaultConfig.toolbar_basic = "{bold,italic,underline}|{fontname,fontsize}|{insertlink,insertemoji,insertgallery}|removeformat|code" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 // Basic set of buttons that appears in the rich text editor's toolbar.
 
-RTE_DefaultConfig.toolbar_full = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent}{superscript,subscript}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,unlink,insertblockquote,insertemoji,insertchars,inserttable,insertgallery,insertvideo,inserttemplate,insertcode}" + "#{preview,code,selectall}" + " /{paragraphs:dropdown | fontname:dropdown | fontsize:dropdown} {paragraphstyle,toggle_paragraphop,menu_paragraphop}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+RTE_DefaultConfig.toolbar_full = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent}{superscript,subscript}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,unlink,insertblockquote,insertemoji,insertchars,inserttable,insertgallery,inserttemplate,insertcode}" + "#{preview,code,selectall}" + " /{paragraphs:dropdown | fontname:dropdown | fontsize:dropdown} {paragraphstyle,toggle_paragraphop,menu_paragraphop}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 // Full set of buttons that appears in the rich text editor's toolbar.
 
 RTE_DefaultConfig.toolbar_office = "<@COMMON,ribbonpaste,pastetext,pasteword,{save,new,print}/{cut,copy,delete,find}/{undo,redo|formatpainter}><@FORMAT,[fontname,fontsize]/{bold,italic,underlinemenu|forecolor,backcolor}/{superscript,subscript,changecase|removeformat,cleancode,selectall}><@PARAGRAPHS,[paragraphs,styles]/{justifymenu,lineheight,ltr,rtl,insertlinemenu}/{insertorderedlist,insertunorderedlist,indent,outdent,insertblockquote}><@INSERT,ribbontable,insertgallery,insertimage,{insertform,insertbox,insertlayer,insertfieldset,pageproperties,help,toggleborder,fullscreen}/{insertlink,unlink,insertanchor,insertimagemap,insertdate,insertchars,virtualkeyboard}/{inserttemplate,insertdocument,insertvideo,syntaxhighlighter,insertyoutube,html5,googlemap}>";
-
-RTE_DefaultConfig.subtoolbar_more = "{strike,superscript,subscript,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,load,save,print,help}";
+//RTE_DefaultConfig.subtoolbar_more = "{strike,superscript,subscript,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,load,save,print,help}";
+RTE_DefaultConfig.subtoolbar_more = "{strike,superscript,subscript,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,load,save,print}";
 // A set of buttons that appears in the subtoolbar of default toolbar set.
-RTE_DefaultConfig.subtoolbar_more_full = "{strike,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,save,print,help}";
+//RTE_DefaultConfig.subtoolbar_more_full = "{strike,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,save,print,help}";
 // A set of buttons that appears in the subtoolbar of full toolbar set.
-RTE_DefaultConfig.subtoolbar_more_mobile = "{save} #{newdoc,help}";
+RTE_DefaultConfig.subtoolbar_more_full = "{strike,ucase,lcase,inserthorizontalrule,html2pdf,insertdate} #{newdoc,save,print}";
+//RTE_DefaultConfig.subtoolbar_more_mobile = "{save} #{newdoc,help}";
+RTE_DefaultConfig.subtoolbar_more_mobile = "{save} #{newdoc}";
 // A set of buttons that appears in the subtoolbar of mobile toolbar set.
 RTE_DefaultConfig.subtoolbar_paste = "pasteauto,pastetext,pasteword";
 // A set of buttons that appears in the rich text editor's paste subtoolbar.
@@ -242,8 +246,8 @@ RTE_DefaultConfig.subtoolbar_controljustify = "justifyleft,justifycenter,justify
 // A set of buttons that appears in the controljustify subtoolbar.
 RTE_DefaultConfig.subtoolbar_floatparagraph = "pmoveup,pmovedown,pduplicate,pdelete,pmore";
 // The default tool buttons of floatparagraph.
-
-RTE_DefaultConfig.controltoolbar_TEXT = "removeformat | {bold,italic,underline,forecolor,backcolor}|{fontname:toggle,fontsize:toggle}|{insertlink,insertanchor}"
+//RTE_DefaultConfig.controltoolbar_TEXT = "removeformat | {bold,italic,underline,forecolor,backcolor}|{fontname:toggle,fontsize:toggle}|{insertlink,insertanchor}"
+RTE_DefaultConfig.controltoolbar_TEXT = "removeformat | {bold,italic,underline,forecolor,backcolor}|{fontname:toggle,fontsize:toggle,menu_paragraphop}|{insertlink}"
 // A set of buttons that appears in the text selection float toolbar.
 RTE_DefaultConfig.controltoolbar_A = "{linkstyle,insertlink,unlink}";
 // A set of buttons that appears in the link selection float toolbar.
@@ -289,8 +293,7 @@ RTE_DefaultConfig.svgCode_paragraph = '<svg viewBox="-2 -2 20 20" fill="#5F6368"
 RTE_DefaultConfig.svgCode_fullscreenenter = '<svg viewBox="-3 -3 22 22" fill="#5F6368"><path fill-rule="evenodd" d="M1.5 1a.5.5 0 00-.5.5v4a.5.5 0 01-1 0v-4A1.5 1.5 0 011.5 0h4a.5.5 0 010 1h-4zM10 .5a.5.5 0 01.5-.5h4A1.5 1.5 0 0116 1.5v4a.5.5 0 01-1 0v-4a.5.5 0 00-.5-.5h-4a.5.5 0 01-.5-.5zM.5 10a.5.5 0 01.5.5v4a.5.5 0 00.5.5h4a.5.5 0 010 1h-4A1.5 1.5 0 010 14.5v-4a.5.5 0 01.5-.5zm15 0a.5.5 0 01.5.5v4a1.5 1.5 0 01-1.5 1.5h-4a.5.5 0 010-1h4a.5.5 0 00.5-.5v-4a.5.5 0 01.5-.5z" clip-rule="evenodd"/></svg>';
 RTE_DefaultConfig.svgCode_fullscreenexit = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M5.5 0a.5.5 0 01.5.5v4A1.5 1.5 0 014.5 6h-4a.5.5 0 010-1h4a.5.5 0 00.5-.5v-4a.5.5 0 01.5-.5zm5 0a.5.5 0 01.5.5v4a.5.5 0 00.5.5h4a.5.5 0 010 1h-4A1.5 1.5 0 0110 4.5v-4a.5.5 0 01.5-.5zM0 10.5a.5.5 0 01.5-.5h4A1.5 1.5 0 016 11.5v4a.5.5 0 01-1 0v-4a.5.5 0 00-.5-.5h-4a.5.5 0 01-.5-.5zm10 1a1.5 1.5 0 011.5-1.5h4a.5.5 0 010 1h-4a.5.5 0 00-.5.5v4a.5.5 0 01-1 0v-4z" clip-rule="evenodd"/>';
 RTE_DefaultConfig.svgCode_insertgallery = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M12.002 4h-10a1 1 0 00-1 1v8a1 1 0 001 1h10a1 1 0 001-1V5a1 1 0 00-1-1zm-10-1a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2h-10z" clip-rule="evenodd"/><path fill="#666666" d="M10.648 8.646a.5.5 0 01.577-.093l1.777 1.947V14h-12v-1l2.646-2.354a.5.5 0 01.63-.062l2.66 1.773 3.71-3.71z"/><path fill-rule="evenodd" d="M4.502 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM4 2h10a1 1 0 011 1v8a1 1 0 01-1 1v1a2 2 0 002-2V3a2 2 0 00-2-2H4a2 2 0 00-2 2h1a1 1 0 011-1z" clip-rule="evenodd"/></svg>';
-//RTE_DefaultConfig.svgCode_insertvideo = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M2.667 3.5c-.645 0-1.167.522-1.167 1.167v6.666c0 .645.522 1.167 1.167 1.167h6.666c.645 0 1.167-.522 1.167-1.167V4.667c0-.645-.522-1.167-1.167-1.167H2.667zM.5 4.667C.5 3.47 1.47 2.5 2.667 2.5h6.666c1.197 0 2.167.97 2.167 2.167v6.666c0 1.197-.97 2.167-2.167 2.167H2.667A2.167 2.167 0 01.5 11.333V4.667z" clip-rule="evenodd"/> <path fill-rule="evenodd" d="M11.25 5.65l2.768-1.605a.318.318 0 01.482.263v7.384c0 .228-.26.393-.482.264l-2.767-1.605-.502.865 2.767 1.605c.859.498 1.984-.095 1.984-1.129V4.308c0-1.033-1.125-1.626-1.984-1.128L10.75 4.785l.502.865z" clip-rule="evenodd"/></svg>';
-RTE_DefaultConfig.svgCode_insertvideo = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M14.002 2h-12a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zm-12-1a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V3a2 2 0 00-2-2h-12z" clip-rule="evenodd"/><path fill="#666666" d="M10.648 7.646a.5.5 0 01.577-.093L15.002 9.5V14h-14v-2l2.646-2.354a.5.5 0 01.63-.062l2.66 1.773 3.71-3.71z"/><path fill-rule="evenodd" d="M4.502 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/></svg>';
+RTE_DefaultConfig.svgCode_insertvideo = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M2.667 3.5c-.645 0-1.167.522-1.167 1.167v6.666c0 .645.522 1.167 1.167 1.167h6.666c.645 0 1.167-.522 1.167-1.167V4.667c0-.645-.522-1.167-1.167-1.167H2.667zM.5 4.667C.5 3.47 1.47 2.5 2.667 2.5h6.666c1.197 0 2.167.97 2.167 2.167v6.666c0 1.197-.97 2.167-2.167 2.167H2.667A2.167 2.167 0 01.5 11.333V4.667z" clip-rule="evenodd"/> <path fill-rule="evenodd" d="M11.25 5.65l2.768-1.605a.318.318 0 01.482.263v7.384c0 .228-.26.393-.482.264l-2.767-1.605-.502.865 2.767 1.605c.859.498 1.984-.095 1.984-1.129V4.308c0-1.033-1.125-1.626-1.984-1.128L10.75 4.785l.502.865z" clip-rule="evenodd"/></svg>';
 RTE_DefaultConfig.svgCode_insertlink = '<svg viewBox="0 0 24 24" fill="#5F6368"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>';
 RTE_DefaultConfig.svgCode_unlink = '<svg viewBox="0 0 24 24" fill="#5F6368"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14.39 11L16 12.61V11zM17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1 0 1.27-.77 2.37-1.87 2.84l1.4 1.4C21.05 15.36 22 13.79 22 12c0-2.76-2.24-5-5-5zM2 4.27l3.11 3.11C3.29 8.12 2 9.91 2 12c0 2.76 2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1 0-1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4.01 1.41-1.41L3.41 2.86 2 4.27z"/></svg>';
 RTE_DefaultConfig.svgCode_lcase = '<svg viewBox="0 0 24 24" fill="#5F6368"><path d="M4,12h3v6h2v-6h3v-2H4V12L4,12z M10,6v2h4v10h2V8h4V6H10L10,6z"/></svg>';
@@ -439,7 +442,7 @@ RTE_DefaultConfig.text_inserthorizontalrule = "Insert Horizontal Rule";
 RTE_DefaultConfig.text_insertdate = "Insert Date";
 RTE_DefaultConfig.text_inserttable = "Insert Table";
 RTE_DefaultConfig.text_insertimage = "Insert Image";
-RTE_DefaultConfig.text_insertvideo = "Insert Image/Video";
+RTE_DefaultConfig.text_insertvideo = "Insert Video";
 
 RTE_DefaultConfig.text_insertcode = "Insert Code";
 
