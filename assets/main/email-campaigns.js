@@ -46,9 +46,9 @@ async function table(payload){
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 async function tabledata() {
+    await storage("techmark", "get");
     if(id){
         console.log(cache)
-        console.log(id)
         document.getElementById("subject").innerHTML = cache.data["email-campaigns"][id]["payload"]["subject"];
         document.getElementById("from").innerHTML = cache.data["email-campaigns"][id]["payload"]["from"];
         document.getElementById("name").innerHTML = cache.data["email-campaigns"][id]["payload"]["fullname"];
@@ -75,7 +75,8 @@ async function tabledata() {
         }
         for (const key in cache.data["email-campaigns"][id]) {
             if(key!="payload"){
-                payload.push([++count, id, cache.data["email-campaigns"][id][key]["datetime"], cache.data["email-campaigns"][id][key]["sent"], id]);
+
+                payload.push([++count, key, cache.data["email-campaigns"][id][key]["datetime"], cache.data["email-campaigns"][id][key]["sent"], id]);
             }
         }
         document.getElementById("campaign-detail") && new gridjs.Grid({
@@ -126,41 +127,10 @@ async function tabledata() {
     }else{
         console.log(cache)
         for (const key in cache.data["email-campaigns"]) {
-            let headers = new Headers();
-            headers.append('Origin', '*');
-            await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
-            mode: 'cors',
-            headers: headers,
-            "method": "POST",
-            "body": JSON.stringify({
-                "service": "s3",
-                "method": "get",
-                "bucket_name": "techmark-email-campaigns",
-                "object_name": `${cache["data"]["email"]}/${key}/data.json`
-            })
-            }).then(response => {
-                if (!response.ok) {
-                    location = "auth-offline.html";
-                }
-                return response.json()
-            }).then(data => {
-                if(JSON.parse(data["body"])["error"] == "true"){
-                    //location = "auth-500.html";
-                    console.log(data)
-                }else{
-                    var object = JSON.parse(data.body.toString('utf-8'));
-                    object = JSON.parse(object.data.file_content);
-                    console.log(object)
-                    cache.data["email-campaigns"][key]["payload"] = object;
-                    sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
-                    payload.push([++count, key, object.subject, object.from, object.fullname, object.useremail, key]);
-                }
-            }).catch(error => {
-                console.log(error)
-                location = "auth-offline.html";
-            });
+            payload.push([++count, key, cache.data["email-campaigns"][key]["payload"]["subject"], cache.data["email-campaigns"][key]["payload"]["from"], cache.data["email-campaigns"][key]["payload"]["fullname"], cache.data["email-campaigns"][key]["payload"]["useremail"], key]);
         }
-
+        
+        await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         table(payload);
     }
 }

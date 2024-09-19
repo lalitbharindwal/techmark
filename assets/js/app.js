@@ -1,17 +1,138 @@
 var cache;
-if(sessionStorage.getItem("cache") == null){
+/*if(sessionStorage.getItem("cache") == null){
     location = "index.html";
 }else{
     cache = JSON.parse(atob(sessionStorage.getItem("cache")));
     document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
     document.getElementById("useremail").innerHTML = cache.data.email;
+}*/
 
+async function storage(data, method) {
+    try {
+        if(method == "put"){
+            await openDatabase();
+            addData(data);
+        }else if(method == "get"){
+            await openDatabase();
+            const retrievedData = await getData(data);
+            if(retrievedData == undefined){
+                location = "index.html";
+            }else{
+                cache = JSON.parse(atob(retrievedData.cache));
+                document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
+                document.getElementById("useremail").innerHTML = cache.data.email;
+            }
+        }else if(method == "update"){
+            updateData(data);
+        }else if(method == "delete"){
+            deleteData(data);
+        }
+        //updateData({"techmark":"techmark", "data": {"name": "lalit"}})
+        //const retrievedData = await getData("email");
+    } catch (error) {
+        console.log(error)
+        //location = "auth-500.html";
+    }
 }
 
 function customBase64Encode(str) {
-    const utf8Bytes = new TextEncoder().encode(str);
-    const binaryString = String.fromCharCode(...utf8Bytes);
-    return btoa(binaryString);
+    try {
+        // Use TextEncoder for UTF-8 encoding if available
+        const utf8Bytes = new TextEncoder().encode(str);
+        let binaryString = '';
+        // Convert the byte array to a binary string
+        utf8Bytes.forEach(byte => {
+            binaryString += String.fromCharCode(byte);
+        });
+        return btoa(binaryString);
+    } catch (error) {
+        try {
+            // Fallback to Latin-1 encoding if UTF-8 encoding fails
+            const latin1Bytes = Array.from(str).map(char => char.charCodeAt(0));
+            const binaryString = String.fromCharCode(...latin1Bytes);
+            return btoa(binaryString);
+        } catch (latin1Error) {
+            location = "auth-500.html";
+        }
+    }
+}
+
+function openDatabase() {
+    return new Promise((resolve, reject) => {
+        const dbName = "techmark";
+        const dbVersion = 1;
+
+        const request = indexedDB.open(dbName, dbVersion);
+
+        request.onerror = function(event) {
+            console.error("Database error: " + event.target.errorCode);
+            location = "auth-500.html";
+            reject(event.target.errorCode);
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            //console.log("Database opened successfully");
+            resolve();
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore("techmark", { keyPath: "techmark", autoIncrement: true });
+           // console.log("Object store created");
+        };
+    });
+}
+
+function updateData(updatedData) {
+    const transaction = db.transaction(["techmark"], "readwrite");
+    const objectStore = transaction.objectStore("techmark");
+    const request = objectStore.put(updatedData);
+    request.onsuccess = function(event) {
+        //console.log("Data updated successfully");
+    };
+
+    request.onerror = function(event) {
+        //console.error("Error updating data:", event.target.errorCode);
+        location = "auth-500.html";
+    };
+}
+
+function getData(id) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["techmark"], "readonly");
+        const objectStore = transaction.objectStore("techmark");
+
+        const request = objectStore.get(id);
+        request.onsuccess = function(event) {
+            const result = event.target.result;
+            //console.log("Data retrieved successfully:", result);
+            resolve(result);
+        };
+
+        request.onerror = function(event) {
+            //console.error("Error retrieving data: " + event.target.errorCode);
+            location = "auth-500.html";
+            reject(event.target.errorCode);
+        };
+    });
+}
+
+function deleteData(data) {
+    const transaction = db.transaction(["techmark"], "readwrite");
+    const objectStore = transaction.objectStore("techmark");
+
+    const request = objectStore.delete(data);
+
+    request.onsuccess = function(event) {
+        //console.log(`Data with email ${email} deleted successfully`);
+        location = "index.html";
+    };
+
+    request.onerror = function(event) {
+        //console.error(`Error deleting data with email ${email}: ${event.target.errorCode}`);
+        location = "auth-500.html";
+    };
 }
 
 !function() {

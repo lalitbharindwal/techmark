@@ -10,9 +10,11 @@ function getChartColorsArray(e) {
         console.warn("data-colors atributes not found on", e)
     }
 }
-console.log(cache)
-function emailsSendingLog() {
+
+async function emailsSendingLog() {
     // Initialize counters and arrays
+    await storage("techmark", "get");
+    console.log(cache)
     let totalEmailsSentMonthly = 0;
     let totalEmailsSentToday = 0;
     let totalEmailsSentYearly = 0;
@@ -82,7 +84,7 @@ function emailsSendingLog() {
     document.getElementById("total-emails-sent").innerHTML = totalEmailsSentMonthly;
     document.getElementById("quota-limit").innerHTML = 2000 - totalEmailsSentToday;
     cache.data.todaysmailsquota = 2000 - totalEmailsSentToday;
-    sessionStorage.setItem("cache", btoa(JSON.stringify(cache)));
+    storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     var options, chart, linechartcustomerColor= getChartColorsArray("total-emails-sent-month"), chartDonutBasicColors = ((options = {
         series: [{
             name: "Emails Sent",

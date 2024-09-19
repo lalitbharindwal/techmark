@@ -1,4 +1,9 @@
 var payload;
+if (!window.indexedDB) {
+    alert("Sorry! Your browser does not support Techmark");
+    location = "auth-500.html";
+}
+
 function sendOTP(){
     var content = "Dear "+ payload["fullname"] +",\n\nYour OTP is "+ payload["code"] +"\nDo not share it with anyone by any means.\nCode is only valid for 5 minutes\n\nRegards,\nTechMark Team"
     fetch('https://5v7v92mmsd.execute-api.us-east-1.amazonaws.com/techmark-notifications',
@@ -69,11 +74,138 @@ if(sessionStorage.getItem("code") != null){
     location = "dashboard.html";
 }
 
-function login(){
+let db;
+// Open (or create) the database
+function openDatabase() {
+    return new Promise((resolve, reject) => {
+        const dbName = "techmark";
+        const dbVersion = 1;
+
+        const request = indexedDB.open(dbName, dbVersion);
+
+        request.onerror = function(event) {
+            console.error("Database error: " + event.target.errorCode);
+            location = "auth-500.html";
+            reject(event.target.errorCode);
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            //console.log("Database opened successfully");
+            resolve();
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore("techmark", { keyPath: "techmark", autoIncrement: true });
+           // console.log("Object store created");
+        };
+    });
+}
+
+function addData(data) {
+    const transaction = db.transaction(["techmark"], "readwrite");
+    const objectStore = transaction.objectStore("techmark");
+
+    const request = objectStore.add(data);
+
+    request.onsuccess = function(event) {
+        location = "dashboard.html";
+    };
+
+    request.onerror = function(event) {
+        //console.error("Error adding data: " + event.target.errorCode);
+        location = "auth-500.html";
+    };
+}
+
+function getData(id) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["techmark"], "readonly");
+        const objectStore = transaction.objectStore("techmark");
+
+        const request = objectStore.get(id);
+        request.onsuccess = function(event) {
+            const result = event.target.result;
+            //console.log("Data retrieved successfully:", result);
+            resolve(result);
+        };
+
+        request.onerror = function(event) {
+            //console.error("Error retrieving data: " + event.target.errorCode);
+            location = "auth-500.html";
+            reject(event.target.errorCode);
+        };
+    });
+}
+
+// Open the database and then add/retrieve data
+async function storage(data, method) {
+    try {
+        if(method == "put"){
+            await openDatabase();
+            addData(data);
+        }else if(method == "get"){
+            await openDatabase();
+            const retrievedData = await getData(data);
+            if(retrievedData != undefined){
+                location = "dashboard.html";
+            }
+        }else if(method == "delete"){
+            await openDatabase();
+            deleteData(data)
+        }
+        
+        //updateData({"techmark":"techmark", "data": {"name": "lalit"}})
+        //const retrievedData = await getData("email");
+    } catch (error) {
+        console.error("Error in main function:", error);
+        location = "auth-500.html";
+    }
+}
+
+async function getpayload(data) {
+    var cache = data;
+    for (const key in cache.data["email-campaigns"]) {
+        let headers = new Headers();
+        headers.append('Origin', '*');
+        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+        mode: 'cors',
+        headers: headers,
+        "method": "POST",
+        "body": JSON.stringify({
+            "service": "s3",
+            "method": "get",
+            "bucket_name": "techmark-email-campaigns",
+            "object_name": `${cache["data"]["email"]}/${key}/data.json`
+        })
+        }).then(response => {
+            if (!response.ok) {
+                location = "auth-offline.html";
+            }
+            return response.json()
+        }).then(data => {
+            if(JSON.parse(data["body"])["error"] == "true"){
+                location = "auth-500.html";
+                //console.log(data)
+            }else{
+                var object = JSON.parse(data.body.toString('utf-8'));
+                object = JSON.parse(object.data.file_content);
+                cache.data["email-campaigns"][key]["payload"] = object;
+            }
+        }).catch(error => {
+            console.log(error)
+            location = "auth-offline.html";
+        });
+    }
+    storage({"techmark": "techmark", "cache": btoa(unescape(encodeURIComponent(JSON.stringify(cache))))}, "put");
+}
+
+async function login(){
     let headers = new Headers();
     headers.append('Origin', '*');
-    document.getElementById("alert").innerHTML = "Please wait...";
-    fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    document.getElementById("alert").innerHTML = "Authenticating...";
+    await fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
       mode: 'cors',
       headers: headers,
       "method": "POST",
@@ -99,16 +231,15 @@ function login(){
             }else{
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
                     document.getElementById("alert").innerHTML = "Login Successfully";
-                    sessionStorage.setItem("cache",btoa(unescape(encodeURIComponent(data.body))));
-                    location = `dashboard.html`; 
+                    getpayload(JSON.parse(data.body))
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
                 }
             }
         }
       }).catch(error => {
-        //console.log(error)
-        location = "auth-offline.html";
+        console.log(error)
+        //location = "auth-offline.html";
     });
 }
 
@@ -138,6 +269,23 @@ function put_data(table_name, items){
     }).catch(error => {
         location = "auth-offline.html";
     });
+}
+
+function deleteData(data) {
+    const transaction = db.transaction(["techmark"], "readwrite");
+    const objectStore = transaction.objectStore("techmark");
+
+    const request = objectStore.delete(data);
+
+    request.onsuccess = function(event) {
+        //console.log(`Data with email ${email} deleted successfully`);
+        location = "index.html";
+    };
+
+    request.onerror = function(event) {
+        //console.error(`Error deleting data with email ${email}: ${event.target.errorCode}`);
+        location = "auth-500.html";
+    };
 }
 
 function verify(code){

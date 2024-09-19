@@ -9,7 +9,22 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-function show_aliases(){
+async function show_aliases(){
+    await storage("techmark", "get");
+    if(cache.data.gmail != undefined){
+        document.getElementById("sender").innerHTML = "Authenticating access...";
+        document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
+        const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
+        const redirectUri = 'https://techmark.solutions/add-campaign';
+        const clientSecret = "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";
+        const event = {
+            "email": cache.data.gmail,
+            "clientId": clientId,
+            "clientSecret": clientSecret,
+            "redirect_uri": redirectUri
+        }
+        flow(event);
+      }
     document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" data-bs-toggle="modal" data-bs-target=".bs-modal-xl1" href="javascript:void(0);">Manage Sender</a>`;
     document.getElementById("verifiedemailslist").innerHTML = '';
     for (let key in cache["data"]["email-credentials"]) {
@@ -27,36 +42,7 @@ function show_aliases(){
     }
 }
 
-console.log(cache)
 show_aliases()
-
-function customBase64Encode(str) {
-    try {
-        // Use TextEncoder for UTF-8 encoding if available
-        const utf8Bytes = new TextEncoder().encode(str);
-        let binaryString = '';
-
-        // Convert the byte array to a binary string
-        utf8Bytes.forEach(byte => {
-            binaryString += String.fromCharCode(byte);
-        });
-
-        return btoa(binaryString);
-    } catch (error) {
-        console.warn('TextEncoder failed, trying Latin-1 encoding as fallback.');
-
-        try {
-            // Fallback to Latin-1 encoding if UTF-8 encoding fails
-            const latin1Bytes = Array.from(str).map(char => char.charCodeAt(0));
-            const binaryString = String.fromCharCode(...latin1Bytes);
-
-            return btoa(binaryString);
-        } catch (latin1Error) {
-            console.error('Error encoding string to base64:', latin1Error);
-            throw new Error('Failed to encode the string to base64.');
-        }
-    }
-}
 
 function raw(payload){
 const raw =
@@ -254,11 +240,11 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                         return response.json()
                                     }).then(data => {
                                         if(JSON.parse(data["body"])["error"] == "true"){
-                                            //location = "auth-500.html";
-                                            console.log(data)
+                                            location = "auth-500.html";
+                                            //console.log(data)
                                         }else{
                                             cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                                            cache.data["email-campaigns"][cache.data.campaignid]["payload"] = cache.data.payload;
                                             cache.data.payload.bearer = atob(cache.data.bearer);
                                             cache["data"]["recipients"].forEach((gmail, index) => {
                                                 const delay = 2850 * index;
@@ -269,12 +255,12 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                             });
                                         }
                                     }).catch(error => {
-                                        console.log(error)
+                                        //console.log(error)
                                         location = "auth-offline.html";
                                     });
                             }
                         }).catch(error => {
-                            console.log(error)
+                            //console.log(error)
                             location = "auth-offline.html";
                         });
                     }else{
@@ -346,7 +332,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                         }else{
                                             console.log(data)
                                             cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                                            cache.data["email-campaigns"][cache.data.campaignid]["payload"] = cache.data.payload;
                                             cache["data"]["recipients"].forEach((email, index) => {
                                                 const delay = 250 * index;
                                                 setTimeout(() => {
@@ -465,7 +451,7 @@ function savepayload(email){
             //location = "auth-500.html";
             console.log(data)
         }else{
-            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+            storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         }
     }).catch(error => {
         console.log(error)
@@ -654,21 +640,6 @@ function extractCodeFromUrl() {
     return urlParams.get('code');
   }
 
-if(cache.data.gmail != undefined){
-    document.getElementById("sender").innerHTML = "Authenticating access...";
-    document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
-    const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
-    const redirectUri = 'https://techmark.solutions/add-campaign';
-    const clientSecret = "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";
-    const event = {
-        "email": cache.data.gmail,
-        "clientId": clientId,
-        "clientSecret": clientSecret,
-        "redirect_uri": redirectUri
-    }
-    flow(event);
-  }
-
 function flow(event){
     const bearer = cache.data.bearer;
     if(bearer == undefined){
@@ -691,7 +662,7 @@ function getCode(gmail){
     }
     if(gmail != ""){
         cache.data.gmail = gmail;
-        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
         alert("Please enter valid Gmail");
@@ -741,21 +712,21 @@ function getProfile(token, event){
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     cache.data.bearer = undefined;
                     cache.data.gmail = undefined;
-                    sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                    storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+event["email"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
                     cache.data.bearer = btoa(token);
                     cache.data.gmail = data["emailAddress"];
-                    sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                    storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
             cache.data.bearer = undefined;
             cache.data.gmail = undefined;
-            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+            storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
             document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
             document.getElementById("sender").innerHTML = "Authentication Failed";
             alert("Please Authenticate " + event["email"]);
@@ -791,7 +762,7 @@ function putCredentials(){
       if(JSON.parse(data["body"])["error"] == "true"){
           location = "auth-500.html";
       }else{
-        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
       }
   }).catch(error => {
       location = "auth-offline.html";
@@ -1306,7 +1277,7 @@ function verifymail(){
                     if(payload["alias-email"] == ""){
                         payload["data"] = domaininfo;
                         cache["data"]["email-credentials"][payload.useremail] = payload;
-                        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                         show_aliases();
                         putCredentials(payload);
                         document.getElementById("status-badge-"+payload.useremail).innerHTML = `<span class="badge bg-success">Selected</span>`;
@@ -1317,7 +1288,7 @@ function verifymail(){
                     }else{
                         payload["data"] = JSON.parse(data.body.domaininfo)
                         cache["data"]["email-credentials"][payload["alias-email"]] = payload;
-                        sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                         show_aliases();
                         putCredentials(payload);
                         document.getElementById("status-badge-"+payload["alias-email"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
