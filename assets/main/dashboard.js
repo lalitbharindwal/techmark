@@ -1,3 +1,4 @@
+
 function getChartColorsArray(e) {
     if (null !== document.getElementById(e)) {
         var t = document.getElementById(e).getAttribute("data-colors");
@@ -9,10 +10,7 @@ function getChartColorsArray(e) {
         console.warn("data-colors atributes not found on", e)
     }
 }
-
-
-
-
+console.log(cache)
 function emailsSendingLog() {
     // Initialize counters and arrays
     let totalEmailsSentMonthly = 0;
@@ -33,14 +31,13 @@ function emailsSendingLog() {
     const currentDay = now.getDate();
 
     // Iterate through cached email data
-    for (const key in cache["email-campaigns"].data) {
+    for (const key in cache.data["email-campaigns"]) {
         if (key !== "email") {
-            const campaign = cache["email-campaigns"].data[key];
-            for (const recipient of Object.values(campaign.to)) {
+            const campaign = cache.data["email-campaigns"][key]
+            for (const recipient of Object.values(campaign)) {
                 if (recipient.sent) {
                     const [datePart] = recipient.datetime.split(' ');
                     const [day, month, year] = datePart.split('-').map(Number);
-
                     const givenDate = new Date(year, month - 1, day); // Date object for comparison
                     const givenYear = givenDate.getFullYear();
                     const givenMonth = givenDate.getMonth(); // 0-based index
@@ -253,3 +250,78 @@ function emailsSendingLog() {
 }
 
 emailsSendingLog()
+
+
+
+/*let cache; // Declare cache only once
+async function fetchData() {
+  let headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+
+  try {
+    const response = await fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+      mode: 'cors',
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        method: "get",
+        table_name: "techmark-solutions",
+        primary_key: {
+          email: "lalitbharindwal@gmail.com"
+        }
+      })
+    });
+
+    if (!response.ok) {
+      location.href = "auth-offline.html"; // Use href to navigate
+      return;
+    }
+
+    const data = await response.json();
+
+    if (JSON.parse(data["body"])["error"] === "true") {
+      location.href = "auth-500.html"; // Use href to navigate
+    } else {
+      cache = data.body;
+      console.log(cache); // Log the cache here
+    }
+
+  } catch (error) {
+    console.error("Fetch error:", error); // Log the error
+    location.href = "auth-offline.html"; // Use href to navigate
+  }
+}
+
+// Call the fetchData function to initiate the request
+fetchData();
+let headers = new Headers();
+headers.append('Origin', '*');
+fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+mode: 'cors',
+headers: headers,
+"method": "POST",
+"body": JSON.stringify({
+    "service": "s3",
+    "method": "get",
+    "bucket_name": "techmark-email-campaigns",
+    "file_content": cache["email-campaigns"]["data"][key],
+    "object_name": `${cache["data"]["email"]}/${key}/data.json`
+})
+}).then(response => {
+    if (!response.ok) {
+        location = "auth-offline.html";
+    }
+    return response.json()
+}).then(data => {
+    if(JSON.parse(data["body"])["error"] == "true"){
+        //location = "auth-500.html";
+        console.log(data)
+    }else{
+        console.log(data)
+        var data = JSON.parse(data.body.toString('utf-8'));
+        console.log(JSON.parse(data.data.file_content) )
+    }
+}).catch(error => {
+    console.log(error)
+    location = "auth-offline.html";
+});*/

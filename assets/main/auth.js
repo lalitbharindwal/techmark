@@ -98,37 +98,9 @@ function login(){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
-                    let headers = new Headers();
-                    headers.append('Origin', '*');
-                    fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
-                    mode: 'cors',
-                    headers: headers,
-                    "method": "POST",
-                    "body": JSON.stringify({
-                        "method": "get",
-                        "table_name": "techmark-email-campaigns",
-                        "primary_key": {"email": document.getElementById("email").value}
-                    })
-                    }).then(response => {
-                        if (!response.ok) {
-                         location = "auth-offline.html";
-                        }
-                        return response.json();
-                    })
-                    .then(data2 => {
-                        if(JSON.parse(data2["body"])["error"] == "true"){
-                            location = "auth-500.html";
-                        }else{
-                            var temp = JSON.parse(data.body);
-                            document.getElementById("alert").innerHTML = "Login Successfully";
-                            temp["email-campaigns"] = JSON.parse(data2.body);
-                            sessionStorage.setItem("cache",btoa(unescape(encodeURIComponent(JSON.stringify(temp)))));
-                            location = `dashboard.html`; 
-                        }
-                    }).catch(error => {
-                        console.log(error)
-                        location = "auth-offline.html";
-                    });
+                    document.getElementById("alert").innerHTML = "Login Successfully";
+                    sessionStorage.setItem("cache",btoa(unescape(encodeURIComponent(data.body))));
+                    location = `dashboard.html`; 
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
                 }
@@ -177,15 +149,11 @@ function verify(code){
                 "password": btoa(payload["password"]),
                 "created": datetime()
             },
-            "email-credentials": {}
-        }
-
-        const data2 = {
-            "email": payload["email"]
+            "email-credentials": {},
+            "email-campaigns": {}
         }
 
         put_data("techmark-solutions", data1);
-        put_data("techmark-email-campaigns", data2);
     }else{
         console.log("failed")
         document.getElementById("alert").innerHTML = "Incorrect OTP";

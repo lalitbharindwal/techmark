@@ -8,6 +8,12 @@ if(sessionStorage.getItem("cache") == null){
 
 }
 
+function customBase64Encode(str) {
+    const utf8Bytes = new TextEncoder().encode(str);
+    const binaryString = String.fromCharCode(...utf8Bytes);
+    return btoa(binaryString);
+}
+
 !function() {
     var d = document.querySelector(".navbar-menu").innerHTML
       , M = 7

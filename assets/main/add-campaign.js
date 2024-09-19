@@ -31,11 +31,32 @@ console.log(cache)
 show_aliases()
 
 function customBase64Encode(str) {
-    let utf8Bytes = unescape(encodeURIComponent(str));
-    let charCodeList = utf8Bytes.split('').map(c => c.charCodeAt(0));
-    let binaryString = String.fromCharCode(...charCodeList);
-    return btoa(binaryString);
-  }
+    try {
+        // Use TextEncoder for UTF-8 encoding if available
+        const utf8Bytes = new TextEncoder().encode(str);
+        let binaryString = '';
+
+        // Convert the byte array to a binary string
+        utf8Bytes.forEach(byte => {
+            binaryString += String.fromCharCode(byte);
+        });
+
+        return btoa(binaryString);
+    } catch (error) {
+        console.warn('TextEncoder failed, trying Latin-1 encoding as fallback.');
+
+        try {
+            // Fallback to Latin-1 encoding if UTF-8 encoding fails
+            const latin1Bytes = Array.from(str).map(char => char.charCodeAt(0));
+            const binaryString = String.fromCharCode(...latin1Bytes);
+
+            return btoa(binaryString);
+        } catch (latin1Error) {
+            console.error('Error encoding string to base64:', latin1Error);
+            throw new Error('Failed to encode the string to base64.');
+        }
+    }
+}
 
 function raw(payload){
 const raw =
@@ -85,7 +106,7 @@ function getid(){
 
 function generatePayload(payload){
     cache.data.campaignid = getid();
-    cache["email-campaigns"]["data"][cache.data.campaignid] = {
+    cache["data"]["email-campaigns"][cache.data.campaignid] = {
         "useremail": payload["useremail"],
         "fullname": payload["fullname"],
         "from": payload["from"],
@@ -98,15 +119,21 @@ function generatePayload(payload){
         "smtp_server": payload["smtp_server"],
         "to":{}
     };
+
+    cache["data"][cache.data.campaignid] = {}
+
     payload["to"].forEach((email, index) => {
-        cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email] = {
+        cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email] = {
                 "body_text": payload["body_text"],
                 "body_html": payload["body_html"],
-                "sent": "PENDING",
-                "datetime": "",
-                "response": {},
                 "attributes": {}
             };
+
+        cache["data"][cache.data.campaignid][email] = {
+            "sent": "PENDING",
+            "datetime": "",
+            "response": ""
+        }
     });
 }
 
@@ -179,9 +206,9 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
                         generatePayload(payload);
                         var condition_expression = "#useremail = :value1";
-                        var update_expression = "SET #campaignid = :value2";
-                        var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid};
-                        var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["email-campaigns"]["data"][cache.data.campaignid]};
+                        var update_expression = "SET #emailcampaigns.#campaignid = :value2";
+                        var expression_attribute_names = {"#useremail": "email", "#emailcampaigns": "email-campaigns" ,"#campaignid": cache.data.campaignid};
+                        var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache["data"][cache.data.campaignid]};
                         let headers = new Headers();
                         headers.append('Origin', '*');
                         fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
@@ -190,7 +217,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         "method": "POST",
                         "body": JSON.stringify({
                             "method": "update",
-                            "table_name": "techmark-email-campaigns",
+                            "table_name": "techmark-solutions",
                             "primary_key": {"email": cache["data"]["email"]},
                             "condition_expression": condition_expression,
                             "update_expression": update_expression,
@@ -204,18 +231,54 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                             return response.json()
                         }).then(data => {
                             if(JSON.parse(data["body"])["error"] == "true"){
-                                location = "auth-500.html";
+                                //location = "auth-500.html";
+                                console.log(data)
                             }else{
-                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
-                                cache["email-campaigns"]["data"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
-                                cache["data"]["recipients"].forEach((gmail, index) => {
-                                    const delay = 2850 * index;
-                                    setTimeout(() => {
-                                        cache["email-campaigns"]["data"][cache.data.campaignid]["requestBody"] = raw(payload)
-                                        send_gmail(gmail)
-                                    }, delay);
-                                });
+                                fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+                                    mode: 'cors',
+                                    headers: headers,
+                                    "method": "POST",
+                                    "body": JSON.stringify({
+                                        "service": "s3",
+                                        "method": "put",
+                                        "bucket_name": "techmark-email-campaigns",
+                                        "file_content": cache["data"]["email-campaigns"][cache.data.campaignid],
+                                        "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+                                    })
+                                    }).then(response => {
+                                        if (!response.ok) {
+                                            location = "auth-offline.html";
+                                        }
+                                        return response.json()
+                                    }).then(data => {
+                                        if(JSON.parse(data["body"])["error"] == "true"){
+                                            //location = "auth-500.html";
+                                            console.log(data)
+                                        }else{
+                                            console.log(data)
+                                            cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
+                                            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                                            cache["data"]["recipients"].forEach((email, index) => {
+                                                const delay = 250 * index;
+                                                setTimeout(() => {
+                                                    send_email(email)
+                                                }, delay);
+                                            });
+                                            cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
+                                            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                                            cache["data"]["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
+                                            cache["data"]["recipients"].forEach((gmail, index) => {
+                                                const delay = 2850 * index;
+                                                setTimeout(() => {
+                                                    cache["data"]["email-campaigns"][cache.data.campaignid]["requestBody"] = raw(payload)
+                                                    send_gmail(gmail)
+                                                }, delay);
+                                            });
+                                        }
+                                    }).catch(error => {
+                                        console.log(error)
+                                        location = "auth-offline.html";
+                                    });
                             }
                         }).catch(error => {
                             console.log(error)
@@ -237,14 +300,10 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
                         payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
                         generatePayload(payload);
-                        console.log(cache["email-campaigns"]["data"][cache.data.campaignid]);
-                        const jsonString = JSON.stringify(cache["email-campaigns"]["data"][cache.data.campaignid]);
-                        const sizeInKB = jsonString.length / (1024);
-                        console.log(`Size: ${sizeInKB.toFixed(2)} KB`);
                         var condition_expression = "#useremail = :value1";
-                        var update_expression = "SET #campaignid = :value2";
-                        var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid};
-                        var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["email-campaigns"]["data"][cache.data.campaignid]};
+                        var update_expression = "SET #emailcampaigns.#campaignid = :value2";
+                        var expression_attribute_names = {"#useremail": "email", "#emailcampaigns": "email-campaigns" ,"#campaignid": cache.data.campaignid};
+                        var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache["data"][cache.data.campaignid]};
                         let headers = new Headers();
                         headers.append('Origin', '*');
                         fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
@@ -253,7 +312,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         "method": "POST",
                         "body": JSON.stringify({
                             "method": "update",
-                            "table_name": "techmark-email-campaigns",
+                            "table_name": "techmark-solutions",
                             "primary_key": {"email": cache["data"]["email"]},
                             "condition_expression": condition_expression,
                             "update_expression": update_expression,
@@ -270,14 +329,41 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 //location = "auth-500.html";
                                 console.log(data)
                             }else{
-                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
-                                cache["data"]["recipients"].forEach((email, index) => {
-                                    const delay = 250 * index;
-                                    setTimeout(() => {
-                                        send_email(email)
-                                    }, delay);
-                                });
+                                fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+                                    mode: 'cors',
+                                    headers: headers,
+                                    "method": "POST",
+                                    "body": JSON.stringify({
+                                        "service": "s3",
+                                        "method": "put",
+                                        "bucket_name": "techmark-email-campaigns",
+                                        "file_content": cache["data"]["email-campaigns"][cache.data.campaignid],
+                                        "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+                                    })
+                                    }).then(response => {
+                                        if (!response.ok) {
+                                            location = "auth-offline.html";
+                                        }
+                                        return response.json()
+                                    }).then(data => {
+                                        if(JSON.parse(data["body"])["error"] == "true"){
+                                            //location = "auth-500.html";
+                                            console.log(data)
+                                        }else{
+                                            console.log(data)
+                                            cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
+                                            sessionStorage.setItem("cache", customBase64Encode(JSON.stringify(cache)));
+                                            cache["data"]["recipients"].forEach((email, index) => {
+                                                const delay = 250 * index;
+                                                setTimeout(() => {
+                                                    send_email(email)
+                                                }, delay);
+                                            });
+                                        }
+                                    }).catch(error => {
+                                        console.log(error)
+                                        location = "auth-offline.html";
+                                    });
                             }
                         }).catch(error => {
                             console.log(error)
@@ -293,38 +379,38 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 function display_log(email){
     sendingCount++;
-    if(cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] == "True"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] == "True"){
        sent++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${cache["email-campaigns"]["data"][cache.data.campaignid]["from"]}</td>
+            <td data-label="From">${cache["data"]["email-campaigns"][cache.data.campaignid]["from"]}</td>
             <td data-label="To">${email}</td>
-            <td data-label="Datetime">${cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"]}</td>
+            <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-success">Sent</span></td>
         </tr>`;
     }
 
-    if(cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] == "False"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] == "False"){
        failed++;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${cache["email-campaigns"]["data"][cache.data.campaignid]["from"]}</td>
+            <td data-label="From">${cache["data"]["email-campaigns"][cache.data.campaignid]["from"]}</td>
             <td data-label="To">${email}</td>
-            <td data-label="Datetime">${cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"]}</td>
+            <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-danger">Failed</span></td>
         </tr>`;
     }
 
-    if(cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] == "Error"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] == "Error"){
         error++;
         document.getElementById("emaillog").innerHTML +=
          `<tr class="table-warning">
              <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${cache["email-campaigns"]["data"][cache.data.campaignid]["from"]}</td>
+            <td data-label="From">${cache["data"]["email-campaigns"][cache.data.campaignid]["from"]}</td>
             <td data-label="To">${email}</td>
-            <td data-label="Datetime">${cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"]}</td>
+            <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"]}</td>
              <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
      }
@@ -356,10 +442,16 @@ function updateProgressBars(sent, failed, error) {
 }
 
 function savepayload(email){
+    var payload = {}
+    payload[email] = {
+        "sent": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"],
+        "datetime": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"],
+        "response": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["response"]
+    }
     var condition_expression = "#useremail = :value1";
-    var update_expression = "SET #campaignid.#to.#email.#sent = :value2, #campaignid.#to.#email.#datetime = :value3, #campaignid.#to.#email.#response = :value4";
-    var expression_attribute_names = {"#useremail": "email", "#campaignid": cache.data.campaignid, "#to": "to", "#email": email, "#sent": "sent", "#datetime": "datetime", "#response": "response"};
-    var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"], ":value3": cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"], ":value4": cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["response"]};
+    var update_expression = "SET #emailcampaigns.#campaignid.#email.#sent = :value2, #emailcampaigns.#campaignid.#email.#datetime = :value3, #emailcampaigns.#campaignid.#email.#response = :value4";
+    var expression_attribute_names = {"#useremail": "email", "#emailcampaigns": "email-campaigns" ,"#campaignid": cache.data.campaignid, "#email": email, "#sent": "sent", "#datetime": "datetime", "#response": "response"};
+    var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"], ":value3": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"], ":value4": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["response"]};
     let headers = new Headers();
     headers.append('Origin', '*');
     fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
@@ -368,7 +460,7 @@ function savepayload(email){
     "method": "POST",
     "body": JSON.stringify({
         "method": "update",
-        "table_name": "techmark-email-campaigns",
+        "table_name": "techmark-solutions",
         "primary_key": {"email": cache["data"]["email"]},
         "condition_expression": condition_expression,
         "update_expression": update_expression,
@@ -394,13 +486,13 @@ function savepayload(email){
 }
 
 function send_gmail(gmail){
-    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache["email-campaigns"]["data"][cache.data.campaignid]["from"] + '/messages/send', {
+    fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache["data"]["email-campaigns"][cache.data.campaignid]["from"] + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
-           'Authorization': `Bearer ${cache["email-campaigns"]["data"][cache.data.campaignid]["bearer"]}`,
+           'Authorization': `Bearer ${cache["data"]["email-campaigns"][cache.data.campaignid]["bearer"]}`,
            'Content-Type': 'application/json'
        },
-            body: JSON.stringify(cache["email-campaigns"]["data"][cache.data.campaignid]["requestBody"]) // Convert the request body to JSON string
+            body: JSON.stringify(cache["data"]["email-campaigns"][cache.data.campaignid]["requestBody"]) // Convert the request body to JSON string
        }).then(response => {
             if (!response.ok) {
                return false
@@ -408,22 +500,22 @@ function send_gmail(gmail){
             return response.json();
        }).then(data => {
            if(data["id"]){
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["response"] = data;
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["sent"] = "True";
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["response"] = data;
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["sent"] = "True";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
                 display_log(gmail);
                 savepayload(gmail);
            }else{
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["response"] = data;
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["sent"] = "False";
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["response"] = data;
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["sent"] = "False";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
                 display_log(gmail);
                 savepayload(gmail);
            }
        }).catch(error => {
-            cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["response"] = error;
-            cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["sent"] = "Error";
-            cache["email-campaigns"]["data"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
+            cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["response"] = error;
+            cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["sent"] = "Error";
+            cache["data"]["email-campaigns"][cache.data.campaignid]["to"][gmail]["datetime"] = datetime();
             display_log(gmail);
             savepayload(gmail);
    });
@@ -438,18 +530,18 @@ function send_email(email){
       "method": "POST",
       "body": JSON.stringify({
         "action": "send_email",
-        "name": cache["email-campaigns"]["data"][cache.data.campaignid]["fullname"],
-        "email": cache["email-campaigns"]["data"][cache.data.campaignid]["from"],
-        "useremail": cache["email-campaigns"]["data"][cache.data.campaignid]["useremail"],
-        "password": atob(cache["data"]["email-credentials"][cache["email-campaigns"]["data"][cache.data.campaignid]["from"]]["password"]),
+        "name": cache["data"]["email-campaigns"][cache.data.campaignid]["fullname"],
+        "email": cache["data"]["email-campaigns"][cache.data.campaignid]["from"],
+        "useremail": cache["data"]["email-campaigns"][cache.data.campaignid]["useremail"],
+        "password": atob(cache["data"]["email-credentials"][cache["data"]["email-campaigns"][cache.data.campaignid]["from"]]["password"]),
         "to": email,
-        "cc": cache["email-campaigns"]["data"][cache.data.campaignid]["cc"],
-        "bcc": cache["email-campaigns"]["data"][cache.data.campaignid]["bcc"],
-        "replyto": cache["email-campaigns"]["data"][cache.data.campaignid]["replyto"],
-        "subject": cache["email-campaigns"]["data"][cache.data.campaignid]["subject"],
-        "body_text": cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["body_text"],
-        "body_html": cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["body_html"],
-        "smtp_server": cache["email-campaigns"]["data"][cache.data.campaignid]["smtp_server"]
+        "cc": cache["data"]["email-campaigns"][cache.data.campaignid]["cc"],
+        "bcc": cache["data"]["email-campaigns"][cache.data.campaignid]["bcc"],
+        "replyto": cache["data"]["email-campaigns"][cache.data.campaignid]["replyto"],
+        "subject": cache["data"]["email-campaigns"][cache.data.campaignid]["subject"],
+        "body_text": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["body_text"],
+        "body_html": cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["body_html"],
+        "smtp_server": cache["data"]["email-campaigns"][cache.data.campaignid]["smtp_server"]
     })}).then(response => {
         if (!response.ok) {
           location = "auth-offline.html";
@@ -458,24 +550,24 @@ function send_email(email){
     }).then(data => {
         if(!data.error){
             if(data.body.status == 'success'){
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["response"] = data.body;
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] = "True";
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["response"] = data.body;
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] = "True";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
                 display_log(email);
                 savepayload(email);
             }else{
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["response"] = data.body;
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] = "False";
-                cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["response"] = data.body;
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] = "False";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
                 display_log(email);
                 savepayload(email);
             }
         }
 
     }).catch(error => {
-        cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["response"] = error;
-        cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["sent"] = "Error";
-        cache["email-campaigns"]["data"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
+        cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["response"] = error;
+        cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["sent"] = "Error";
+        cache["data"]["email-campaigns"][cache.data.campaignid]["to"][email]["datetime"] = datetime();
         display_log(email);
         savepayload(email);
     });
