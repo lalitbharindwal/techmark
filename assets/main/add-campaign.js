@@ -11,20 +11,6 @@ function datetime(){
 
 async function show_aliases(){
     await storage("techmark", "get");
-    if(cache.data.gmail != undefined){
-        document.getElementById("sender").innerHTML = "Authenticating access...";
-        document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
-        const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
-        const redirectUri = 'https://techmark.solutions/add-campaign';
-        const clientSecret = "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";
-        const event = {
-            "email": cache.data.gmail,
-            "clientId": clientId,
-            "clientSecret": clientSecret,
-            "redirect_uri": redirectUri
-        }
-        flow(event);
-      }
     document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" data-bs-toggle="modal" data-bs-target=".bs-modal-xl1" href="javascript:void(0);">Manage Sender</a>`;
     document.getElementById("verifiedemailslist").innerHTML = '';
     for (let key in cache["data"]["email-credentials"]) {
@@ -42,7 +28,23 @@ async function show_aliases(){
     }
 }
 
-show_aliases()
+async function check_gmail(){
+    await show_aliases()
+    if(cache.data.gmail != undefined){
+        document.getElementById("sender").innerHTML = "Authenticating access...";
+        document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
+        const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
+        const redirectUri = 'https://techmark.solutions/add-campaign';
+        const clientSecret = "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";
+        const event = {
+            "email": cache.data.gmail,
+            "clientId": clientId,
+            "clientSecret": clientSecret,
+            "redirect_uri": redirectUri
+        }
+        await flow(event);
+      }
+}
 
 function raw(payload){
 const raw =
