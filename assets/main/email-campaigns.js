@@ -111,7 +111,7 @@ async function tabledata() {
                 name: "Content",
                 width: "80px",
                 formatter: function(e) {
-                    return gridjs.html(`<button type="button" onclick="view_email(this)" id="${e}" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg" class="btn btn-ghost-dark waves-effect waves-light">View</button>`)
+                    return gridjs.html(`<button type="button" onclick="view_email(this)" id="${e}" data-bs-toggle="modal" data-bs-target=".exampleModalFullscreen" class="btn btn-ghost-dark waves-effect waves-light">View</button>`)
                 }
             }],
             pagination: {
@@ -132,33 +132,6 @@ async function tabledata() {
     }
 }
 
-
 function view_email(obj){
-    document.getElementById("preview-frame").srcdoc = cache.data["email-campaigns"][obj.id]["payload"]["body_html"];
-}
-
-function resizeDevice(deviceType) {
-    const iframe2 = document.getElementById("preview-frame");
-    // Set iframe dimensions based on the selected device type
-    switch (deviceType) {
-        case 'desktop':
-            iframe2.style.width = "15cm";
-            iframe2.style.height = "10cm";
-            break;
-        case 'tablet-p':
-            iframe2.style.width = "10cm";
-            iframe2.style.height = "12cm";
-            break;
-        case 'mobile-p':
-            iframe2.style.width = "7cm";
-            iframe2.style.height = "13cm";
-            break;
-        case 'mobile-l':
-            iframe2.style.width = "13cm";
-            iframe2.style.height = "6cm";
-            break;
-        default:
-            iframe2.style.width = "15cm";
-            iframe2.style.height = "10cm";
-    }
+    editor1.setHTMLCode(cache.data["email-campaigns"][obj.id]["payload"]["body_html"])
 }

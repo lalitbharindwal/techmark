@@ -25,8 +25,6 @@ if (localStorage.getItem("data-bs-theme") != null) {
     sessionStorage.setItem("data-sidebar", localStorage.getItem("data-sidebar"));
     sessionStorage.setItem("data-topbar", localStorage.getItem("data-topbar"));
     sessionStorage.setItem("data-sidebar-image", localStorage.getItem("data-sidebar-image"));
-} else {
-    sessionStorage.setItem("data-sidebar", "gradient-4");
 }
 
 !function() {

@@ -307,26 +307,27 @@
                         <!-- end col -->
                     </div>
                     <!--  Large modal example -->
-                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
+                    <div class="modal fade exampleModalFullscreen" tabindex="-1" role="dialog" aria-labelledby="exampleModalFullscreenLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-fullscreen">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="myLargeModalLabel"></h5>
+                                    <h5 class="modal-title" id="exampleModalFullscreenLabel"></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <section class="preview">
-                                        <ul class="devices">
-                                            <li><i class="fs-24 bx bx-desktop" onclick="resizeDevice('desktop')"></i></li>
-                                            <li><i class="fs-24 bx bx-tab" onclick="resizeDevice('tablet-p')"></i></li>
-                                            <li><i class="fs-24 bx bx-mobile-alt" onclick="resizeDevice('mobile-p')"></i></li>
-                                            <li><i class="fs-24 bx bx-mobile-landscape" onclick="resizeDevice('mobile-l')"></i></li>
-                                        </ul>
-                                        
-                                        <div class="device" id="preview">
-                                            <iframe id="preview-frame" frameborder="0"></iframe>
+                                        <link rel="stylesheet" href="assets/editor/res/style.css" />
+                                        <link rel="stylesheet" href="assets/editor/richtexteditor/rte_theme_default.css" />
+                                        <script type="text/javascript" src="assets/editor/richtexteditor/rte.js"></script>
+                                        <script>RTE_DefaultConfig.url_base='assets/editor/richtexteditor'</script>
+                                        <script type="text/javascript" src='assets/editor/richtexteditor/plugins/all_plugins.js'></script>
+                                        <div id="div_editor1"></div>
+                                        <div class="d-grid gap-2" style="margin-top: -30px;">
+                                            <button class="btn btn-light" type="button"></button>
                                         </div>
-                                    </section>
+                                        <script>
+                                            var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "basic"});
+                                        </script>
+                                        <script src="assets/editor/res/patch.js"></script>
                                 </div>
                             </div><!-- /.modal-content -->
                         </div><!-- /.modal-dialog -->
@@ -364,65 +365,32 @@
         </div>
     </div>
     <style>
-        #preview-frame{
-            width: 15cm;
-            height: 10cm;
-            box-shadow: 20px 20px 22px rgba(0, 0, 0.2, 0.5);
+        #div_editor1 {
+            background-color: white !important;
+            border-color: white !important;
+            height: auto;
+            min-height: 15cm;
+            overflow: auto;
         }
 
-        .preview {
-            overflow-x: auto;
-            #preview{
-                position: relative;
-                width: 15cm;
-                height: 16cm;
-                margin: 0 auto;
-                &, &:after, iframe {
-                    transform: scale(1);
-                    transition: all 0.5s ease;
-                }
-
-            iframe {
-                    border-radius: 1em;
-                }
-            }
+        #div_editor1 rte-toolbar {
+            background-color:white !important;
         }
 
-        .devices {
-            list-style-type: none;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 0;
+        #div_editor1 rte-bottom {
+            background-color: #ffffff !important;
         }
 
-        .devices li a {
-            text-decoration: none;
-            padding: 10px 15px;
-            background-color: #f0f0f0;
-            color: #333;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            transition: background-color 0.3s;
+        #div_editor1 rte-dialog-inner {
+            background-color: #ffffff !important;
         }
 
-        .devices li a:hover {
-            background-color: #ddd;
+        #div_editor1 rte-line-spliter {
+            background-color: black !important;
         }
 
-        /* Default iframe styling */
-        .device iframe {
-            border: 1px solid #ccc;
-            transition: width 0.5s, height 0.5s;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        /* Centering the iframe */
-        .device {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
+        #div_editor1 rte-dialog-header {
+            background-color: white;
         }
     </style>
     <!-- JAVASCRIPT -->

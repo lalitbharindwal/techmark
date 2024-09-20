@@ -206,7 +206,8 @@ RTE_DefaultConfig.toolbar_default = "{bold,italic,underline,forecolor,backcolor}
 RTE_DefaultConfig.toolbar_mobile = "{bold,italic,underline|fontname:toggle,fontsize:toggle,menu_paragraphop|forecolor,backcolor}" + "{insertlink,insertemoji,inserttable,insertgallery,removeformat,code}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
 // Default set of buttons that appears in the rich text editor's toolbar on mobile.
 
-RTE_DefaultConfig.toolbar_basic = "{bold,italic,underline}|{fontname,fontsize}|{insertlink,insertemoji,insertgallery}|removeformat|code" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+//RTE_DefaultConfig.toolbar_basic = "{bold,italic,underline}|{fontname,fontsize}|{insertlink,insertemoji,insertgallery}|removeformat|code" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+RTE_DefaultConfig.toolbar_basic = "{preview,code,fullscreenenter,fullscreenexit,save,print}";
 // Basic set of buttons that appears in the rich text editor's toolbar.
 
 RTE_DefaultConfig.toolbar_full = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent}{superscript,subscript}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,unlink,insertblockquote,insertemoji,insertchars,inserttable,insertgallery,inserttemplate,insertcode}" + "#{preview,code,selectall}" + " /{paragraphs:dropdown | fontname:dropdown | fontsize:dropdown} {paragraphstyle,toggle_paragraphop,menu_paragraphop}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
