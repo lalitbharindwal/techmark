@@ -9,8 +9,7 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-async function show_aliases(){
-    await storage("techmark", "get");
+function show_aliases(){
     document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" data-bs-toggle="modal" data-bs-target=".bs-modal-xl1" href="javascript:void(0);">Manage Sender</a>`;
     document.getElementById("verifiedemailslist").innerHTML = '';
     for (let key in cache["data"]["email-credentials"]) {
@@ -29,7 +28,8 @@ async function show_aliases(){
 }
 
 async function check_gmail(){
-    await show_aliases()
+    await storage("techmark", "get");
+    show_aliases()
     if(cache.data.gmail != undefined){
         document.getElementById("sender").innerHTML = "Authenticating access...";
         document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
@@ -272,6 +272,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-cc").innerHTML = payload.cc;
                         document.getElementById("log-bcc").innerHTML = payload.bcc;
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
+                        document.getElementById("log-status").innerHTML = "Connecting to server...";
                         generatePayload(payload);
                         var condition_expression = "#useremail = :value1";
                         var update_expression = "SET #emailcampaigns.#campaignid = :value2";
@@ -303,6 +304,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 location = "auth-500.html";
                                 //console.log(data)
                             }else{
+                                document.getElementById("log-status").innerHTML = "Starting Connection...";
                                 fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
                                     mode: 'cors',
                                     headers: headers,
@@ -328,8 +330,9 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                             cache.data["email-campaigns"][cache.data.campaignid]["payload"] = cache.data.payload;
                                             cache.data.payload.bearer = atob(cache.data.bearer);
                                             cache["data"]["recipients"].forEach((gmail, index) => {
-                                                const delay = 2850 * index;
+                                                const delay = 1850 * index;
                                                 setTimeout(() => {
+                                                    document.getElementById("log-status").innerHTML = `Sending to ${gmail}`;
                                                     cache.data.payload.requestBody = raw(payload)
                                                     send_gmail(gmail)
                                                 }, delay);
@@ -358,6 +361,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-cc").innerHTML = payload.cc;
                         document.getElementById("log-bcc").innerHTML = payload.bcc;
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
+                        document.getElementById("log-status").innerHTML = "Connecting to server...";
                         payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
                         generatePayload(payload);
                         var condition_expression = "#useremail = :value1";
@@ -390,6 +394,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 location = "auth-500.html";
                                 //console.log(data)
                             }else{
+                                document.getElementById("log-status").innerHTML = "Starting Connection...";
                                 fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
                                     mode: 'cors',
                                     headers: headers,
@@ -411,12 +416,12 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                             location = "auth-500.html";
                                             //console.log(data)
                                         }else{
-                                            console.log(data)
                                             cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                                             cache.data["email-campaigns"][cache.data.campaignid]["payload"] = cache.data.payload;
                                             cache["data"]["recipients"].forEach((email, index) => {
-                                                const delay = 250 * index;
+                                                const delay = 1250 * index;
                                                 setTimeout(() => {
+                                                    document.getElementById("log-status").innerHTML = `Sending to ${email}`;
                                                     send_email(email)
                                                 }, delay);
                                             });
@@ -577,10 +582,10 @@ function send_gmail(gmail){
    });
 }
 
-function send_email(email){
+async function send_email(email){
     let headers = new Headers();
     headers.append('Origin', '*');
-    fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
+    await fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
       mode: 'cors',
       headers: headers,
       "method": "POST",
@@ -609,14 +614,14 @@ function send_email(email){
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["response"] = data.body;
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] = "True";
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["datetime"] = datetime();
-                display_log(email);
                 savepayload(email);
+                display_log(email);
             }else{
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["response"] = data.body;
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] = "False";
                 cache["data"]["email-campaigns"][cache.data.campaignid][email]["datetime"] = datetime();
-                display_log(email);
                 savepayload(email);
+                display_log(email);
             }
         }
 
@@ -624,8 +629,8 @@ function send_email(email){
         cache["data"]["email-campaigns"][cache.data.campaignid][email]["response"] = error;
         cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] = "Error";
         cache["data"]["email-campaigns"][cache.data.campaignid][email]["datetime"] = datetime();
-        display_log(email);
         savepayload(email);
+        display_log(email);
     });
 }
 

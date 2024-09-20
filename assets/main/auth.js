@@ -177,6 +177,7 @@ function deleteData(data) {
 async function storage(data, method) {
     try {
         if(method == "put"){
+            document.getElementById("alert").innerHTML = "Login Successfully";
             await openDatabase();
             addData(data);
         }else if(method == "get"){
@@ -197,6 +198,7 @@ async function storage(data, method) {
 
 async function getpayload(data) {
     var cache = data;
+    document.getElementById("alert").innerHTML = "Authenticating...";
     for (const key in cache.data["email-campaigns"]) {
         let headers = new Headers();
         headers.append('Origin', '*');
@@ -235,7 +237,7 @@ async function getpayload(data) {
 async function login(){
     let headers = new Headers();
     headers.append('Origin', '*');
-    document.getElementById("alert").innerHTML = "Authenticating...";
+    document.getElementById("alert").innerHTML = "Loading...";
     await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
       mode: 'cors',
       headers: headers,
@@ -261,7 +263,6 @@ async function login(){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
-                    document.getElementById("alert").innerHTML = "Login Successfully";
                     getpayload(JSON.parse(data.body))
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
