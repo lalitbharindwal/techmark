@@ -1,4 +1,3 @@
-
 function getChartColorsArray(e) {
     if (null !== document.getElementById(e)) {
         var t = document.getElementById(e).getAttribute("data-colors");
@@ -7,14 +6,13 @@ function getChartColorsArray(e) {
                 var t = e.replace(" ", "");
                 return -1 === t.indexOf(",") ? getComputedStyle(document.documentElement).getPropertyValue(t) || t : 2 == (e = e.split(",")).length ? "rgba(" + getComputedStyle(document.documentElement).getPropertyValue(e[0]) + "," + e[1] + ")" : t
             });
-        console.warn("data-colors atributes not found on", e)
+        //console.warn("data-colors atributes not found on", e)
     }
 }
 
 async function emailsSendingLog() {
     // Initialize counters and arrays
     await storage("techmark", "get");
-    console.log(cache)
     let totalEmailsSentMonthly = 0;
     let totalEmailsSentToday = 0;
     let totalEmailsSentYearly = 0;
@@ -166,7 +164,6 @@ async function emailsSendingLog() {
     },
     (chart = new ApexCharts(document.querySelector("#total-emails-sent-month"),options)).render()));
 
-
     var options, chart, linechartcustomerColors= getChartColorsArray("total-emails-sent-today"), chartDonutBasicColors = ((options = {
         series: [{
             name: "Emails Sent",
@@ -250,10 +247,6 @@ async function emailsSendingLog() {
     },
     (chart = new ApexCharts(document.querySelector("#total-emails-sent-today"),options)).render()))
 }
-
-emailsSendingLog()
-
-
 
 /*let cache; // Declare cache only once
 async function fetchData() {

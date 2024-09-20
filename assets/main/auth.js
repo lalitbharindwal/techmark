@@ -4,6 +4,17 @@ if (!window.indexedDB) {
     location = "auth-500.html";
 }
 
+function datetime(){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
 function sendOTP(){
     var content = "Dear "+ payload["fullname"] +",\n\nYour OTP is "+ payload["code"] +"\nDo not share it with anyone by any means.\nCode is only valid for 5 minutes\n\nRegards,\nTechMark Team"
     fetch('https://5v7v92mmsd.execute-api.us-east-1.amazonaws.com/techmark-notifications',
@@ -41,9 +52,7 @@ function resendOTP(){
     });
 }
 
-function generateOTP() { 
-    // Declare a string variable  
-    // which stores all string 
+function generateOTP() {
     var string = '0123456789'; 
     let OTP = ''; 
     // Find the length of string 
@@ -52,7 +61,26 @@ function generateOTP() {
         OTP += string[Math.floor(Math.random() * len)]; 
     } 
     return OTP; 
-  }
+}
+
+function verify(code){
+    if(code==payload["code"]){
+        const data1 = {
+            "email": payload["email"],
+            "userdata": {
+                "fullname": payload["fullname"],
+                "password": btoa(payload["password"]),
+                "created": datetime()
+            },
+            "email-credentials": {},
+            "email-campaigns": {}
+        }
+
+        put_data("techmark-solutions", data1);
+    }else{
+        document.getElementById("alert").innerHTML = "Incorrect OTP";
+    }
+}
 
 function signup(){
     payload = {
@@ -70,21 +98,15 @@ function signup(){
     sendOTP();
 }
 
-if(sessionStorage.getItem("code") != null){
-    location = "dashboard.html";
-}
-
 let db;
 // Open (or create) the database
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const dbName = "techmark";
         const dbVersion = 1;
-
         const request = indexedDB.open(dbName, dbVersion);
-
         request.onerror = function(event) {
-            console.error("Database error: " + event.target.errorCode);
+            //console.error("Database error: " + event.target.errorCode);
             location = "auth-500.html";
             reject(event.target.errorCode);
         };
@@ -98,7 +120,7 @@ function openDatabase() {
         request.onupgradeneeded = function(event) {
             db = event.target.result;
             const objectStore = db.createObjectStore("techmark", { keyPath: "techmark", autoIncrement: true });
-           // console.log("Object store created");
+            //console.log("Object store created");
         };
     });
 }
@@ -106,9 +128,7 @@ function openDatabase() {
 function addData(data) {
     const transaction = db.transaction(["techmark"], "readwrite");
     const objectStore = transaction.objectStore("techmark");
-
     const request = objectStore.add(data);
-
     request.onsuccess = function(event) {
         location = "dashboard.html";
     };
@@ -123,7 +143,6 @@ function getData(id) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(["techmark"], "readonly");
         const objectStore = transaction.objectStore("techmark");
-
         const request = objectStore.get(id);
         request.onsuccess = function(event) {
             const result = event.target.result;
@@ -137,6 +156,21 @@ function getData(id) {
             reject(event.target.errorCode);
         };
     });
+}
+
+function deleteData(data) {
+    const transaction = db.transaction(["techmark"], "readwrite");
+    const objectStore = transaction.objectStore("techmark");
+    const request = objectStore.delete(data);
+    request.onsuccess = function(event) {
+        //console.log(`Data with email ${email} deleted successfully`);
+        location = "index.html";
+    };
+
+    request.onerror = function(event) {
+        //console.error(`Error deleting data with email ${email}: ${event.target.errorCode}`);
+        location = "auth-500.html";
+    };
 }
 
 // Open the database and then add/retrieve data
@@ -155,11 +189,8 @@ async function storage(data, method) {
             await openDatabase();
             deleteData(data)
         }
-        
-        //updateData({"techmark":"techmark", "data": {"name": "lalit"}})
-        //const retrievedData = await getData("email");
     } catch (error) {
-        console.error("Error in main function:", error);
+        //console.error("Error in main function:", error);
         location = "auth-500.html";
     }
 }
@@ -194,7 +225,7 @@ async function getpayload(data) {
                 cache.data["email-campaigns"][key]["payload"] = object;
             }
         }).catch(error => {
-            console.log(error)
+            //console.log(error)
             location = "auth-offline.html";
         });
     }
@@ -205,11 +236,12 @@ async function login(){
     let headers = new Headers();
     headers.append('Origin', '*');
     document.getElementById("alert").innerHTML = "Authenticating...";
-    await fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
       mode: 'cors',
       headers: headers,
       "method": "POST",
       "body": JSON.stringify({
+        "service": "dynamodb",
         "method": "get",
         "table_name": "techmark-solutions",
         "primary_key": {
@@ -221,8 +253,7 @@ async function login(){
           location = "auth-offline.html";
         }
         return response.json();
-      })
-      .then(data => {
+    }).then(data => {
         if(JSON.parse(data["body"])["error"] == "true"){
             location = "auth-500.html";
         }else{
@@ -237,20 +268,21 @@ async function login(){
                 }
             }
         }
-      }).catch(error => {
-        console.log(error)
-        //location = "auth-offline.html";
+    }).catch(error => {
+        //console.log(error)
+        location = "auth-offline.html";
     });
 }
 
 function put_data(table_name, items){
     let headers = new Headers();
     headers.append('Origin', '*');
-    fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
       mode: 'cors',
       headers: headers,
       "method": "POST",
       "body": JSON.stringify({
+        "service": "dynamodb",
         "method": "put",
         "table_name": table_name,
         "items": items
@@ -269,52 +301,4 @@ function put_data(table_name, items){
     }).catch(error => {
         location = "auth-offline.html";
     });
-}
-
-function deleteData(data) {
-    const transaction = db.transaction(["techmark"], "readwrite");
-    const objectStore = transaction.objectStore("techmark");
-
-    const request = objectStore.delete(data);
-
-    request.onsuccess = function(event) {
-        //console.log(`Data with email ${email} deleted successfully`);
-        location = "index.html";
-    };
-
-    request.onerror = function(event) {
-        //console.error(`Error deleting data with email ${email}: ${event.target.errorCode}`);
-        location = "auth-500.html";
-    };
-}
-
-function verify(code){
-    if(code==payload["code"]){
-        const data1 = {
-            "email": payload["email"],
-            "userdata": {
-                "fullname": payload["fullname"],
-                "password": btoa(payload["password"]),
-                "created": datetime()
-            },
-            "email-credentials": {},
-            "email-campaigns": {}
-        }
-
-        put_data("techmark-solutions", data1);
-    }else{
-        console.log("failed")
-        document.getElementById("alert").innerHTML = "Incorrect OTP";
-    }
-}
-
-function datetime(){
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }

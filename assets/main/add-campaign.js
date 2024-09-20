@@ -43,7 +43,87 @@ async function check_gmail(){
             "redirect_uri": redirectUri
         }
         await flow(event);
-      }
+    }
+}
+
+var text;
+function validateContactList(){
+    text = document.getElementById("emaillist").value;
+    var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
+    // Find all matches of valid email patterns in the textarea
+    var validEmails = text.match(emailRegex);
+    if(validEmails == null){
+        alert("Please Enter Recipients");
+        return
+    }
+    document.getElementById("emailslist").innerHTML = 
+    `<div class="card-header">
+        <h4 class="card-title mb-0">Valid Emails</h4>
+    </div><!-- end card header -->
+    <div class="card-body" style="height: 10cm; overflow: auto;">
+        <!-- Striped Rows -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Sr. No</th>
+                    <th scope="col">Emails</th>
+                </tr>
+            </thead>
+            <tbody id="emails"></tbody>
+        </table>
+    </div>`;
+
+    document.getElementById("card-btns").innerHTML =
+    `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
+        <i class="ri-edit-box-line me-1 align-middle" ></i> Edit
+    </a>
+    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
+
+    if(validEmails){
+        validEmails.forEach((email, index) => {
+            document.getElementById("emails").innerHTML += 
+            `<tr>
+                <td>${index+1}</td>
+                <td>${email.trim()}</td>
+            </tr>`;
+        });
+    }
+}
+
+function editContacts(){
+    document.getElementById("emailslist").innerHTML = 
+    `<div class="card-header">
+        <h4 class="card-title mb-0">Enter Emails</h4>
+    </div>
+    <div class="card-body">
+        <textarea style="width: 100%; height: 8cm;" id="emaillist" placeholder="Enter one email address per line">${text}</textarea>
+    </div>`;
+    document.getElementById("card-btns").innerHTML = 
+    `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal">
+        <i class="ri-close-line me-1 align-middle"></i> Close
+    </a>
+    <button type="button" class="btn btn-primary" onclick="validateContactList()">Next</button>`;
+}
+
+function saveContacts(){
+    var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
+    // Find all matches of valid email patterns in the textarea
+    var validEmails = text.match(emailRegex);
+    var emails = []
+    if(validEmails){
+        validEmails.forEach((email, index) => {
+            emails.push(email.trim())
+        });
+    }
+
+    if((cache.data.todaysmailsquota-emails.length) >= 0){
+        cache.data.recipients = emails;
+        document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+    }else{
+        cache.data.recipients = undefined;
+        document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
+        alert("Quota Limit Excedding");
+    }
 }
 
 function raw(payload){
@@ -110,7 +190,6 @@ function generatePayload(payload){
     };
 
     cache["data"][cache.data.campaignid] = {}
-
     payload["to"].forEach((email, index) => {
         cache.data.payload.content.email = {
                 "body_text": payload["body_text"],
@@ -221,8 +300,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                             return response.json()
                         }).then(data => {
                             if(JSON.parse(data["body"])["error"] == "true"){
-                                //location = "auth-500.html";
-                                console.log(data)
+                                location = "auth-500.html";
+                                //console.log(data)
                             }else{
                                 fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
                                     mode: 'cors',
@@ -308,8 +387,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                             return response.json()
                         }).then(data => {
                             if(JSON.parse(data["body"])["error"] == "true"){
-                                //location = "auth-500.html";
-                                console.log(data)
+                                location = "auth-500.html";
+                                //console.log(data)
                             }else{
                                 fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
                                     mode: 'cors',
@@ -329,8 +408,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                         return response.json()
                                     }).then(data => {
                                         if(JSON.parse(data["body"])["error"] == "true"){
-                                            //location = "auth-500.html";
-                                            console.log(data)
+                                            location = "auth-500.html";
+                                            //console.log(data)
                                         }else{
                                             console.log(data)
                                             cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
@@ -348,7 +427,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                     });
                             }
                         }).catch(error => {
-                            console.log(error)
+                            //console.log(error)
                             location = "auth-offline.html";
                         });
                     }
@@ -430,11 +509,12 @@ function savepayload(email){
     var expression_attribute_values = {":value1": cache["data"]["email"], ":value2": cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"], ":value3": cache["data"]["email-campaigns"][cache.data.campaignid][email]["datetime"], ":value4": cache["data"]["email-campaigns"][cache.data.campaignid][email]["response"]};
     let headers = new Headers();
     headers.append('Origin', '*');
-    fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+    fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
     mode: 'cors',
     headers: headers,
     "method": "POST",
     "body": JSON.stringify({
+        "service": "dynamodb",
         "method": "update",
         "table_name": "techmark-solutions",
         "primary_key": {"email": cache["data"]["email"]},
@@ -450,13 +530,13 @@ function savepayload(email){
         return response.json()
     }).then(data => {
         if(JSON.parse(data["body"])["error"] == "true"){
-            //location = "auth-500.html";
-            console.log(data)
+            location = "auth-500.html";
+            //console.log(data)
         }else{
             storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         }
     }).catch(error => {
-        console.log(error)
+        //console.log(error)
         location = "auth-offline.html";
     });
 }
@@ -556,86 +636,6 @@ function getEmail(){
       document.getElementById("domain").innerHTML = `@${domain}`;
     }
   }
-
-var text;
-function validateContactList(){
-    text = document.getElementById("emaillist").value;
-    var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
-    // Find all matches of valid email patterns in the textarea
-    var validEmails = text.match(emailRegex);
-    if(validEmails == null){
-        alert("Please Enter Recipients");
-        return
-    }
-    document.getElementById("emailslist").innerHTML = 
-    `<div class="card-header">
-        <h4 class="card-title mb-0">Valid Emails</h4>
-    </div><!-- end card header -->
-    <div class="card-body" style="height: 10cm; overflow: auto;">
-        <!-- Striped Rows -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Sr. No</th>
-                    <th scope="col">Emails</th>
-                </tr>
-            </thead>
-            <tbody id="emails"></tbody>
-        </table>
-    </div>`;
-
-    document.getElementById("card-btns").innerHTML =
-    `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
-        <i class="ri-edit-box-line me-1 align-middle" ></i> Edit
-    </a>
-    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
-
-    if(validEmails){
-        validEmails.forEach((email, index) => {
-            document.getElementById("emails").innerHTML += 
-            `<tr>
-                <td>${index+1}</td>
-                <td>${email.trim()}</td>
-            </tr>`;
-        });
-    }
-  }
-
-function editContacts(){
-    document.getElementById("emailslist").innerHTML = 
-    `<div class="card-header">
-        <h4 class="card-title mb-0">Enter Emails</h4>
-    </div>
-    <div class="card-body">
-        <textarea style="width: 100%; height: 8cm;" id="emaillist" placeholder="Enter one email address per line">${text}</textarea>
-    </div>`;
-    document.getElementById("card-btns").innerHTML = 
-    `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal">
-        <i class="ri-close-line me-1 align-middle"></i> Close
-    </a>
-    <button type="button" class="btn btn-primary" onclick="validateContactList()">Next</button>`;
-}
-
-function saveContacts(){
-    var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
-    // Find all matches of valid email patterns in the textarea
-    var validEmails = text.match(emailRegex);
-    var emails = []
-    if(validEmails){
-        validEmails.forEach((email, index) => {
-            emails.push(email.trim())
-        });
-    }
-
-    if((cache.data.todaysmailsquota-emails.length) >= 0){
-        cache.data.recipients = emails;
-        document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
-    }else{
-        cache.data.recipients = undefined;
-        document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
-        alert("Quota Limit Excedding");
-    }
-}
 
 function extractCodeFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -771,6 +771,7 @@ function putCredentials(){
   });
 }
 
+//
 function select_sender(obj){
     if(cache["data"]["email-credentials"][obj.id]["domain"] == "@gmail.com"){
         getCode(obj.id)
@@ -899,7 +900,6 @@ function select_sender(obj){
                         </div><!-- end card -->`;
                     
                     show_aliases();
-                    //putCredentials(payload);
                     document.getElementById("sender").innerHTML = obj.id;
                     document.getElementById("status-badge-"+obj.id).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("domaininfo").innerHTML = log;
@@ -1136,7 +1136,7 @@ function select_sender(obj){
                 location = "auth-500.html";
             }
         }).catch(error => {
-            console.log(error)
+            //console.log(error)
             location = "auth-offline.html";
         });
     }
@@ -1537,7 +1537,7 @@ function verifymail(){
                 location = "auth-500.html";
             }
         }).catch(error => {
-            console.log(error)
+            //console.log(error)
             location = "auth-offline.html";
         });
     }

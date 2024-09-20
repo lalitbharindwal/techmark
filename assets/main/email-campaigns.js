@@ -75,7 +75,6 @@ async function tabledata() {
         }
         for (const key in cache.data["email-campaigns"][id]) {
             if(key!="payload"){
-
                 payload.push([++count, key, cache.data["email-campaigns"][id][key]["datetime"], cache.data["email-campaigns"][id][key]["sent"], id]);
             }
         }
@@ -99,11 +98,9 @@ async function tabledata() {
                     if(e == "True"){
                         return gridjs.html(`<span class="badge bg-success">SENT</span>`)
                     }
-    
                     if(e == "False"){
                         return gridjs.html(`<span class="badge bg-danger">FAILED</span>`)
                     }
-    
                     if(e == "Error"){
                         return gridjs.html(`<span class="badge bg-warning">ERROR</span>`)
                     }else{
@@ -141,37 +138,26 @@ function view_email(obj){
 }
 
 function resizeDevice(deviceType) {
-    const iframe1 = document.getElementById("preview");
     const iframe2 = document.getElementById("preview-frame");
     // Set iframe dimensions based on the selected device type
     switch (deviceType) {
         case 'desktop':
-            //iframe1.style.width = "17cm";
-            //iframe1.style.height = "12cm";
             iframe2.style.width = "15cm";
             iframe2.style.height = "10cm";
             break;
         case 'tablet-p':
-            //iframe1.style.width = "10cm";
-            //iframe1.style.height = "12cm";
             iframe2.style.width = "10cm";
             iframe2.style.height = "12cm";
             break;
         case 'mobile-p':
-            //iframe1.style.width = "7cm";
-            //iframe1.style.height = "12cm";
             iframe2.style.width = "7cm";
             iframe2.style.height = "13cm";
             break;
         case 'mobile-l':
-            //iframe1.style.width = "15cm";
-            //iframe1.style.height = "7cm";
             iframe2.style.width = "13cm";
             iframe2.style.height = "6cm";
             break;
         default:
-            //iframe1.style.width = "100%";
-            //iframe1.style.height = "800px";
             iframe2.style.width = "15cm";
             iframe2.style.height = "10cm";
     }
