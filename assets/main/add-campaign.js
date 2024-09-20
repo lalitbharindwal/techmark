@@ -447,6 +447,7 @@ function display_log(email){
     sendingCount++;
     if(cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] == "True"){
        sent++;
+       document.getElementById("log-status").innerHTML = `Sent to ${email} successfully`;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
             <td data-label="Sr No.">${sendingCount}</td>
@@ -459,6 +460,7 @@ function display_log(email){
 
     if(cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] == "False"){
        failed++;
+       document.getElementById("log-status").innerHTML = `Failed to send ${email}`;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
             <td data-label="Sr No.">${sendingCount}</td>
@@ -471,6 +473,7 @@ function display_log(email){
 
     if(cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] == "Error"){
         error++;
+        document.getElementById("log-status").innerHTML = `Error to send ${email}`;
         document.getElementById("emaillog").innerHTML +=
          `<tr class="table-warning">
              <td data-label="Sr No.">${sendingCount}</td>
