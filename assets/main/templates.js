@@ -58,15 +58,17 @@ async function save_template(){
             location = "auth-500.html";
             //console.log(data)
         }else{
-            cache.data["email-templates"][templateid] = {"template-name": templatename, "text-content": text, "html-content": html, "datetime": createdon};
-            storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
             document.getElementById("editor-button").innerHTML = `<button class="fs-16 btn btn-light" type="button"><i class="fs-17 bx bx-save"></i> Template Saved</button>`;
-            location = "templates.html";
         }
     }).catch(error => {
         //console.log(error)
         location = "auth-offline.html";
     });
+
+    cache.data["email-templates"][templateid] = {"template-name": templatename, "text-content": text, "html-content": html, "datetime": createdon};
+    await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+    location = "templates.html";
+            
 }
 
 var payload = [];
