@@ -97,6 +97,7 @@ async function templateedit() {
     if(id){
         editor1.setHTMLCode(cache.data["email-templates"][id]["html-content"]);
         document.getElementById("templatename").value = cache.data["email-templates"][id]["template-name"]
+        document.getElementById("add-campaign").href = `add-campaign.html?templateid=${id}`;
         document.getElementById("editor-button").innerHTML = `<button class="fs-16 btn btn-light" onclick="update_template()" type="button"><i class="fs-17 bx bx-save"></i> Update</button>`;
     }
 }

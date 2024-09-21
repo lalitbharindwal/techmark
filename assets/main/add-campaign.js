@@ -30,6 +30,11 @@ function show_aliases(){
 async function check_gmail(){
     await storage("techmark", "get");
     show_aliases()
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('templateid')){
+        storage("techmark", "get");
+        editor1.setHTMLCode(cache.data["email-templates"][params.get('templateid')]["html-content"]);
+    }
     if(cache.data.gmail != undefined){
         document.getElementById("sender").innerHTML = "Authenticating access...";
         document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
