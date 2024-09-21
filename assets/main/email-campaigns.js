@@ -122,7 +122,6 @@ async function tabledata() {
             data: payload
         }).render(document.getElementById("campaign-detail"))
     }else{
-        console.log(cache)
         for (const key in cache.data["email-campaigns"]) {
             payload.push([++count, key, cache.data["email-campaigns"][key]["payload"]["subject"], cache.data["email-campaigns"][key]["payload"]["from"], cache.data["email-campaigns"][key]["payload"]["fullname"], cache.data["email-campaigns"][key]["payload"]["useremail"], key]);
         }

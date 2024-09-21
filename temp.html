@@ -122,5 +122,30 @@ function deleteData(data) {
 }
 
 // Call the main function to start the process
-main();
+//main();
+
+var array = ["lalit", "sharma", "bharindwal"]
+
+
+var email_count = 0
+function start(){
+    send(email_count)
+}
+
+function send(index){
+    save(array[index])
+}
+
+function save(email){
+    console.log(email)
+    console.log(email_count)
+    email_count++
+    if(email_count<array.length){
+        send(email_count)
+    }
+    
+}
+//start()
+
+
 </script>
