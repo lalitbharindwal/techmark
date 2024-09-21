@@ -453,7 +453,8 @@ async function display_log(email){
             <td data-label="Status"><span class="badge bg-success">Sent</span></td>
         </tr>`;
         // progressbar
-        updateProgressBars(sent, failed, error);
+        const inprogress = cache["data"]["recipients"].length - (sent + failed + error);
+        updateProgressBars(sent, failed, error, inprogress);
     }
 
     if(cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] == "False"){
@@ -468,7 +469,8 @@ async function display_log(email){
             <td data-label="Status"><span class="badge bg-danger">Failed</span></td>
         </tr>`;
         // progressbar
-        updateProgressBars(sent, failed, error);        
+        const inprogress = cache["data"]["recipients"].length - (sent + failed + error);
+        updateProgressBars(sent, failed, error, inprogress);        
     }
 
     if(cache["data"]["email-campaigns"][cache.data.campaignid][email]["sent"] == "Error"){
@@ -483,20 +485,20 @@ async function display_log(email){
              <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
         // progressbar
-        updateProgressBars(sent, failed, error);
+        const inprogress = cache["data"]["recipients"].length - (sent + failed + error);
+        updateProgressBars(sent, failed, error, inprogress);
      }
 }
 
-function updateProgressBars(sent, failed, error) {
+function updateProgressBars(sent, failed, error, inprogress) {
     // Calculate total sum of all values
     const total = sent + failed + error;
-    const inprogress = cache["data"]["recipients"].length - total;
 
     // Calculate width percentages
-    const successPercentage = (sent / total) * 100;
-    const inprogressPercentage = (inprogress / total) * 100;
-    const failurePercentage = (failed / total) * 100;
-    const errorPercentage = (error / total) * 100;
+    const successPercentage = Math.floor((sent / total) * 100) ;
+    const inprogressPercentage = Math.floor((inprogress / total) * 100);
+    const failurePercentage = Math.floor((failed / total) * 100);
+    const errorPercentage = Math.floor((error / total) * 100);
 
     document.getElementById("log-sent").innerHTML = `<i class="mdi mdi-numeric-${sent}-circle text-success fs-18 align-middle me-2"></i>Sent`;
     document.getElementById("log-inprogress").innerHTML = `<i class="mdi mdi-numeric-${inprogress}-circle text-info fs-18 align-middle me-2"></i>In Progress`;
