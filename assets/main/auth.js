@@ -73,7 +73,8 @@ function verify(code){
                 "created": datetime()
             },
             "email-credentials": {},
-            "email-campaigns": {}
+            "email-campaigns": {},
+            "email-templates": {}
         }
 
         put_data("techmark-solutions", data1);
@@ -262,6 +263,7 @@ async function login(){
             if(JSON.parse(data["body"])["data"] == null){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
+                console.log(data)
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
                     getpayload(JSON.parse(data.body))
                 }else{
@@ -270,7 +272,7 @@ async function login(){
             }
         }
     }).catch(error => {
-        //console.log(error)
+        console.log(error)
         location = "auth-offline.html";
     });
 }

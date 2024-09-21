@@ -20,7 +20,7 @@
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body>
+<body onload="templateedit()">
     <!-- Begin page -->
     <div id="layout-wrapper">
     <header id="page-topbar">
@@ -167,6 +167,9 @@
                                     <li class="nav-item">
                                         <a href="add-campaign.html" class="nav-link" data-key="t-analytics">Add Campaign</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a href="templates.html" class="nav-link" data-key="t-analytics">Email Templates</a>
+                                    </li>
                                 </ul>
                             </div>
                         </li> <!-- end Dashboard Menu -->
@@ -210,7 +213,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="live-preview">
-                                            <form onsubmit="save_templates(); return false;">
+                                            <form onsubmit="save_template(); return false;">
                                                 <div class="row mb-0">
                                                     <div class="col-8">
                                                         <input class="form-control" placeholder="Template Name" id="templatename" required>
@@ -234,7 +237,7 @@
                                                             <script>RTE_DefaultConfig.url_base='assets/editor/richtexteditor'</script>
                                                             <script type="text/javascript" src='assets/editor/richtexteditor/plugins/all_plugins.js'></script>
                                                             <div id="div_editor1"></div>
-                                                            <div class="d-grid gap-2" style="margin-top: -30px;">
+                                                            <div class="d-grid gap-2" style="margin-top: -30px;" id="editor-button">
                                                                 <button class="fs-16 btn btn-light" type="submit"><i class="fs-17 bx bx-save"></i> Save Template</button>
                                                             </div>
                                                             <script>
@@ -322,5 +325,6 @@
     <script src="assets/js/plugins.js"></script>
     <!-- App js -->
     <script src="assets/js/app.js"></script>
+    <script src="assets/main/templates.js"></script>
 </body>
 </html>
