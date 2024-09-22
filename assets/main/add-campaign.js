@@ -699,11 +699,12 @@ function putCredentials(){
   var expression_attribute_values = {":value1": cache["data"]["email"],  ":value2": cache["data"]["email-credentials"]};
   let headers = new Headers();
   headers.append('Origin', '*');
-  fetch("https://oyq9jvb6p9.execute-api.us-east-1.amazonaws.com/techmark-dynamodb", {
+  fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
     mode: 'cors',
     headers: headers,
     "method": "POST",
     "body": JSON.stringify({
+      "service": "dynamodb",
       "method": "update",
       "table_name": "techmark-solutions",
       "primary_key": {"email": cache["data"]["email"]},
