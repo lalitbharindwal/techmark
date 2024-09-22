@@ -338,9 +338,9 @@ function Mailer(){
             }
             return response.json()
         }).then(data => {
+            console.log(data);
             if(JSON.parse(data["body"])["error"] == "true"){
                 location = "auth-500.html";
-                //console.log(data)
             }else{
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;

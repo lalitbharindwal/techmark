@@ -200,7 +200,6 @@ var cache;
 async function get_email_campaign(object){
     for(var i=0;i<object.length;i++){
         var key = (object[i]["Key"]).split("/");
-        console.log(key[0])
         if(key[0] == cache["data"]["email"]){
             let headers = new Headers();
             headers.append('Origin', '*');
