@@ -147,7 +147,7 @@ Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
 --techmark-mail-boundary
 Content-Type: text/plain; charset="UTF-8"
 
-${cache.data["email-campaigns"][cache.data.campaignid]["payload"][gmail]["body_text"]}
+${cache.data["email-campaigns"][cache.data.campaignid]["body_text"]}
 
 --techmark-mail-boundary
 Content-Type: text/html; charset="UTF-8"
@@ -159,7 +159,7 @@ Content-Type: text/html; charset="UTF-8"
 <title>TechMark</title>
 </head>
 <body>
-${cache.data["email-campaigns"][cache.data.campaignid]["payload"][gmail]["body_html"]}
+${cache.data["email-campaigns"][cache.data.campaignid]["body_html"]}
 </body>
 </html>
 
@@ -192,13 +192,13 @@ function generatePayload(payload){
         "body_text": payload["body_text"],
         "body_html": payload["body_html"],
         "smtp_server": payload["smtp_server"],
-        "payload":{}
+        "payload":{},
+        "body_text": payload["body_text"],
+        "body_html": payload["body_html"]
     };
 
     payload["to"].forEach((mail, index) => {
         cache.data["email-campaigns"][cache.data.campaignid]["payload"][mail] = {
-            "body_text": payload["body_text"],
-            "body_html": payload["body_html"],
             "attributes": {},
             "status": "PENDING",
             "datetime": "",
@@ -338,18 +338,17 @@ function Mailer(){
             }
             return response.json()
         }).then(data => {
-            console.log(data);
             if(JSON.parse(data["body"])["error"] == "true"){
                 location = "auth-500.html";
             }else{
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                 cache.data.flag = 0;
-                send_email(cache.data.flag)
+                send_email(cache.data.flag);
             }
         }).catch(error => {
-                //console.log(error)
-                location = "auth-offline.html";
+            //console.log(error)
+            location = "auth-offline.html";
         });
     }
 }
@@ -557,8 +556,8 @@ async function send_email(index){
         "bcc": cache.data["email-campaigns"][cache.data.campaignid]["bcc"],
         "replyto": cache.data["email-campaigns"][cache.data.campaignid]["replyto"],
         "subject": cache.data["email-campaigns"][cache.data.campaignid]["subject"],
-        "body_text": cache.data["email-campaigns"][cache.data.campaignid]["payload"][email]["body_text"],
-        "body_html": cache.data["email-campaigns"][cache.data.campaignid]["payload"][email]["body_html"],
+        "body_text": cache.data["email-campaigns"][cache.data.campaignid]["body_text"],
+        "body_html": cache.data["email-campaigns"][cache.data.campaignid]["body_html"],
         "smtp_server": cache.data["email-campaigns"][cache.data.campaignid]["smtp_server"]
     })}).then(response => {
         if (!response.ok) {
