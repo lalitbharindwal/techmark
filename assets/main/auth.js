@@ -82,7 +82,7 @@ function verify(code){
     }
 }
 
-function signup(){
+async function signup(){
     payload = {
         "email": document.getElementById("email").value,
         "fullname": document.getElementById("fullname").value,
@@ -94,8 +94,40 @@ function signup(){
         backdrop: 'static', // Disable closing by clicking outside the modal
         keyboard: false     // Disable closing with the Esc key
     });
-    myModal.show();
-    sendOTP();
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+        mode: 'cors',
+        headers: headers,
+        "method": "POST",
+        "body": JSON.stringify({
+          "service": "dynamodb",
+          "method": "get",
+          "table_name": "techmark-solutions",
+          "primary_key": {
+              "email": document.getElementById("email").value
+          }
+        })
+    }).then(response => {
+        if (!response.ok) {
+            location = "auth-offline.html";
+        }
+        return response.json();
+    }).then(data => {
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+        }else{
+            if(JSON.parse(data["body"])["data"] == null){
+                myModal.show();
+                sendOTP();
+            }else{
+                alert("User Already Exists");
+            }
+        }
+    }).catch(error => {
+          console.log(error)
+          location = "auth-offline.html";
+    });
 }
 
 let db;

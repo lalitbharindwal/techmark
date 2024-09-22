@@ -187,3 +187,86 @@ async function update_template(){
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     location = "templates.html";
 }
+
+async function delete_template(){
+    const templateid =  id;
+    document.getElementById("editor-button").innerHTML = `<button class="fs-16 btn btn-danger" type="button">Deleting...</button>`;
+    var condition_expression = "#useremail = :value1";
+    var update_expression = "REMOVE #emailtemplates.#templateid";
+    var expression_attribute_names = {"#useremail": "email", "#emailtemplates": "email-templates" ,"#templateid": templateid};
+    var expression_attribute_values = {":value1": cache.data.email};
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+        "service": "dynamodb",
+        "method": "update",
+        "table_name": "techmark-solutions",
+        "primary_key": {"email": cache["data"]["email"]},
+        "condition_expression": condition_expression,
+        "update_expression": update_expression,
+        "expression_attribute_names": expression_attribute_names,
+        "expression_attribute_values": expression_attribute_values
+    })
+    }).then(response => {
+        if (!response.ok) {
+            location = "auth-offline.html";
+        }
+        return response.json()
+    }).then(data => {
+        console.log(data)
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+            //console.log(data)
+        }else{
+            document.getElementById("editor-button").innerHTML = `<button class="fs-16 btn btn-danger" type="button"><i class="fs-17 bx bx-save"></i> Template Deleted</button>`;
+        }
+    }).catch(error => {
+        //console.log(error)
+        location = "auth-offline.html";
+    });
+
+    delete cache.data["email-templates"][templateid];
+    await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+}
+
+document.getElementById("sa-params") && document.getElementById("sa-params").addEventListener("click", function() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+        confirmButtonClass: "btn btn-primary w-xs me-2 mt-2",
+        cancelButtonClass: "btn btn-danger w-xs mt-2",
+        buttonsStyling: false,
+        showCloseButton: true
+    }).then(function(result) {
+        if (result.value) {
+            // User clicked "Yes, delete it!"
+            // Perform your delete operation or execute your function here
+            delete_template(); // Example function call
+            // Show a success message
+            Swal.fire({
+                title: "Deleted!",
+                text: "Your Template has been deleted.",
+                icon: "success",
+                confirmButtonClass: "btn btn-primary w-xs mt-2",
+                buttonsStyling: false
+            });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // User clicked "No, cancel!" or clicked outside the dialog
+            Swal.fire({
+                title: "Cancelled",
+                text: "",
+                icon: "error",
+                confirmButtonClass: "btn btn-primary mt-2",
+                buttonsStyling: false
+            });
+        }
+    });
+});
