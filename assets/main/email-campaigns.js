@@ -48,7 +48,6 @@ const id = params.get('id');
 async function tabledata() {
     await storage("techmark", "get");
     if(id){
-        console.log(cache)
         document.getElementById("subject").innerHTML = cache.data["email-campaigns"][id]["subject"];
         document.getElementById("from").innerHTML = cache.data["email-campaigns"][id]["from"];
         document.getElementById("name").innerHTML = cache.data["email-campaigns"][id]["fullname"];

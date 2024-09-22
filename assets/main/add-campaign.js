@@ -227,65 +227,66 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                 if(cache.data.recipients == undefined){
                     alert("Please Select Recipients");
                 }else{
-                    Mailer()
+                    var cc;
+                    var bcc;
+                    var replyto;
+                    try{
+                        cc = document.getElementById("cc").value;
+                    }catch(error){
+                        cc = "";
+                    }
+                        
+                    try{
+                        bcc = document.getElementById("bcc").value;
+                    }catch(error){
+                        bcc = "";
+                    }
+
+                    try{
+                        replyto = document.getElementById("replytoemail").value;
+                    }catch(error){
+                        replyto = "";
+                    }
+                    var payload = {
+                        "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
+                        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
+                        "from": document.getElementById("sender").textContent,
+                        "to": cache["data"]["recipients"],
+                        "cc": cc,
+                        "bcc": bcc,
+                        "replyto": replyto,
+                        "subject": document.getElementById("subject").value,
+                        "body_text": editor1.getPlainText(),
+                        "body_html": editor1.getHTMLCode(),
+                        "smtp_server": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["data"]["domaininfo"]["smtp_server"]
+                    }
+                    var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+                        backdrop: 'static', // Disable closing by clicking outside the modal
+                        keyboard: false     // Disable closing with the Esc key
+                    });
+                    logmodel.show();
+                    document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+                    document.getElementById("log-title").innerHTML = payload.subject;
+                    document.getElementById("log-from").innerHTML = payload.from;
+                    document.getElementById("log-subject").innerHTML = payload.subject;
+                    document.getElementById("log-name").innerHTML = payload.fullname;
+                    document.getElementById("log-cc").innerHTML = payload.cc;
+                    document.getElementById("log-bcc").innerHTML = payload.bcc;
+                    document.getElementById("log-replyto").innerHTML = payload.replyto;
+                    generatePayload(payload);
+                    Mailer();
                 }
             }
         }
     })
 })
 
-async function Mailer(){
-    var cc;
-    var bcc;
-    var replyto;
-    try{
-        cc = document.getElementById("cc").value;
-    }catch(error){
-        cc = "";
-    }
-        
-    try{
-        bcc = document.getElementById("bcc").value;
-    }catch(error){
-        bcc = "";
-    }
-
-    try{
-        replyto = document.getElementById("replytoemail").value;
-    }catch(error){
-        replyto = "";
-    }
-    var payload = {
-        "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
-        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
-        "from": document.getElementById("sender").textContent,
-        "to": cache["data"]["recipients"],
-        "cc": cc,
-        "bcc": bcc,
-        "replyto": replyto,
-        "subject": document.getElementById("subject").value,
-        "body_text": editor1.getPlainText(),
-        "body_html": editor1.getHTMLCode()
-    }
-    if((payload["from"].split("@"))[1] == "gmail.com"){
-        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
-            backdrop: 'static', // Disable closing by clicking outside the modal
-            keyboard: false     // Disable closing with the Esc key
-        });
-        logmodel.show();
-        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
-        document.getElementById("log-title").innerHTML = payload.subject;
-        document.getElementById("log-from").innerHTML = payload.from;
-        document.getElementById("log-subject").innerHTML = payload.subject;
-        document.getElementById("log-name").innerHTML = payload.fullname;
-        document.getElementById("log-cc").innerHTML = payload.cc;
-        document.getElementById("log-bcc").innerHTML = payload.bcc;
-        document.getElementById("log-replyto").innerHTML = payload.replyto;
+function Mailer(){
+    if((cache.data["email-campaigns"][cache.data.campaignid]["from"].split("@"))[1] == "gmail.com"){
         document.getElementById("log-status").innerHTML = "Connecting to server...";
-        await generatePayload(payload);
         let headers = new Headers();
         headers.append('Origin', '*');
-        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+        fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
             mode: 'cors',
             headers: headers,
             "method": "POST",
@@ -317,25 +318,10 @@ async function Mailer(){
             location = "auth-offline.html";
         });
     }else{
-        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
-            backdrop: 'static', // Disable closing by clicking outside the modal
-            keyboard: false     // Disable closing with the Esc key
-        });
-        logmodel.show();
-        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
-        document.getElementById("log-title").innerHTML = payload.subject;
-        document.getElementById("log-from").innerHTML = payload.from;
-        document.getElementById("log-subject").innerHTML = payload.subject;
-        document.getElementById("log-name").innerHTML = payload.fullname;
-        document.getElementById("log-cc").innerHTML = payload.cc;
-        document.getElementById("log-bcc").innerHTML = payload.bcc;
-        document.getElementById("log-replyto").innerHTML = payload.replyto;
         document.getElementById("log-status").innerHTML = "Connecting to server...";
-        payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
-        await generatePayload(payload);
         let headers = new Headers();
         headers.append('Origin', '*');
-        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+        fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
             mode: 'cors',
             headers: headers,
             "method": "POST",
