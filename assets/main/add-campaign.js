@@ -131,21 +131,21 @@ function saveContacts(){
     }
 }
 
-function raw(payload){
+function raw(gmail){
 const raw =
-`From: ${payload["fullname"]} <${payload["from"]}>
-To: ${payload["to"]}
-Cc: ${payload["cc"]}
-Bcc: ${payload["bcc"]}
-Reply-To: ${payload["replyto"]}
-Subject: ${payload["subject"]}
+`From: ${cache.data["email-campaigns"][cache.data.campaignid]["fullname"]} <${cache.data["email-campaigns"][cache.data.campaignid]["from"]}>
+To: ${gmail}
+Cc: ${cache.data["email-campaigns"][cache.data.campaignid]["cc"]}
+Bcc: ${cache.data["email-campaigns"][cache.data.campaignid]["bcc"]}
+Reply-To: ${cache.data["email-campaigns"][cache.data.campaignid]["replyto"]}
+Subject: ${cache.data["email-campaigns"][cache.data.campaignid]["subject"]}
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
 
 --techmark-mail-boundary
 Content-Type: text/plain; charset="UTF-8"
 
-${payload["body_text"]}
+${cache.data["email-campaigns"][cache.data.campaignid]["payload"][gmail]["body_text"]}
 
 --techmark-mail-boundary
 Content-Type: text/html; charset="UTF-8"
@@ -157,7 +157,7 @@ Content-Type: text/html; charset="UTF-8"
 <title>TechMark</title>
 </head>
 <body>
-${payload["body_html"]}
+${cache.data["email-campaigns"][cache.data.campaignid]["payload"][gmail]["body_html"]}
 </body>
 </html>
 
@@ -301,7 +301,6 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                                 cache.data["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
-                                cache.data["email-campaigns"][cache.data.campaignid]["requestBody"] = JSON.stringify(raw(payload))
                                 cache.data.flag = 0;
                                 send_gmail(cache.data.flag);
                             }
@@ -523,7 +522,7 @@ async function send_gmail(index){
            'Authorization': `Bearer ${cache.data["email-campaigns"][cache.data.campaignid]["bearer"]}`,
            'Content-Type': 'application/json'
        },
-            body: cache.data["email-campaigns"][cache.data.campaignid]["requestBody"] // Convert the request body to JSON string
+            body: JSON.stringify(raw(gmail)) // Convert the request body to JSON string
        }).then(response => {
             if (!response.ok) {
                return false
