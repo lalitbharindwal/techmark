@@ -13,7 +13,6 @@ function getChartColorsArray(e) {
 async function emailsSendingLog() {
     // Initialize counters and arrays
     await storage("techmark", "get");
-    console.log(cache)
     let totalEmailsSentMonthly = 0;
     let totalEmailsSentToday = 0;
     let totalEmailsSentYearly = 0;
@@ -33,8 +32,6 @@ async function emailsSendingLog() {
 
     // Iterate through cached email data
     for (const key in cache.data["email-campaigns"]) {
-        console.log(key)
-
         const campaign = cache.data["email-campaigns"][key]["payload"]
         for (const recipient of Object.values(campaign)) {
             if (recipient.sent) {
