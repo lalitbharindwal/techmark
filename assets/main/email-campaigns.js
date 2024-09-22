@@ -129,5 +129,5 @@ async function tabledata() {
 }
 
 function view_email(obj){
-    editor1.setHTMLCode(cache.data["email-campaigns"][id]["payload"][obj.id]["body_html"]);
+    editor1.setHTMLCode(cache.data["email-campaigns"][id]["body_html"]);
 }
