@@ -27,6 +27,7 @@ function show_aliases(){
     }
 }
 
+var recipients;
 async function check_gmail(){
     await storage("techmark", "get");
     show_aliases()
@@ -49,14 +50,51 @@ async function check_gmail(){
         }
         flow(event);
     }
+
+    if(cache.data.recipients != undefined){
+        var emailsHTML = '';
+        recipients = cache.data.recipients;
+        (cache.data.recipients).forEach((email, index) => {
+            emailsHTML += `<tr>
+                <td>${index + 1}</td>
+                <td>${email.trim()}</td>
+            </tr>`;
+        });
+
+        // Update the HTML content using innerHTML only once
+        document.getElementById("emailslist").innerHTML =
+            `<div class="card-header">
+                <h4 class="card-title mb-0">Valid Emails</h4>
+            </div><!-- end card header -->
+            <div class="card-body" style="height: 10cm; overflow: auto;">
+                <!-- Striped Rows -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Sr. No</th>
+                            <th scope="col">Emails</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emails">${emailsHTML}</tbody>
+                </table>
+            </div>`;
+
+        // Update the buttons section
+        document.getElementById("card-btns").innerHTML =
+            `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
+                <i class="ri-edit-box-line me-1 align-middle"></i> Edit
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
+            
+        document.getElementById("select-recipient").innerHTML = `${cache.data.recipients.length} Recipient Selected`;
+    }
 }
 
-var text;
 function validateContactList() {
-    text = document.getElementById("emaillist").value;
+    recipients = document.getElementById("emaillist").value;
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
-    var validEmails = text.match(emailRegex);
+    var validEmails = recipients.match(emailRegex);
     
     if (validEmails == null) {
         alert("Please Enter Recipients");
@@ -103,7 +141,7 @@ function editContacts(){
         <h4 class="card-title mb-0">Enter Emails</h4>
     </div>
     <div class="card-body">
-        <textarea style="width: 100%; height: 8cm;" id="emaillist" placeholder="Enter one email address per line">${text}</textarea>
+        <textarea style="width: 100%; height: 8cm;" id="emaillist" placeholder="Enter one email address per line">${recipients}</textarea>
     </div>`;
     document.getElementById("card-btns").innerHTML = 
     `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal">
@@ -115,7 +153,7 @@ function editContacts(){
 function saveContacts(){
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
-    var validEmails = text.match(emailRegex);
+    var validEmails = recipients.match(emailRegex);
     var emails = []
     if(validEmails){
         validEmails.forEach((email, index) => {
@@ -126,6 +164,7 @@ function saveContacts(){
     if((cache.data.todaysmailsquota-emails.length) >= 0){
         cache.data.recipients = emails;
         document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     }else{
         cache.data.recipients = undefined;
         document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;

@@ -195,8 +195,7 @@ function deleteData(data) {
     const objectStore = transaction.objectStore("techmark");
     const request = objectStore.delete(data);
     request.onsuccess = function(event) {
-        //console.log(`Data with email ${email} deleted successfully`);
-        location = "index.html";
+        //location = "logout.html";
     };
 
     request.onerror = function(event) {
