@@ -34,6 +34,7 @@ async function storage(data, method) {
         //location = "auth-500.html";
     }
 }
+storage('techmark', 'get');
 
 function customBase64Encode(str) {
     try {
