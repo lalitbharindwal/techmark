@@ -274,6 +274,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         document.getElementById("log-replyto").innerHTML = payload.replyto;
                         document.getElementById("log-status").innerHTML = "Connecting to server...";
                         generatePayload(payload);
+                        document.getElementById("log-status").innerHTML = "Starting Connection...";
                         let headers = new Headers();
                         headers.append('Origin', '*');
                         fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
@@ -284,7 +285,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                                 "service": "s3",
                                 "method": "put",
                                 "bucket_name": "techmark-email-campaigns",
-                                "file_content": cache.data.payload,
+                                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
                                 "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
                         })
                         }).then(response => {
