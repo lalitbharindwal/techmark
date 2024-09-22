@@ -34,7 +34,7 @@ async function emailsSendingLog() {
     for (const key in cache.data["email-campaigns"]) {
         const campaign = cache.data["email-campaigns"][key]["payload"]
         for (const recipient of Object.values(campaign)) {
-            if (recipient.sent) {
+            if (recipient.status) {
                 const [datePart] = recipient.datetime.split(' ');
                 const [day, month, year] = datePart.split('-').map(Number);
                 const givenDate = new Date(year, month - 1, day); // Date object for comparison

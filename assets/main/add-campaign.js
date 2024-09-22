@@ -300,8 +300,8 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                             }else{   
                                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                cache.data["email-campaigns"]["bearer"] = atob(cache.data.bearer);
-                                cache.data["email-campaigns"]["requestBody"] = JSON.stringify(raw(payload))
+                                cache.data["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
+                                cache.data["email-campaigns"][cache.data.campaignid]["requestBody"] = JSON.stringify(raw(payload))
                                 cache.data.flag = 0;
                                 send_gmail(cache.data.flag);
                             }
@@ -520,10 +520,10 @@ async function send_gmail(index){
     await fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache.data["email-campaigns"][cache.data.campaignid]["from"] + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
-           'Authorization': `Bearer ${cache.data["email-campaigns"]["bearer"]}`,
+           'Authorization': `Bearer ${cache.data["email-campaigns"][cache.data.campaignid]["bearer"]}`,
            'Content-Type': 'application/json'
        },
-            body: cache.data["email-campaigns"]["requestBody"] // Convert the request body to JSON string
+            body: cache.data["email-campaigns"][cache.data.campaignid]["requestBody"] // Convert the request body to JSON string
        }).then(response => {
             if (!response.ok) {
                return false
@@ -532,16 +532,16 @@ async function send_gmail(index){
        }).then(data => {
            if(data["id"]){
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = data;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["sent"] = "True";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "True";
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
            }else{
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = data;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["sent"] = "False";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "False";
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
            }
        }).catch(error => {
             cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = error;
-            cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["sent"] = "Error";
+            cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "Error";
             cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
    });
 
@@ -580,18 +580,18 @@ async function send_email(index){
         if(!data.error){
             if(data.body.status == 'success'){
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = data.body;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["sent"] = "True";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "True";
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
             }else{
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = data.body;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["sent"] = "False";
+                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "False";
                 cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
             }
         }
 
     }).catch(error => {
         cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = error;
-        cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["sent"] = "Error";
+        cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "Error";
         cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
     });
 

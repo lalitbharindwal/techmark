@@ -28,9 +28,6 @@ async function table(payload){
             name: "Useremail",
             width: "190px"
         }, {
-            name: "Count",
-            width: "90px"
-        }, {
             name: "Actions",
             width: "150px",
             formatter: function(e) {
@@ -77,7 +74,7 @@ async function tabledata() {
             document.getElementById("ipinfo").innerHTML = "";
         }
         for (const key in cache.data["email-campaigns"][id]["payload"]) {
-            payload.push([++count, key, cache.data["email-campaigns"][id]["payload"][key]["datetime"], cache.data["email-campaigns"][id]["payload"][key]["sent"], key]);
+            payload.push([++count, key, cache.data["email-campaigns"][id]["payload"][key]["datetime"], cache.data["email-campaigns"][id]["payload"][key]["status"], key]);
         }
         document.getElementById("campaign-detail") && new gridjs.Grid({
             columns: [{
@@ -123,9 +120,8 @@ async function tabledata() {
             data: payload
         }).render(document.getElementById("campaign-detail"))
     }else{
-        console.log(cache)
         for (const key in cache.data["email-campaigns"]) {
-            payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], Object.keys(cache.data["email-campaigns"][key]["payload"]).length, key]);
+            payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], key]);
         }
         
         await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
