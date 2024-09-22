@@ -230,6 +230,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                     var cc;
                     var bcc;
                     var replyto;
+                    var smtp_server;
                     try{
                         cc = document.getElementById("cc").value;
                     }catch(error){
@@ -247,6 +248,13 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                     }catch(error){
                         replyto = "";
                     }
+
+                    try{
+                        smtp_server = cache["data"]["email-credentials"][document.getElementById("sender").textContent]["data"]["domaininfo"]["smtp_server"];
+                    }catch(error){
+                        smtp_server = "";
+                    }
+
                     var payload = {
                         "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
                         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
@@ -258,7 +266,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         "subject": document.getElementById("subject").value,
                         "body_text": editor1.getPlainText(),
                         "body_html": editor1.getHTMLCode(),
-                        "smtp_server": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["data"]["domaininfo"]["smtp_server"]
+                        "smtp_server": smtp_server
                     }
                     var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
                         backdrop: 'static', // Disable closing by clicking outside the modal
