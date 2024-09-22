@@ -13,6 +13,7 @@ function getChartColorsArray(e) {
 async function emailsSendingLog() {
     // Initialize counters and arrays
     await storage("techmark", "get");
+    console.log(cache)
     let totalEmailsSentMonthly = 0;
     let totalEmailsSentToday = 0;
     let totalEmailsSentYearly = 0;
@@ -32,44 +33,44 @@ async function emailsSendingLog() {
 
     // Iterate through cached email data
     for (const key in cache.data["email-campaigns"]) {
-        if (key !== "email") {
-            const campaign = cache.data["email-campaigns"][key]
-            for (const recipient of Object.values(campaign)) {
-                if (recipient.sent) {
-                    const [datePart] = recipient.datetime.split(' ');
-                    const [day, month, year] = datePart.split('-').map(Number);
-                    const givenDate = new Date(year, month - 1, day); // Date object for comparison
-                    const givenYear = givenDate.getFullYear();
-                    const givenMonth = givenDate.getMonth(); // 0-based index
-                    const givenDay = givenDate.getDate();
+        console.log(key)
 
-                    // Check if the year is one of the specified years
-                    if (yearsOfInterest.includes(givenYear) && givenDay <= 31 && givenMonth < 12) {
-                        data[givenYear][givenMonth][givenDay - 1]++;
-                    }
+        const campaign = cache.data["email-campaigns"][key]["payload"]
+        for (const recipient of Object.values(campaign)) {
+            if (recipient.sent) {
+                const [datePart] = recipient.datetime.split(' ');
+                const [day, month, year] = datePart.split('-').map(Number);
+                const givenDate = new Date(year, month - 1, day); // Date object for comparison
+                const givenYear = givenDate.getFullYear();
+                const givenMonth = givenDate.getMonth(); // 0-based index
+                const givenDay = givenDate.getDate();
 
-                    // Count emails by month for the current year
-                    if (givenYear === currentYear && givenMonth < 12) {
-                        totalEmailsSentMonthly++;
-                    }
+            // Check if the year is one of the specified years
+            if (yearsOfInterest.includes(givenYear) && givenDay <= 31 && givenMonth < 12) {
+                data[givenYear][givenMonth][givenDay - 1]++;
+            }
 
-                    // Count emails by year
-                    if (yearsOfInterest.includes(givenYear)) {
-                        totalEmailsSentYearly++;
-                    }
+            // Count emails by month for the current year
+            if (givenYear === currentYear && givenMonth < 12) {
+                totalEmailsSentMonthly++;
+            }
 
-                    // Count emails for today
-                    if (givenYear === currentYear) {
-                        if (givenMonth === currentMonth) {
-                            if (givenDay === currentDay) {
-                                totalEmailsSentToday++;
-                            }
-                        }
+            // Count emails by year
+            if (yearsOfInterest.includes(givenYear)) {
+                totalEmailsSentYearly++;
+            }
+
+            // Count emails for today
+            if (givenYear === currentYear) {
+                if (givenMonth === currentMonth) {
+                    if (givenDay === currentDay) {
+                        totalEmailsSentToday++;
                     }
                 }
             }
-        }
+        }   
     }
+}
 
     var EmaildSentDaily = data[currentYear][currentMonth];
     var EmaildSentMonthly = [];

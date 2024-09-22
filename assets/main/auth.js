@@ -73,7 +73,6 @@ function verify(code){
                 "created": datetime()
             },
             "email-credentials": {},
-            "email-campaigns": {},
             "email-templates": {}
         }
 
@@ -197,42 +196,80 @@ async function storage(data, method) {
     }
 }
 
-async function getpayload(data) {
-    var cache = data;
-    document.getElementById("alert").innerHTML = "Authenticating...";
-    for (const key in cache.data["email-campaigns"]) {
-        let headers = new Headers();
-        headers.append('Origin', '*');
-        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
-        mode: 'cors',
-        headers: headers,
-        "method": "POST",
-        "body": JSON.stringify({
-            "service": "s3",
-            "method": "get",
-            "bucket_name": "techmark-email-campaigns",
-            "object_name": `${cache["data"]["email"]}/${key}/data.json`
-        })
-        }).then(response => {
-            if (!response.ok) {
+var cache;
+async function get_email_campaign(object){
+    for(var i=0;i<object.length;i++){
+        var key = (object[i]["Key"]).split("/");
+        console.log(key[0])
+        if(key[0] == cache["data"]["email"]){
+            let headers = new Headers();
+            headers.append('Origin', '*');
+            await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+                mode: 'cors',
+                headers: headers,
+                "method": "POST",
+                "body": JSON.stringify({
+                    "service": "s3",
+                    "method": "get",
+                    "bucket_name": "techmark-email-campaigns",
+                    "object_name": `${cache["data"]["email"]}/${key[1]}/data.json`
+            })
+            }).then(response => {
+                if (!response.ok) {
+                    location = "auth-offline.html";
+                }
+                return response.json()
+            }).then(data => {
+                if(JSON.parse(data["body"])["error"] == "true"){
+                    location = "auth-500.html";
+                    //console.log(data)
+                }else{
+                    var object = JSON.parse(data.body.toString('utf-8'));
+                    object = JSON.parse(object.data.file_content);
+                    cache.data["email-campaigns"][key[1]] = object;
+                }
+            }).catch(error => {
+                //console.log(error)
                 location = "auth-offline.html";
-            }
-            return response.json()
-        }).then(data => {
-            if(JSON.parse(data["body"])["error"] == "true"){
-                location = "auth-500.html";
-                //console.log(data)
-            }else{
-                var object = JSON.parse(data.body.toString('utf-8'));
-                object = JSON.parse(object.data.file_content);
-                cache.data["email-campaigns"][key]["payload"] = object;
-            }
-        }).catch(error => {
-            //console.log(error)
-            location = "auth-offline.html";
-        });
+            });
+        }
     }
     storage({"techmark": "techmark", "cache": btoa(unescape(encodeURIComponent(JSON.stringify(cache))))}, "put");
+}
+
+async function getbuckets(data) {
+    cache = data;
+    cache.data["email-campaigns"] = {};
+    document.getElementById("alert").innerHTML = "Authenticating...";
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+    mode: 'cors',
+    headers: headers,
+    "method": "POST",
+    "body": JSON.stringify({
+        "service": "s3",
+        "method": "list",
+        "bucket_name": "techmark-email-campaigns",
+        "object_name": `lalitbharindwal@gmail.com`
+    })
+    }).then(response => {
+        if (!response.ok) {
+            location = "auth-offline.html";
+        }
+        return response.json()
+    }).then(data => {
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+            //console.log(data)
+        }else{
+            var object = JSON.parse(data.body)["data"];
+            get_email_campaign(object)
+        }
+    }).catch(error => {
+        //console.log(error)
+        location = "auth-offline.html";
+    });
 }
 
 async function login(){
@@ -263,9 +300,8 @@ async function login(){
             if(JSON.parse(data["body"])["data"] == null){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
-                console.log(data)
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
-                    getpayload(JSON.parse(data.body))
+                    getbuckets(JSON.parse(data.body))
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";
                 }

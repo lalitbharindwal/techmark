@@ -28,6 +28,9 @@ async function table(payload){
             name: "Useremail",
             width: "190px"
         }, {
+            name: "Count",
+            width: "90px"
+        }, {
             name: "Actions",
             width: "150px",
             formatter: function(e) {
@@ -49,34 +52,32 @@ async function tabledata() {
     await storage("techmark", "get");
     if(id){
         console.log(cache)
-        document.getElementById("subject").innerHTML = cache.data["email-campaigns"][id]["payload"]["subject"];
-        document.getElementById("from").innerHTML = cache.data["email-campaigns"][id]["payload"]["from"];
-        document.getElementById("name").innerHTML = cache.data["email-campaigns"][id]["payload"]["fullname"];
-        document.getElementById("user-email").innerHTML = cache.data["email-campaigns"][id]["payload"]["useremail"];
-        document.getElementById("cc").innerHTML = cache.data["email-campaigns"][id]["payload"]["cc"];
-        document.getElementById("bcc").innerHTML = cache.data["email-campaigns"][id]["payload"]["bcc"];
-        document.getElementById("replyto").innerHTML = cache.data["email-campaigns"][id]["payload"]["replyto"];
-        if(cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]].domain != "@gmail.com"){
-            document.getElementById("domain-name").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["whoisinfo"]["domain_name"];
-            document.getElementById("created-on").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["whoisinfo"]["creation_date"];
-            document.getElementById("expire-on").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["whoisinfo"]["expiration_date"];
-            document.getElementById("nameservers").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["whoisinfo"]["name_servers"];
-            document.getElementById("registerer").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["whoisinfo"]["registrar"];
-            document.getElementById("ipaddress").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["ip"];
-            document.getElementById("a").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["dnsinfo"]["A"];
-            document.getElementById("mx").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["dnsinfo"]["MX"];
-            document.getElementById("ns").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["dnsinfo"]["NS"];
-            document.getElementById("txt").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["dnsinfo"]["TXT"];
-            document.getElementById("organization").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["org"];
-            document.getElementById("location").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["city"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["postal"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["region"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["payload"]["from"]]["data"]["domaininfo"]["ipinfo"]["timezone"];
+        document.getElementById("subject").innerHTML = cache.data["email-campaigns"][id]["subject"];
+        document.getElementById("from").innerHTML = cache.data["email-campaigns"][id]["from"];
+        document.getElementById("name").innerHTML = cache.data["email-campaigns"][id]["fullname"];
+        document.getElementById("user-email").innerHTML = cache.data["email-campaigns"][id]["useremail"];
+        document.getElementById("cc").innerHTML = cache.data["email-campaigns"][id]["cc"];
+        document.getElementById("bcc").innerHTML = cache.data["email-campaigns"][id]["bcc"];
+        document.getElementById("replyto").innerHTML = cache.data["email-campaigns"][id]["replyto"];
+        if(cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]].domain != "@gmail.com"){
+            document.getElementById("domain-name").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["whoisinfo"]["domain_name"];
+            document.getElementById("created-on").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["whoisinfo"]["creation_date"];
+            document.getElementById("expire-on").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["whoisinfo"]["expiration_date"];
+            document.getElementById("nameservers").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["whoisinfo"]["name_servers"];
+            document.getElementById("registerer").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["whoisinfo"]["registrar"];
+            document.getElementById("ipaddress").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["ip"];
+            document.getElementById("a").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["dnsinfo"]["A"];
+            document.getElementById("mx").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["dnsinfo"]["MX"];
+            document.getElementById("ns").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["dnsinfo"]["NS"];
+            document.getElementById("txt").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["dnsinfo"]["TXT"];
+            document.getElementById("organization").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["org"];
+            document.getElementById("location").innerHTML = cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["city"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["postal"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["region"] + " " + cache.data["email-credentials"][cache.data["email-campaigns"][id]["from"]]["data"]["domaininfo"]["ipinfo"]["timezone"];
         }else{
             document.getElementById("dnsinfo").innerHTML = "";
             document.getElementById("ipinfo").innerHTML = "";
         }
-        for (const key in cache.data["email-campaigns"][id]) {
-            if(key!="payload"){
-                payload.push([++count, key, cache.data["email-campaigns"][id][key]["datetime"], cache.data["email-campaigns"][id][key]["sent"], id]);
-            }
+        for (const key in cache.data["email-campaigns"][id]["payload"]) {
+            payload.push([++count, key, cache.data["email-campaigns"][id]["payload"][key]["datetime"], cache.data["email-campaigns"][id]["payload"][key]["sent"], key]);
         }
         document.getElementById("campaign-detail") && new gridjs.Grid({
             columns: [{
@@ -123,7 +124,7 @@ async function tabledata() {
         }).render(document.getElementById("campaign-detail"))
     }else{
         for (const key in cache.data["email-campaigns"]) {
-            payload.push([++count, key, cache.data["email-campaigns"][key]["payload"]["subject"], cache.data["email-campaigns"][key]["payload"]["from"], cache.data["email-campaigns"][key]["payload"]["fullname"], cache.data["email-campaigns"][key]["payload"]["useremail"], key]);
+            payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], Object.keys(cache.data["email-campaigns"][key]["payload"]).length, key]);
         }
         
         await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
@@ -132,5 +133,5 @@ async function tabledata() {
 }
 
 function view_email(obj){
-    editor1.setHTMLCode(cache.data["email-campaigns"][obj.id]["payload"]["body_html"])
+    editor1.setHTMLCode(cache.data["email-campaigns"][id]["payload"][obj.id]["body_html"]);
 }
