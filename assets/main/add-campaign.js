@@ -47,52 +47,54 @@ async function check_gmail(){
             "clientSecret": clientSecret,
             "redirect_uri": redirectUri
         }
-        await flow(event);
+        flow(event);
     }
 }
 
 var text;
-function validateContactList(){
+function validateContactList() {
     text = document.getElementById("emaillist").value;
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
     var validEmails = text.match(emailRegex);
-    if(validEmails == null){
+    
+    if (validEmails == null) {
         alert("Please Enter Recipients");
-        return
+        return;
     }
-    document.getElementById("emailslist").innerHTML = 
-    `<div class="card-header">
-        <h4 class="card-title mb-0">Valid Emails</h4>
-    </div><!-- end card header -->
-    <div class="card-body" style="height: 10cm; overflow: auto;">
-        <!-- Striped Rows -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Sr. No</th>
-                    <th scope="col">Emails</th>
-                </tr>
-            </thead>
-            <tbody id="emails"></tbody>
-        </table>
-    </div>`;
 
+    var emailsHTML = '';
+    validEmails.forEach((email, index) => {
+        emailsHTML += `<tr>
+            <td>${index + 1}</td>
+            <td>${email.trim()}</td>
+        </tr>`;
+    });
+
+    // Update the HTML content using innerHTML only once
+    document.getElementById("emailslist").innerHTML =
+        `<div class="card-header">
+            <h4 class="card-title mb-0">Valid Emails</h4>
+        </div><!-- end card header -->
+        <div class="card-body" style="height: 10cm; overflow: auto;">
+            <!-- Striped Rows -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Sr. No</th>
+                        <th scope="col">Emails</th>
+                    </tr>
+                </thead>
+                <tbody id="emails">${emailsHTML}</tbody>
+            </table>
+        </div>`;
+
+    // Update the buttons section
     document.getElementById("card-btns").innerHTML =
-    `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
-        <i class="ri-edit-box-line me-1 align-middle" ></i> Edit
-    </a>
-    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
-
-    if(validEmails){
-        validEmails.forEach((email, index) => {
-            document.getElementById("emails").innerHTML += 
-            `<tr>
-                <td>${index+1}</td>
-                <td>${email.trim()}</td>
-            </tr>`;
-        });
-    }
+        `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
+            <i class="ri-edit-box-line me-1 align-middle"></i> Edit
+        </a>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
 }
 
 function editContacts(){
@@ -107,7 +109,7 @@ function editContacts(){
     `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal">
         <i class="ri-close-line me-1 align-middle"></i> Close
     </a>
-    <button type="button" class="btn btn-primary" onclick="validateContactList()">Next</button>`;
+    <button type="button" class="btn btn-primary" onclick="validateContactList()">Validate</button>`;
 }
 
 function saveContacts(){
@@ -219,150 +221,152 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
         showCloseButton: !0
     }).then(function(t) {
         if(t.isConfirmed){
-            var cc;
-            var bcc;
-            var replyto;
-            try{
-                cc = document.getElementById("cc").value;
-            }catch(error){
-                cc = "";
-            }
-                
-            try{
-                bcc = document.getElementById("bcc").value;
-            }catch(error){
-                bcc = "";
-            }
-
-            try{
-                replyto = document.getElementById("replytoemail").value;
-            }catch(error){
-                replyto = "";
-            }
-
             if(document.getElementById("sender").textContent == "Select Sender"){
                 alert("Please select Sender");
             }else{
                 if(cache.data.recipients == undefined){
                     alert("Please Select Recipients");
                 }else{
-                    var payload = {
-                        "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
-                        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
-                        "from": document.getElementById("sender").textContent,
-                        "to": cache["data"]["recipients"],
-                        "cc": cc,
-                        "bcc": bcc,
-                        "replyto": replyto,
-                        "subject": document.getElementById("subject").value,
-                        "body_text": editor1.getPlainText(),
-                        "body_html": editor1.getHTMLCode()
-                    }
-                    if((payload["from"].split("@"))[1] == "gmail.com"){
-                        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
-                            backdrop: 'static', // Disable closing by clicking outside the modal
-                            keyboard: false     // Disable closing with the Esc key
-                        });
-                        logmodel.show();
-                        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
-                        document.getElementById("log-title").innerHTML = payload.subject;
-                        document.getElementById("log-from").innerHTML = payload.from;
-                        document.getElementById("log-subject").innerHTML = payload.subject;
-                        document.getElementById("log-name").innerHTML = payload.fullname;
-                        document.getElementById("log-cc").innerHTML = payload.cc;
-                        document.getElementById("log-bcc").innerHTML = payload.bcc;
-                        document.getElementById("log-replyto").innerHTML = payload.replyto;
-                        document.getElementById("log-status").innerHTML = "Connecting to server...";
-                        generatePayload(payload);
-                        document.getElementById("log-status").innerHTML = "Starting Connection...";
-                        let headers = new Headers();
-                        headers.append('Origin', '*');
-                        fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
-                            mode: 'cors',
-                            headers: headers,
-                            "method": "POST",
-                            "body": JSON.stringify({
-                                "service": "s3",
-                                "method": "put",
-                                "bucket_name": "techmark-email-campaigns",
-                                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-                                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
-                        })
-                        }).then(response => {
-                                if (!response.ok) {
-                                    location = "auth-offline.html";
-                                }
-                                return response.json()
-                        }).then(data => {
-                            if(JSON.parse(data["body"])["error"] == "true"){
-                                location = "auth-500.html";
-                                //console.log(data)
-                            }else{   
-                                document.getElementById("log-status").innerHTML = "Starting Connection...";
-                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                cache.data["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
-                                cache.data.flag = 0;
-                                send_gmail(cache.data.flag);
-                            }
-                        }).catch(error => {
-                            //console.log(error)
-                            location = "auth-offline.html";
-                        });
-                    }else{
-                        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
-                            backdrop: 'static', // Disable closing by clicking outside the modal
-                            keyboard: false     // Disable closing with the Esc key
-                        });
-                        logmodel.show();
-                        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
-                        document.getElementById("log-title").innerHTML = payload.subject;
-                        document.getElementById("log-from").innerHTML = payload.from;
-                        document.getElementById("log-subject").innerHTML = payload.subject;
-                        document.getElementById("log-name").innerHTML = payload.fullname;
-                        document.getElementById("log-cc").innerHTML = payload.cc;
-                        document.getElementById("log-bcc").innerHTML = payload.bcc;
-                        document.getElementById("log-replyto").innerHTML = payload.replyto;
-                        document.getElementById("log-status").innerHTML = "Connecting to server...";
-                        payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
-                        generatePayload(payload);
-                        document.getElementById("log-status").innerHTML = "Starting Connection...";
-                        let headers = new Headers();
-                        headers.append('Origin', '*');
-                        fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
-                            mode: 'cors',
-                            headers: headers,
-                            "method": "POST",
-                            "body": JSON.stringify({
-                                "service": "s3",
-                                "method": "put",
-                                "bucket_name": "techmark-email-campaigns",
-                                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-                                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
-                            })
-                        }).then(response => {
-                            if (!response.ok) {
-                                location = "auth-offline.html";
-                            }
-                            return response.json()
-                        }).then(data => {
-                            if(JSON.parse(data["body"])["error"] == "true"){
-                                location = "auth-500.html";
-                                //console.log(data)
-                            }else{
-                                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                                cache.data.flag = 0;
-                                send_email(cache.data.flag)
-                            }
-                        }).catch(error => {
-                                //console.log(error)
-                                location = "auth-offline.html";
-                        });
-                    }
+                    Mailer()
                 }
             }
         }
     })
 })
+
+async function Mailer(){
+    var cc;
+    var bcc;
+    var replyto;
+    try{
+        cc = document.getElementById("cc").value;
+    }catch(error){
+        cc = "";
+    }
+        
+    try{
+        bcc = document.getElementById("bcc").value;
+    }catch(error){
+        bcc = "";
+    }
+
+    try{
+        replyto = document.getElementById("replytoemail").value;
+    }catch(error){
+        replyto = "";
+    }
+    var payload = {
+        "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
+        "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
+        "from": document.getElementById("sender").textContent,
+        "to": cache["data"]["recipients"],
+        "cc": cc,
+        "bcc": bcc,
+        "replyto": replyto,
+        "subject": document.getElementById("subject").value,
+        "body_text": editor1.getPlainText(),
+        "body_html": editor1.getHTMLCode()
+    }
+    if((payload["from"].split("@"))[1] == "gmail.com"){
+        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+            backdrop: 'static', // Disable closing by clicking outside the modal
+            keyboard: false     // Disable closing with the Esc key
+        });
+        logmodel.show();
+        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+        document.getElementById("log-title").innerHTML = payload.subject;
+        document.getElementById("log-from").innerHTML = payload.from;
+        document.getElementById("log-subject").innerHTML = payload.subject;
+        document.getElementById("log-name").innerHTML = payload.fullname;
+        document.getElementById("log-cc").innerHTML = payload.cc;
+        document.getElementById("log-bcc").innerHTML = payload.bcc;
+        document.getElementById("log-replyto").innerHTML = payload.replyto;
+        document.getElementById("log-status").innerHTML = "Connecting to server...";
+        await generatePayload(payload);
+        let headers = new Headers();
+        headers.append('Origin', '*');
+        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+            mode: 'cors',
+            headers: headers,
+            "method": "POST",
+            "body": JSON.stringify({
+                "service": "s3",
+                "method": "put",
+                "bucket_name": "techmark-email-campaigns",
+                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
+                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+        })
+        }).then(response => {
+                if (!response.ok) {
+                    location = "auth-offline.html";
+                }
+                return response.json()
+        }).then(data => {
+            if(JSON.parse(data["body"])["error"] == "true"){
+                location = "auth-500.html";
+                //console.log(data)
+            }else{   
+                document.getElementById("log-status").innerHTML = "Starting Connection...";
+                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
+                cache.data["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
+                cache.data.flag = 0;
+                send_gmail(cache.data.flag);
+            }
+        }).catch(error => {
+            //console.log(error)
+            location = "auth-offline.html";
+        });
+    }else{
+        var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
+            backdrop: 'static', // Disable closing by clicking outside the modal
+            keyboard: false     // Disable closing with the Esc key
+        });
+        logmodel.show();
+        document.getElementById("send_emails_log_btn").innerHTML = `<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">SENDING LOG <i class="ri-send-plane-2-fill fs-10"></i></button>`;
+        document.getElementById("log-title").innerHTML = payload.subject;
+        document.getElementById("log-from").innerHTML = payload.from;
+        document.getElementById("log-subject").innerHTML = payload.subject;
+        document.getElementById("log-name").innerHTML = payload.fullname;
+        document.getElementById("log-cc").innerHTML = payload.cc;
+        document.getElementById("log-bcc").innerHTML = payload.bcc;
+        document.getElementById("log-replyto").innerHTML = payload.replyto;
+        document.getElementById("log-status").innerHTML = "Connecting to server...";
+        payload["smtp_server"] = cache["data"]["email-credentials"][payload["from"]]["data"]["domaininfo"]["smtp_server"];
+        await generatePayload(payload);
+        let headers = new Headers();
+        headers.append('Origin', '*');
+        await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+            mode: 'cors',
+            headers: headers,
+            "method": "POST",
+            "body": JSON.stringify({
+                "service": "s3",
+                "method": "put",
+                "bucket_name": "techmark-email-campaigns",
+                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
+                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+            })
+        }).then(response => {
+            if (!response.ok) {
+                location = "auth-offline.html";
+            }
+            return response.json()
+        }).then(data => {
+            if(JSON.parse(data["body"])["error"] == "true"){
+                location = "auth-500.html";
+                //console.log(data)
+            }else{
+                document.getElementById("log-status").innerHTML = "Starting Connection...";
+                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
+                cache.data.flag = 0;
+                send_email(cache.data.flag)
+            }
+        }).catch(error => {
+                //console.log(error)
+                location = "auth-offline.html";
+        });
+    }
+}
 
 
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
