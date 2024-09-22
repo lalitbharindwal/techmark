@@ -369,7 +369,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 async function display_log(mail){
     sendingCount++;
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["sent"] == "True"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "True"){
        sent++;
        document.getElementById("log-status").innerHTML = `Sent to ${mail} successfully`;
        document.getElementById("emaillog").innerHTML += 
@@ -384,7 +384,7 @@ async function display_log(mail){
         updateProgressBars(sent, failed, error);
     }
 
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["sent"] == "False"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "False"){
        failed++;
        document.getElementById("log-status").innerHTML = `Failed to send ${mail}`;
        document.getElementById("emaillog").innerHTML += 
@@ -399,7 +399,7 @@ async function display_log(mail){
         updateProgressBars(sent, failed, error);        
     }
 
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["sent"] == "Error"){
+    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "Error"){
         error++;
         document.getElementById("log-status").innerHTML = `Error to send ${mail}`;
         document.getElementById("emaillog").innerHTML +=
