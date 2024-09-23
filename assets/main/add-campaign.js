@@ -401,7 +401,7 @@ function Mailer(){
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                 cache.data.flag = 0;
-                //send_email(cache.data.flag);
+                send_email(cache.data.flag);
             }
         }).catch(error => {
             //console.log(error)
