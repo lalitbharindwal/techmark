@@ -672,7 +672,7 @@ function extractCodeFromUrl() {
   }
 
 function flow(event){
-    const bearer = cache.data.bearer;
+    const bearer = cache.data.campaignid.bearer;
     if(bearer == undefined){
         const authorizationCode = extractCodeFromUrl();
         if (authorizationCode) {
@@ -741,21 +741,21 @@ function getProfile(token, event){
         }).then(data => {
             try{
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
-                    cache.data.bearer = undefined;
+                    cache.data.campaignid.bearer = undefined;
                     cache.data.gmail = undefined;
                     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+event["email"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
-                    cache.data.bearer = btoa(token);
+                    cache.data.campaignid.bearer = btoa(token);
                     cache.data.gmail = data["emailAddress"];
                     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
-            cache.data.bearer = undefined;
+            cache.data.campaignid.bearer = undefined;
             cache.data.gmail = undefined;
             storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
             document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
