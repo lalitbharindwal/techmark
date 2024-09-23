@@ -26,8 +26,8 @@ async function startsession() {
     document.getElementById("campaignid").innerHTML = getid();
     campaignid = document.getElementById("campaignid").textContent;
     cache.data.campaignid = {};
+    show_aliases();
     check_gmail();
-    show_aliases()
 }
 
 function show_aliases(){
