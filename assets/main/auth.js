@@ -242,7 +242,7 @@ async function get_email_campaign(object){
                     "service": "s3",
                     "method": "get",
                     "bucket_name": "techmark-email-campaigns",
-                    "object_name": `${cache["data"]["email"]}/${key[1]}/data.json`
+                    "object_name": `${cache["data"]["email"]}/${key[1]}/payload.txt`
             })
             }).then(response => {
                 if (!response.ok) {
@@ -256,7 +256,18 @@ async function get_email_campaign(object){
                 }else{
                     var object = JSON.parse(data.body.toString('utf-8'));
                     object = JSON.parse(object.data.file_content);
-                    cache.data["email-campaigns"][key[1]] = object;
+                    // Decode base64 to binary
+                    let binaryString = atob(object);
+                    // Convert binary string to Uint8Array
+                    let uint8Array = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        uint8Array[i] = binaryString.charCodeAt(i);
+                    }
+                    // Decompress using pako.js
+                    let decompressedData = pako.inflate(uint8Array, { to: 'string' });
+                    // Parse JSON data
+                    let jsonData = JSON.parse(decompressedData);
+                    cache.data["email-campaigns"][key[1]] = jsonData;
                 }
             }).catch(error => {
                 //console.log(error)

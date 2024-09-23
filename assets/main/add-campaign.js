@@ -53,7 +53,7 @@ async function check_gmail(){
 
     if(cache.data.recipients != undefined){
         var emailsHTML = '';
-        recipients = cache.data.recipients;
+        recipients = cache.data.recipients.join(' ');
         (cache.data.recipients).forEach((email, index) => {
             emailsHTML += `<tr>
                 <td>${index + 1}</td>
@@ -94,7 +94,7 @@ function validateContactList() {
     recipients = document.getElementById("emaillist").value;
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
-    var validEmails = recipients.match(emailRegex);
+    var validEmails = [...new Set(recipients.match(emailRegex))];
     
     if (validEmails == null) {
         alert("Please Enter Recipients");
@@ -153,7 +153,7 @@ function editContacts(){
 function saveContacts(){
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
-    var validEmails = recipients.match(emailRegex);
+    var validEmails = [...new Set(recipients.match(emailRegex))];
     var emails = []
     if(validEmails){
         validEmails.forEach((email, index) => {
@@ -161,14 +161,18 @@ function saveContacts(){
         });
     }
 
-    if((cache.data.todaysmailsquota-emails.length) >= 0){
-        cache.data.recipients = emails;
-        document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
-        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+    if(emails.length<=1000){
+        if((cache.data.todaysmailsquota-emails.length) >= 0){
+            cache.data.recipients = emails;
+            document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+            storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+        }else{
+            cache.data.recipients = undefined;
+            document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
+            alert("Quota Limit Excedding");
+        }
     }else{
-        cache.data.recipients = undefined;
-        document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
-        alert("Quota Limit Excedding");
+        alert("Send 1k Emails Per Campaign");
     }
 }
 
@@ -331,6 +335,9 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
 function Mailer(){
     if((cache.data["email-campaigns"][cache.data.campaignid]["from"].split("@"))[1] == "gmail.com"){
         document.getElementById("log-status").innerHTML = "Connecting to server...";
+        let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+        let compressedData = pako.gzip(jsonString, { level: 9 });
+        let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
         let headers = new Headers();
         headers.append('Origin', '*');
         fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
@@ -341,8 +348,8 @@ function Mailer(){
                 "service": "s3",
                 "method": "put",
                 "bucket_name": "techmark-email-campaigns",
-                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+                "file_content": compressedBase64,
+                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
         })
         }).then(response => {
                 if (!response.ok) {
@@ -366,6 +373,9 @@ function Mailer(){
         });
     }else{
         document.getElementById("log-status").innerHTML = "Connecting to server...";
+        let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+        let compressedData = pako.gzip(jsonString, { level: 9 });
+        let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
         let headers = new Headers();
         headers.append('Origin', '*');
         fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
@@ -376,8 +386,8 @@ function Mailer(){
                 "service": "s3",
                 "method": "put",
                 "bucket_name": "techmark-email-campaigns",
-                "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+                "file_content": compressedBase64,
+                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
             })
         }).then(response => {
             if (!response.ok) {
@@ -391,7 +401,7 @@ function Mailer(){
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
                 cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
                 cache.data.flag = 0;
-                send_email(cache.data.flag);
+                //send_email(cache.data.flag);
             }
         }).catch(error => {
             //console.log(error)
@@ -472,6 +482,9 @@ function updateProgressBars(sent, failed, error) {
 }
 
 async function saveemailpayload(email){
+    let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+    let compressedData = pako.gzip(jsonString, { level: 9 });
+    let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
     let headers = new Headers();
     headers.append('Origin', '*');
     await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
@@ -482,8 +495,8 @@ async function saveemailpayload(email){
             "service": "s3",
             "method": "put",
             "bucket_name": "techmark-email-campaigns",
-            "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+            "file_content": compressedBase64,
+            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
         })
     }).then(response => {
         if (!response.ok) {
@@ -511,6 +524,9 @@ async function saveemailpayload(email){
 }
 
 async function savegmailpayload(gmail){
+    let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+    let compressedData = pako.gzip(jsonString, { level: 9 });
+    let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
     let headers = new Headers();
     headers.append('Origin', '*');
     await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
@@ -521,8 +537,8 @@ async function savegmailpayload(gmail){
             "service": "s3",
             "method": "put",
             "bucket_name": "techmark-email-campaigns",
-            "file_content": cache.data["email-campaigns"][cache.data.campaignid],
-            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/data.json`
+            "file_content": compressedBase64,
+            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
         })
     }).then(response => {
         if (!response.ok) {
