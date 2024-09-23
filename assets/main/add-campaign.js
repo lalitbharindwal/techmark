@@ -565,7 +565,7 @@ async function savegmailpayload(gmail){
             //console.log(error)
             location = "auth-offline.html";
     });
-    cache.data.flag++;
+    cache.data.campaignid++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
         await send_gmail(cache.data.campaignid.flag);
