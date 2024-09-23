@@ -78,7 +78,7 @@ async function emailsSendingLog() {
 
     document.getElementById("emails-sent-today").innerHTML = totalEmailsSentToday;
     document.getElementById("total-emails-sent").innerHTML = totalEmailsSentMonthly;
-    document.getElementById("quota-limit").innerHTML = 2000 - totalEmailsSentToday;
+    document.getElementById("quota-limit").innerHTML = 1000 - totalEmailsSentToday;
     cache.data.todaysmailsquota = 2000 - totalEmailsSentToday;
     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     var options, chart, linechartcustomerColor= getChartColorsArray("total-emails-sent-month"), chartDonutBasicColors = ((options = {

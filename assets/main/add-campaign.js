@@ -9,6 +9,27 @@ function datetime(){
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
+var campaignid;
+function getid(){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${day}${month}${year}${hours}${minutes}${seconds}`;
+}
+
+async function startsession() {
+    await storage("techmark", "get");
+    document.getElementById("campaignid").innerHTML = getid();
+    campaignid = document.getElementById("campaignid").textContent;
+    cache.data.campaignid = {};
+    check_gmail();
+    show_aliases()
+}
+
 function show_aliases(){
     document.getElementById("sender-list").innerHTML = `<a class="dropdown-item" data-bs-toggle="modal" data-bs-target=".bs-modal-xl1" href="javascript:void(0);">Manage Sender</a>`;
     document.getElementById("verifiedemailslist").innerHTML = '';
@@ -28,9 +49,7 @@ function show_aliases(){
 }
 
 var recipients;
-async function check_gmail(){
-    await storage("techmark", "get");
-    show_aliases()
+function check_gmail(){
     const params = new URLSearchParams(window.location.search);
     if(params.get('templateid')){
         storage("techmark", "get");
@@ -51,10 +70,10 @@ async function check_gmail(){
         flow(event);
     }
 
-    if(cache.data.recipients != undefined){
+    if(cache.data.campaignid.recipients != undefined){
         var emailsHTML = '';
-        recipients = cache.data.recipients.join(' ');
-        (cache.data.recipients).forEach((email, index) => {
+        recipients = cache.data.campaignid.recipients.join(' ');
+        (cache.data.campaignid.recipients).forEach((email, index) => {
             emailsHTML += `<tr>
                 <td>${index + 1}</td>
                 <td>${email.trim()}</td>
@@ -86,7 +105,7 @@ async function check_gmail(){
             </a>
             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
             
-        document.getElementById("select-recipient").innerHTML = `${cache.data.recipients.length} Recipient Selected`;
+        document.getElementById("select-recipient").innerHTML = `${cache.data.campaignid.recipients.length} Recipient Selected`;
     }
 }
 
@@ -161,36 +180,36 @@ function saveContacts(){
         });
     }
 
-    if(emails.length<=1000){
+    if(emails.length<=300){
         if((cache.data.todaysmailsquota-emails.length) >= 0){
-            cache.data.recipients = emails;
+            cache.data.campaignid.recipients = emails;
             document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
             storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         }else{
-            cache.data.recipients = undefined;
+            cache.data.campaignid.recipients = undefined;
             document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
             alert("Quota Limit Excedding");
         }
     }else{
-        alert("Send 1k Emails Per Campaign");
+        alert("Send 300 Emails Per Campaign");
     }
 }
 
 function raw(gmail){
 const raw =
-`From: ${cache.data["email-campaigns"][cache.data.campaignid]["fullname"]} <${cache.data["email-campaigns"][cache.data.campaignid]["from"]}>
+`From: ${cache.data["email-campaigns"][campaignid]["fullname"]} <${cache.data["email-campaigns"][campaignid]["from"]}>
 To: ${gmail}
-Cc: ${cache.data["email-campaigns"][cache.data.campaignid]["cc"]}
-Bcc: ${cache.data["email-campaigns"][cache.data.campaignid]["bcc"]}
-Reply-To: ${cache.data["email-campaigns"][cache.data.campaignid]["replyto"]}
-Subject: ${cache.data["email-campaigns"][cache.data.campaignid]["subject"]}
+Cc: ${cache.data["email-campaigns"][campaignid]["cc"]}
+Bcc: ${cache.data["email-campaigns"][campaignid]["bcc"]}
+Reply-To: ${cache.data["email-campaigns"][campaignid]["replyto"]}
+Subject: ${cache.data["email-campaigns"][campaignid]["subject"]}
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
 
 --techmark-mail-boundary
 Content-Type: text/plain; charset="UTF-8"
 
-${cache.data["email-campaigns"][cache.data.campaignid]["body_text"]}
+${cache.data["email-campaigns"][campaignid]["body_text"]}
 
 --techmark-mail-boundary
 Content-Type: text/html; charset="UTF-8"
@@ -202,7 +221,7 @@ Content-Type: text/html; charset="UTF-8"
 <title>TechMark</title>
 </head>
 <body>
-${cache.data["email-campaigns"][cache.data.campaignid]["body_html"]}
+${cache.data["email-campaigns"][campaignid]["body_html"]}
 </body>
 </html>
 
@@ -211,20 +230,8 @@ ${cache.data["email-campaigns"][cache.data.campaignid]["body_html"]}
 return {"raw": customBase64Encode(raw)}
 }
 
-function getid(){
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${day}${month}${year}${hours}${minutes}${seconds}`;
-}
-
 function generatePayload(payload){
-    cache.data.campaignid = getid();
-    cache.data["email-campaigns"][cache.data.campaignid] = {
+    cache.data["email-campaigns"][campaignid] = {
         "useremail": payload["useremail"],
         "fullname": payload["fullname"],
         "from": payload["from"],
@@ -241,7 +248,7 @@ function generatePayload(payload){
     };
 
     payload["to"].forEach((mail, index) => {
-        cache.data["email-campaigns"][cache.data.campaignid]["payload"][mail] = {
+        cache.data["email-campaigns"][campaignid]["payload"][mail] = {
             "attributes": {},
             "status": "PENDING",
             "datetime": "",
@@ -267,7 +274,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
             if(document.getElementById("sender").textContent == "Select Sender"){
                 alert("Please select Sender");
             }else{
-                if(cache.data.recipients == undefined){
+                if(cache.data.campaignid.recipients == undefined){
                     alert("Please Select Recipients");
                 }else{
                     var cc;
@@ -302,7 +309,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                         "useremail": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["useremail"],
                         "fullname": cache["data"]["email-credentials"][document.getElementById("sender").textContent]["name"],
                         "from": document.getElementById("sender").textContent,
-                        "to": cache["data"]["recipients"],
+                        "to": cache.data.campaignid.recipients,
                         "cc": cc,
                         "bcc": bcc,
                         "replyto": replyto,
@@ -333,9 +340,9 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
 })
 
 function Mailer(){
-    if((cache.data["email-campaigns"][cache.data.campaignid]["from"].split("@"))[1] == "gmail.com"){
+    if((cache.data["email-campaigns"][campaignid]["from"].split("@"))[1] == "gmail.com"){
         document.getElementById("log-status").innerHTML = "Connecting to server...";
-        let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+        let jsonString = JSON.stringify(cache.data["email-campaigns"][campaignid]);  
         let compressedData = pako.gzip(jsonString, { level: 9 });
         let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
         let headers = new Headers();
@@ -349,7 +356,7 @@ function Mailer(){
                 "method": "put",
                 "bucket_name": "techmark-email-campaigns",
                 "file_content": compressedBase64,
-                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
+                "object_name": `${cache["data"]["email"]}/${campaignid}/payload.txt`
         })
         }).then(response => {
                 if (!response.ok) {
@@ -362,10 +369,10 @@ function Mailer(){
                 //console.log(data)
             }else{   
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
-                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                cache.data["email-campaigns"][cache.data.campaignid]["bearer"] = atob(cache.data.bearer);
-                cache.data.flag = 0;
-                send_gmail(cache.data.flag);
+                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
+                cache.data["email-campaigns"][campaignid]["bearer"] = atob(cache.data.campaignid.bearer);
+                cache.data.campaignid.flag = 0;
+                send_gmail(cache.data.campaignid.flag);
             }
         }).catch(error => {
             //console.log(error)
@@ -373,7 +380,7 @@ function Mailer(){
         });
     }else{
         document.getElementById("log-status").innerHTML = "Connecting to server...";
-        let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+        let jsonString = JSON.stringify(cache.data["email-campaigns"][campaignid]);  
         let compressedData = pako.gzip(jsonString, { level: 9 });
         let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
         let headers = new Headers();
@@ -387,7 +394,7 @@ function Mailer(){
                 "method": "put",
                 "bucket_name": "techmark-email-campaigns",
                 "file_content": compressedBase64,
-                "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
+                "object_name": `${cache["data"]["email"]}/${campaignid}/payload.txt`
             })
         }).then(response => {
             if (!response.ok) {
@@ -399,9 +406,9 @@ function Mailer(){
                 location = "auth-500.html";
             }else{
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
-                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.recipients.length;
-                cache.data.flag = 0;
-                send_email(cache.data.flag);
+                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
+                cache.data.campaignid.flag = 0;
+                send_email(cache.data.campaignid.flag);
             }
         }).catch(error => {
             //console.log(error)
@@ -414,45 +421,47 @@ function Mailer(){
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 async function display_log(mail){
     sendingCount++;
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "True"){
+    if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "True"){
        sent++;
        document.getElementById("log-status").innerHTML = `Sent to ${mail} successfully`;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-success">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${cache.data["email-campaigns"][cache.data.campaignid]["from"]}</td>
+            <td data-label="From">${cache.data["email-campaigns"][campaignid]["from"]}</td>
             <td data-label="To">${mail}</td>
-            <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["datetime"]}</td>
+            <td data-label="Datetime">${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-success">Sent</span></td>
         </tr>`;
         // progressbar
         updateProgressBars(sent, failed, error);
     }
 
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "False"){
+    if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "False"){
        failed++;
        document.getElementById("log-status").innerHTML = `Failed to send ${mail}`;
        document.getElementById("emaillog").innerHTML += 
         `<tr class="table-danger">
             <td data-label="Sr No.">${sendingCount}</td>
-            <td data-label="From">${cache.data["email-campaigns"][cache.data.campaignid]["from"]}</td>
+            <td data-label="From">${cache.data["email-campaigns"][campaignid]["from"]}</td>
             <td data-label="To">${mail}</td>
-            <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["datetime"]}</td>
+            <td data-label="Datetime">${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["datetime"]}</td>
             <td data-label="Status"><span class="badge bg-danger">Failed</span></td>
         </tr>`;
         // progressbar
-        updateProgressBars(sent, failed, error);        
+        updateProgressBars(sent, failed, error);
+        document.getElementById("log-status").innerHTML = `Failed to send ${mail}: ${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["response"]}`;
+        return
     }
 
-    if(cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["status"] == "Error"){
+    if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "Error"){
         error++;
         document.getElementById("log-status").innerHTML = `Error to send ${mail}`;
         document.getElementById("emaillog").innerHTML +=
          `<tr class="table-warning">
              <td data-label="Sr No.">${sendingCount}</td>
-             <td data-label="From">${cache.data["email-campaigns"][cache.data.campaignid]["from"]}</td>
+             <td data-label="From">${cache.data["email-campaigns"][campaignid]["from"]}</td>
              <td data-label="To">${mail}</td>
-             <td data-label="Datetime">${cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][mail]["datetime"]}</td>
+             <td data-label="Datetime">${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["datetime"]}</td>
              <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
         // progressbar
@@ -463,7 +472,7 @@ async function display_log(mail){
 function updateProgressBars(sent, failed, error) {
     // Calculate total sum of all values
     const total = sent + failed + error;
-    const inprogress = cache.data.recipients.length - total;
+    const inprogress = cache.data.campaignid.recipients.length - total;
     // Calculate width percentages
     const successPercentage = (sent / total) * 100;
     const inprogressPercentage = (inprogress / total) * 100;
@@ -482,7 +491,7 @@ function updateProgressBars(sent, failed, error) {
 }
 
 async function saveemailpayload(email){
-    let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+    let jsonString = JSON.stringify(cache.data["email-campaigns"][campaignid]);  
     let compressedData = pako.gzip(jsonString, { level: 9 });
     let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
     let headers = new Headers();
@@ -496,7 +505,7 @@ async function saveemailpayload(email){
             "method": "put",
             "bucket_name": "techmark-email-campaigns",
             "file_content": compressedBase64,
-            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
+            "object_name": `${cache["data"]["email"]}/${campaignid}/payload.txt`
         })
     }).then(response => {
         if (!response.ok) {
@@ -514,17 +523,17 @@ async function saveemailpayload(email){
             //console.log(error)
             location = "auth-offline.html";
     });
-    cache.data.flag++;
+    cache.data.campaignid.flag++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
-    if(cache.data.flag < cache.data.recipients.length){
-        await send_email(cache.data.flag);
+    if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
+        await send_email(cache.data.campaignid.flag);
     }else{
         document.getElementById("log-status").innerHTML = `Campaign Ended`;
     }
 }
 
 async function savegmailpayload(gmail){
-    let jsonString = JSON.stringify(cache.data["email-campaigns"][cache.data.campaignid]);  
+    let jsonString = JSON.stringify(cache.data["email-campaigns"][campaignid]);  
     let compressedData = pako.gzip(jsonString, { level: 9 });
     let compressedBase64 = btoa(String.fromCharCode.apply(null, compressedData));
     let headers = new Headers();
@@ -538,7 +547,7 @@ async function savegmailpayload(gmail){
             "method": "put",
             "bucket_name": "techmark-email-campaigns",
             "file_content": compressedBase64,
-            "object_name": `${cache["data"]["email"]}/${cache.data.campaignid}/payload.txt`
+            "object_name": `${cache["data"]["email"]}/${campaignid}/payload.txt`
         })
     }).then(response => {
         if (!response.ok) {
@@ -558,20 +567,20 @@ async function savegmailpayload(gmail){
     });
     cache.data.flag++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
-    if(cache.data.flag < cache.data.recipients.length){
-        await send_gmail(cache.data.flag);
+    if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
+        await send_gmail(cache.data.campaignid.flag);
     }else{
         document.getElementById("log-status").innerHTML = `Campaign Ended`;
     }
 }
 
 async function send_gmail(index){
-    var gmail = cache.data.recipients[index]
+    var gmail = cache.data.campaignid.recipients[index]
     document.getElementById("log-status").innerHTML = `Sending to ${gmail}`;
-    await fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache.data["email-campaigns"][cache.data.campaignid]["from"] + '/messages/send', {
+    await fetch('https://gmail.googleapis.com/gmail/v1/users/'+ cache.data["email-campaigns"][campaignid]["from"] + '/messages/send', {
         method: 'POST', // Change the method accordingly (POST, PUT, etc.)
         headers: {
-           'Authorization': `Bearer ${cache.data["email-campaigns"][cache.data.campaignid]["bearer"]}`,
+           'Authorization': `Bearer ${cache.data["email-campaigns"][campaignid]["bearer"]}`,
            'Content-Type': 'application/json'
        },
             body: JSON.stringify(raw(gmail)) // Convert the request body to JSON string
@@ -582,25 +591,25 @@ async function send_gmail(index){
             return response.json();
        }).then(data => {
            if(data["id"]){
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = data;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "True";
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["response"] = data;
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["status"] = "True";
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["datetime"] = datetime();
            }else{
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = data;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "False";
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["response"] = data;
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["status"] = "False";
+                cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["datetime"] = datetime();
            }
        }).catch(error => {
-            cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["response"] = error;
-            cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["status"] = "Error";
-            cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][gmail]["datetime"] = datetime();
+            cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["response"] = error;
+            cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["status"] = "Error";
+            cache["data"]["email-campaigns"][campaignid]["payload"][gmail]["datetime"] = datetime();
    });
 
    await savegmailpayload(gmail);
 }
 
 async function send_email(index){
-    var email = cache.data.recipients[index]
+    var email = cache.data.campaignid.recipients[index]
     document.getElementById("log-status").innerHTML = `Sending to ${email}`;
     let headers = new Headers();
     headers.append('Origin', '*');
@@ -610,18 +619,18 @@ async function send_email(index){
       "method": "POST",
       "body": JSON.stringify({
         "action": "send_email",
-        "name": cache.data["email-campaigns"][cache.data.campaignid]["fullname"],
-        "email": cache.data["email-campaigns"][cache.data.campaignid]["from"],
-        "useremail": cache.data["email-campaigns"][cache.data.campaignid]["useremail"],
-        "password": atob(cache["data"]["email-credentials"][cache.data["email-campaigns"][cache.data.campaignid]["from"]]["password"]),
+        "name": cache.data["email-campaigns"][campaignid]["fullname"],
+        "email": cache.data["email-campaigns"][campaignid]["from"],
+        "useremail": cache.data["email-campaigns"][campaignid]["useremail"],
+        "password": atob(cache["data"]["email-credentials"][cache.data["email-campaigns"][campaignid]["from"]]["password"]),
         "to": email,
-        "cc": cache.data["email-campaigns"][cache.data.campaignid]["cc"],
-        "bcc": cache.data["email-campaigns"][cache.data.campaignid]["bcc"],
-        "replyto": cache.data["email-campaigns"][cache.data.campaignid]["replyto"],
-        "subject": cache.data["email-campaigns"][cache.data.campaignid]["subject"],
-        "body_text": cache.data["email-campaigns"][cache.data.campaignid]["body_text"],
-        "body_html": cache.data["email-campaigns"][cache.data.campaignid]["body_html"],
-        "smtp_server": cache.data["email-campaigns"][cache.data.campaignid]["smtp_server"]
+        "cc": cache.data["email-campaigns"][campaignid]["cc"],
+        "bcc": cache.data["email-campaigns"][campaignid]["bcc"],
+        "replyto": cache.data["email-campaigns"][campaignid]["replyto"],
+        "subject": cache.data["email-campaigns"][campaignid]["subject"],
+        "body_text": cache.data["email-campaigns"][campaignid]["body_text"],
+        "body_html": cache.data["email-campaigns"][campaignid]["body_html"],
+        "smtp_server": cache.data["email-campaigns"][campaignid]["smtp_server"]
     })}).then(response => {
         if (!response.ok) {
           location = "auth-offline.html";
@@ -630,20 +639,20 @@ async function send_email(index){
     }).then(data => {
         if(!data.error){
             if(data.body.status == 'success'){
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = data.body;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "True";
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = data.body;
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "True";
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
             }else{
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = data.body;
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "False";
-                cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = data.body;
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "False";
+                cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
             }
         }
 
     }).catch(error => {
-        cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["response"] = error;
-        cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["status"] = "Error";
-        cache["data"]["email-campaigns"][cache.data.campaignid]["payload"][email]["datetime"] = datetime();
+        cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = error;
+        cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "Error";
+        cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
     });
 
     await saveemailpayload(email);

@@ -24,7 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
 </head>
 
-<body onload="check_gmail()">
+<body onload="startsession()">
     <!-- Begin page -->
     <div id="layout-wrapper">
     <header id="page-topbar">
@@ -192,17 +192,16 @@
         <!-- Start right Content here -->
         <!-- ============================================================== -->
         <div class="main-content">
-
             <div class="page-content">
                 <div class="container-fluid">
                     <!-- start page title -->
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                <h4 class="mb-sm-0">New Campaign</h4>
+                                <h4 class="mb-sm-0">New Campaign (<span id="campaignid"></span>)</h4>
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Email Campaign</a></li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);"> Email Campaign</a></li>
                                         <li class="breadcrumb-item active">Add Campaign</li>
                                     </ol>
                                 </div>
