@@ -14,6 +14,8 @@
     <link href="assets/libs/jsvectormap/css/jsvectormap.min.css" rel="stylesheet" type="text/css" />
     <!--Swiper slider css-->
     <link href="assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+    <!-- Sweet Alert css-->
+    <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <!-- Layout config Js -->
     <script src="assets/js/layout.js"></script>
     <!-- Bootstrap Css -->
@@ -26,6 +28,8 @@
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
     <!-- JQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
 </head>
 
 <body onload="tabledata()">
@@ -203,6 +207,7 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h4 class="card-title mb-0 flex-grow-1" id="subject">-</h4>
+                                    <div class="col-12" style="text-align: right" id="retry"><button class="fs-12 btn btn-danger" id="resend_emails" type="button" style="display: none;"><i class="fs-14 ri-refresh-line"></i> Retry</button></div>
                                 </div><!-- end card header -->
                                 <div class="card-body">
                                     <div class="row">
@@ -309,6 +314,92 @@
                         </div>
                         <!-- end col -->
                     </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card-body">
+                                <div class="live-preview">
+                                    <!--Log Model-->
+                                    <!--<button type="button" class="btn btn-success " data-bs-toggle="modal" data-bs-target=".bs-example-modal-xl1">Large Modal</button>-->
+                                    <div class="modal fade bs-example-modal-xl1" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="myExtraLargeModal" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="myExtraLargeModal">SENDING LOG</h5>
+                                                    <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h5 class="fs-15 fw-semibold" id="log-title">-</h5>
+                                                            <p class="text-muted" id="log-from">-</p>
+                                                            <ul class="list-group">
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Subject <span id="log-subject">-</span>
+                                                                </li>
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Name <span id="log-name">-</span>
+                                                                </li>
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Cc: <span id="log-cc">-</span>
+                                                                </li>
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Bcc <span id="log-bcc">-</span>
+                                                                </li>
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Reply-to <span id="log-replyto">-</span>
+                                                                </li>
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    Status <span id="log-status">-</span>
+                                                                </li>
+                                                            </ul><hr>
+                                                            <div class="d-flex flex-wrap justify-content-evenly">
+                                                                <p class="text-muted mb-0" id="log-sent">
+                                                                    <i class="mdi text-success fs-18 align-middle me-2"></i>
+                                                                </p>
+                                                                <p class="text-muted mb-0" id="log-inprogress">
+                                                                    <i class="mdi text-info fs-18 align-middle me-2"></i>
+                                                                </p>
+                                                                <p class="text-muted mb-0" id="log-failed">
+                                                                    <i class="mdi text-danger fs-18 align-middle me-2"></i>
+                                                                </p>
+                                                                <p class="text-muted mb-0" id="log-error">
+                                                                    <i class="mdi text-warning fs-18 align-middle me-2"></i>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="progress animated-progress rounded-bottom rounded-0" style="height: 6px;">
+                                                            <div class="progress-bar bg-success rounded-0" role="progressbar" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress-bar bg-info rounded-0" role="progressbar" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress-bar bg-danger rounded-0" role="progressbar" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress-bar bg-warning rounded-0" role="progressbar" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <table class="table table-nowrap">
+                                                        <thead>
+                                                            <tr class="table-info">
+                                                                <th scope="col">Sr.No</th>
+                                                                <th scope="col">From</th>
+                                                                <th scope="col">To</th>
+                                                                <th scope="col">Sent on</th>
+                                                                <th scope="col">Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="emaillog"></tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <!--<a href="javascript:void(0);" class="btn btn-link link-success fw-medium"><i class="ri-close-line me-1 align-middle"></i> Cancle</a>-->
+                                                    <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+                                                    <!--<button type="button" class="btn btn-danger">Stop Sending</button>-->
+                                                </div>
+                                            </div><!-- /.modal-content -->
+                                        </div><!-- /.modal-dialog -->
+                                    </div><!-- /.modal -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end row-->
                     <!--  Large modal example -->
                     <div class="modal fade exampleModalFullscreen" tabindex="-1" role="dialog" aria-labelledby="exampleModalFullscreenLabel" aria-hidden="true">
                         <div class="modal-dialog modal-fullscreen">
@@ -405,6 +496,8 @@
     <script src="assets/js/plugins.js"></script>
     <!-- gridjs js -->
     <script src="assets/libs/gridjs/gridjs.umd.js"></script>
+    <!-- Sweet Alerts js -->
+    <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     <!--Swiper slider js-->
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <!-- App js -->
