@@ -114,7 +114,6 @@ function validateContactList() {
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
     var validEmails = [...new Set(recipients.match(emailRegex))];
-    
     if (validEmails == null) {
         alert("Please Enter Recipients");
         return;
@@ -173,7 +172,8 @@ function saveContacts(){
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
     // Find all matches of valid email patterns in the textarea
     var validEmails = [...new Set(recipients.match(emailRegex))];
-    var emails = []
+
+    var emails = [];
     if(validEmails){
         validEmails.forEach((email, index) => {
             emails.push(email.trim())
@@ -519,10 +519,7 @@ async function saveemailpayload(email){
         }else{
             display_log(email);
         }
-    }).catch(error => {
-            //console.log(error)
-            location = "auth-offline.html";
-    });
+    })
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
 }
 
@@ -652,10 +649,13 @@ function send_email(index){
         saveemailpayload(email);
     });
 
-    cache.data.campaignid.flag++;
-    if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
-        send_email(cache.data.campaignid.flag);
-    }
+    setTimeout(() => {
+        cache.data.campaignid.flag++;
+        if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
+            send_email(cache.data.campaignid.flag);
+        }
+    }, 300); // 1000 milliseconds delay
+    
 }
 
 function getEmail(){
