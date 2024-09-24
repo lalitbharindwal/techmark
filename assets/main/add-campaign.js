@@ -519,7 +519,10 @@ async function saveemailpayload(email){
         }else{
             display_log(email);
         }
-    })
+    }).catch(error => {
+        console.log(error);
+        //location = "auth-offline.html";
+    });
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
 }
 
