@@ -523,13 +523,7 @@ async function saveemailpayload(email){
             //console.log(error)
             location = "auth-offline.html";
     });
-    cache.data.campaignid.flag++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
-    if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
-        await send_email(cache.data.campaignid.flag);
-    }else{
-        document.getElementById("log-status").innerHTML = `Campaign Ended`;
-    }
 }
 
 async function savegmailpayload(gmail){
@@ -608,12 +602,12 @@ async function send_gmail(index){
    await savegmailpayload(gmail);
 }
 
-async function send_email(index){
+function send_email(index){
     var email = cache.data.campaignid.recipients[index]
     document.getElementById("log-status").innerHTML = `Sending to ${email}`;
     let headers = new Headers();
     headers.append('Origin', '*');
-    await fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
+    fetch("https://y9iwqqz637.execute-api.us-east-1.amazonaws.com/techmarkemailapi/", {
       mode: 'cors',
       headers: headers,
       "method": "POST",
@@ -642,10 +636,12 @@ async function send_email(index){
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = data.body;
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "True";
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
+                saveemailpayload(email);
             }else{
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = data.body;
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "False";
                 cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
+                saveemailpayload(email);
             }
         }
 
@@ -653,9 +649,13 @@ async function send_email(index){
         cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = error;
         cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "Error";
         cache["data"]["email-campaigns"][campaignid]["payload"][email]["datetime"] = datetime();
+        saveemailpayload(email);
     });
 
-    await saveemailpayload(email);
+    cache.data.campaignid.flag++;
+    if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
+        send_email(cache.data.campaignid.flag);
+    }
 }
 
 function getEmail(){
