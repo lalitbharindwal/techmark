@@ -1,12 +1,4 @@
 var cache;
-/*if(sessionStorage.getItem("cache") == null){
-    location = "index.html";
-}else{
-    cache = JSON.parse(atob(sessionStorage.getItem("cache")));
-    document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
-    document.getElementById("useremail").innerHTML = cache.data.email;
-}*/
-
 async function storage(data, method) {
     try {
         if(method == "put"){
@@ -19,8 +11,13 @@ async function storage(data, method) {
                 location = "index.html";
             }else{
                 cache = JSON.parse(atob(retrievedData.cache));
-                document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
-                document.getElementById("useremail").innerHTML = cache.data.email;
+                if(sessionStorage.getItem("login")){
+                    document.getElementById("userfullname").innerHTML = cache.data.userdata.fullname;
+                    document.getElementById("useremail").innerHTML = cache.data.email; 
+                }else{
+                    await indexedDB.deleteDatabase('techmark');
+                    location = "index.html";
+                }
             }
         }else if(method == "update"){
             updateData(data);
@@ -34,7 +31,6 @@ async function storage(data, method) {
         //location = "auth-500.html";
     }
 }
-storage('techmark', 'get');
 
 function customBase64Encode(str) {
     try {

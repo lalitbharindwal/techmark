@@ -1149,6 +1149,18 @@ function verifymail(){
         putCredentials();
         getCode(payload.useremail);
     }else{
+        if(cache.data.userdata.plans["current-plan"].plan == "free"){
+            if(Object.keys(cache.data["email-credentials"]).length > 1){
+                alert("Alice Limit End");
+                return
+            }
+        }else{
+            if(Object.keys(cache.data["email-credentials"]).length > 5){
+                alert("Alice Limit End");
+                return
+            }
+        }
+        
         let headers = new Headers();
         headers.append('Origin', '*');
         document.getElementById("verifyemailBtn").innerHTML = `<button type="button" class="btn rounded-pill btn-info waves-effect">Verifying...</button>`;

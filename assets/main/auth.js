@@ -350,6 +350,7 @@ async function login(){
                 document.getElementById("alert").innerHTML = "User Not Found";
             }else{
                 if(atob(JSON.parse(data["body"])["data"]["userdata"]["password"]) == document.getElementById("password").value){
+                    sessionStorage.setItem("login", "true");
                     getbuckets(JSON.parse(data.body))
                 }else{
                     document.getElementById("alert").innerHTML = "Incorrect Password";

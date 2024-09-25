@@ -34,7 +34,7 @@ async function save_template(){
     var expression_attribute_values = {":value1": cache.data.email, ":value2": {"template-name": templatename, "text-content": text, "html-content": html, "datetime": createdon}};
     let headers = new Headers();
     headers.append('Origin', '*');
-    fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
     mode: 'cors',
     headers: headers,
     "method": "POST",
@@ -68,7 +68,6 @@ async function save_template(){
     cache.data["email-templates"][templateid] = {"template-name": templatename, "text-content": text, "html-content": html, "datetime": createdon};
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     location = "templates.html";
-            
 }
 
 var payload = [];
@@ -247,10 +246,7 @@ document.getElementById("sa-params") && document.getElementById("sa-params").add
         showCloseButton: true
     }).then(function(result) {
         if (result.value) {
-            // User clicked "Yes, delete it!"
-            // Perform your delete operation or execute your function here
-            delete_template(); // Example function call
-            // Show a success message
+            delete_template();
             Swal.fire({
                 title: "Deleted!",
                 text: "Your Template has been deleted.",
