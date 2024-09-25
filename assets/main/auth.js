@@ -70,7 +70,15 @@ function verify(code){
             "userdata": {
                 "fullname": payload["fullname"],
                 "password": btoa(payload["password"]),
-                "created": datetime()
+                "created": datetime(),
+                "plans": {
+                    "current-plan": {
+                        "plan": "free",
+                        "start": "",
+                        "end": ""
+                    },
+                    "history": {}
+                }
             },
             "email-credentials": {},
             "email-templates": {}

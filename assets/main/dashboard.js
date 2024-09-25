@@ -73,13 +73,20 @@ async function emailsSendingLog() {
     var EmaildSentMonthly = [];
     for(var i=0;i<12;i++){
         const sum = data[currentYear][i].reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        EmaildSentMonthly.push(sum)
+        EmaildSentMonthly.push(sum);
     }
 
+    var daily_limit = 0;
+    if(cache.data.userdata.plans["current-plan"].plan == "free"){
+        daily_limit = 100;
+    }else{
+        daily_limit = 1000;
+    }
     document.getElementById("emails-sent-today").innerHTML = totalEmailsSentToday;
     document.getElementById("total-emails-sent").innerHTML = totalEmailsSentMonthly;
-    document.getElementById("quota-limit").innerHTML = 1000 - totalEmailsSentToday;
-    cache.data.todaysmailsquota = 2000 - totalEmailsSentToday;
+    document.getElementById("quota-limit").innerHTML = daily_limit - totalEmailsSentToday;
+    document.getElementById("active-plan").innerHTML = daily_limit;
+    cache.data.todaysmailsquota = daily_limit - totalEmailsSentToday;
     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     var options, chart, linechartcustomerColor= getChartColorsArray("total-emails-sent-month"), chartDonutBasicColors = ((options = {
         series: [{
