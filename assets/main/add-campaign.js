@@ -657,7 +657,7 @@ function send_email(index){
         if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
             send_email(cache.data.campaignid.flag);
         }
-    }, 800); // 1000 milliseconds delay
+    }, 500); // 1000 milliseconds delay
 }
 
 function getEmail(){
