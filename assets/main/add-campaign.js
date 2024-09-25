@@ -69,44 +69,6 @@ function check_gmail(){
         }
         flow(event);
     }
-
-    if(cache.data.campaignid.recipients != undefined){
-        var emailsHTML = '';
-        recipients = cache.data.campaignid.recipients.join(' ');
-        (cache.data.campaignid.recipients).forEach((email, index) => {
-            emailsHTML += `<tr>
-                <td>${index + 1}</td>
-                <td>${email.trim()}</td>
-            </tr>`;
-        });
-
-        // Update the HTML content using innerHTML only once
-        document.getElementById("emailslist").innerHTML =
-            `<div class="card-header">
-                <h4 class="card-title mb-0">Valid Emails</h4>
-            </div><!-- end card header -->
-            <div class="card-body" style="height: 10cm; overflow: auto;">
-                <!-- Striped Rows -->
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">Sr. No</th>
-                            <th scope="col">Emails</th>
-                        </tr>
-                    </thead>
-                    <tbody id="emails">${emailsHTML}</tbody>
-                </table>
-            </div>`;
-
-        // Update the buttons section
-        document.getElementById("card-btns").innerHTML =
-            `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" onclick="editContacts()">
-                <i class="ri-edit-box-line me-1 align-middle"></i> Edit
-            </a>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveContacts()">Select</button>`;
-            
-        document.getElementById("select-recipient").innerHTML = `${cache.data.campaignid.recipients.length} Recipient Selected`;
-    }
 }
 
 function validateContactList() {
