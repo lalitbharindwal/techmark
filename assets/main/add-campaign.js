@@ -171,7 +171,7 @@ Content-Type: multipart/alternative; boundary="techmark-mail-boundary"
 --techmark-mail-boundary
 Content-Type: text/plain; charset="UTF-8"
 
-${cache.data["email-campaigns"][campaignid]["body_text"]}
+${generate_text_template(gmail)}
 
 --techmark-mail-boundary
 Content-Type: text/html; charset="UTF-8"
@@ -183,13 +183,29 @@ Content-Type: text/html; charset="UTF-8"
 <title>TechMark</title>
 </head>
 <body>
-${cache.data["email-campaigns"][campaignid]["body_html"]}
+${generate_html_template(gmail)}
 </body>
 </html>
 
 --techmark-mail-boundary--`;
 
 return {"raw": customBase64Encode(raw)}
+}
+
+function generate_html_template(mail){
+    var generated_template = cache.data["email-campaigns"][campaignid]["body_html"];
+    Object.keys(cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"]).forEach(function(key) {
+        generated_template = generated_template.replaceAll(`{{${key}}}`, cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"][key]);
+    });
+    return generated_template;
+}
+
+function generate_text_template(mail){
+    var generated_template = cache.data["email-campaigns"][campaignid]["body_text"];
+    Object.keys(cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"]).forEach(function(key) {
+        generated_template = generated_template.replaceAll(`{{${key}}}`, cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"][key]);
+    });
+    return generated_template;
 }
 
 function generatePayload(payload){
@@ -209,14 +225,38 @@ function generatePayload(payload){
         "body_html": payload["body_html"]
     };
 
-    payload["to"].forEach((mail, index) => {
-        cache.data["email-campaigns"][campaignid]["payload"][mail] = {
-            "attributes": {},
-            "status": "PENDING",
-            "datetime": "",
-            "response": ""
-        };
-    });
+    attributes = {}
+    if(cache.data.campaignid.excelsheet){
+        console.log("sheet")
+        cache.data.campaignid.excelsheet.forEach(function(row, index) {
+            // Check if row contains 'Emails' field
+            attributes[row["Emails"]] = {};
+            if ('Emails' in row) {
+                Object.keys(cache.data.campaignid.excelsheet[0]).forEach(function(key) {
+                    attributes[row["Emails"]][key] =  row[key];
+                });
+            }
+        });
+
+        payload["to"].forEach((mail, index) => {
+            cache.data["email-campaigns"][campaignid]["payload"][mail] = {
+                "attributes": attributes[mail],
+                "status": "PENDING",
+                "datetime": "",
+                "response": ""
+            };
+        });
+    }else{
+        console.log("no sheet")
+        payload["to"].forEach((mail, index) => {
+            cache.data["email-campaigns"][campaignid]["payload"][mail] = {
+                "attributes": {},
+                "status": "PENDING",
+                "datetime": "",
+                "response": ""
+            };
+        });
+    }
 }
 
 document.getElementById("send_emails_btn") && document.getElementById("send_emails_btn").addEventListener("click", function() {
@@ -294,6 +334,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                     document.getElementById("log-bcc").innerHTML = payload.bcc;
                     document.getElementById("log-replyto").innerHTML = payload.replyto;
                     generatePayload(payload);
+                    console.log(cache.data["email-campaigns"][campaignid])
                     Mailer();
                 }
             }
@@ -584,8 +625,8 @@ function send_email(index){
         "bcc": cache.data["email-campaigns"][campaignid]["bcc"],
         "replyto": cache.data["email-campaigns"][campaignid]["replyto"],
         "subject": cache.data["email-campaigns"][campaignid]["subject"],
-        "body_text": cache.data["email-campaigns"][campaignid]["body_text"],
-        "body_html": cache.data["email-campaigns"][campaignid]["body_html"],
+        "body_text": generate_text_template(email),
+        "body_html": generate_html_template(email),
         "smtp_server": cache.data["email-campaigns"][campaignid]["smtp_server"]
     })}).then(response => {
         if (!response.ok) {

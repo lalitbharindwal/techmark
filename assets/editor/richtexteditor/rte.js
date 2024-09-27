@@ -6,6 +6,14 @@
 if (!window.RTE_DefaultConfig)
     window.RTE_DefaultConfig = {};
 
+attributes = [];
+var editorcfg = {}
+editorcfg.svgCode_menu_mymenu1 = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M14.002 2h-12a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zm-12-1a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V3a2 2 0 00-2-2h-12z" clip-rule="evenodd"/><path fill="#666666" d="M10.648 7.646a.5.5 0 01.577-.093L15.002 9.5V14h-14v-2l2.646-2.354a.5.5 0 01.63-.062l2.66 1.773 3.71-3.71z"/><path fill-rule="evenodd" d="M4.502 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/></svg>';
+editorcfg.toolbar = "mytoolbar";
+RTE_DefaultConfig.text_mymenu1 = "Insert Image";
+editorcfg.toolbar_mytoolbar = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent,insertblockquote,insertemoji}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight,selectall,toggleborder}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,insertchars,inserttable,inserttemplate,insertcode,menu_mymenu1}|{preview,code}" + "#{fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+editorcfg.subtoolbar_mymenu1 = 'insertimage,insertgallery';
+
 RTE_DefaultConfig.editablePaddingTop = 2;
 RTE_DefaultConfig.editablePaddingBottom = 2;
 RTE_DefaultConfig.editablePaddingLeft = 2;
@@ -59,7 +67,7 @@ RTE_DefaultConfig.focusOnLoad = true;
 // Specifies whether the editor grabs focus when the page loads. If this property is set to true then the editor will take focus, if it is set to false it will not.
 RTE_DefaultConfig.allowScriptCode = true;
 //Specifies whether to strip all script elements and script contents from the html to prevent javaScript injection. When this property is set to false (the default) Rich Text Editor strips all script elements and script contents from the html.
-RTE_DefaultConfig.showFloatTextToolBar = true;
+RTE_DefaultConfig.showFloatTextToolBar = false;
 // Specifies whether to display the FloatTextToolBar.
 RTE_DefaultConfig.showFloatLinkToolBar = true;
 // Specifies whether to display the FloatLinkToolBar.
@@ -189,8 +197,8 @@ RTE_DefaultConfig.inlineStyles = [["Red", "color:red", "color:red"], ["Bold", "f
 // Default CSS styles for inline styles dropdown. 
 RTE_DefaultConfig.paragraphStyles = [["Red", "color:red", "color:red"], ["Bold", "font-weight:bold", "font-weight:bold"], ["Quote", "my-cls-quote"], ["LargeCenter", "my-cls-largecenter"]];
 // Default CSS styles for paragraph styles dropdown. 
-RTE_DefaultConfig.imageStyles = [["Border", "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"], ["grayscale", "filter: grayscale(100%);"], ["Shadow", "box-shadow:0 0 8px gray"], ["Margin10", "margin:10px"], ["Padding:10", "padding:10px"], ["Rounded Corners", "border-radius: 10px;"], ["Rounded Images", "border-radius: 50%;"], ["Thumbnail Image", "border: 1px solid #ddd; border-radius: 4px; padding: 5px;width:150px"]// Default CSS styles for image Styles dropdown. 
-];
+RTE_DefaultConfig.imageStyles = [["Border", "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"], ["grayscale", "filter: grayscale(100%);"], ["Shadow", "box-shadow:0 0 8px gray"], ["Margin10", "margin:10px"], ["Padding:10", "padding:10px"], ["Rounded Corners", "border-radius: 10px;"], ["Rounded Images", "border-radius: 50%;"], ["Thumbnail Image", "border: 1px solid #ddd; border-radius: 4px; padding: 5px;width:150px"]];
+// Default CSS styles for image Styles dropdown. 
 RTE_DefaultConfig.linkStyles = [["Margin10", "margin:10px"], ["Padding:10", "padding:10px"], ["BigText", "font-size:36px"]];
 // Default CSS styles for link Styles dropdown. 
 
@@ -289,7 +297,7 @@ RTE_DefaultConfig.svgCode_toggleborder = '<svg viewBox="-2 -2 20 20" fill="#5F63
 RTE_DefaultConfig.svgCode_subscript = '<svg viewBox="-3 -3 24 24" fill="#5F6368"><path d="M7.4,9l3.6,3.6L9.6,14L6,10.4L2.4,14L1,12.6L4.6,9L1,5.4L2.4,4L6,7.6L9.6,4L11,5.4L7.4,9z M15.3,16.7l1.1-1.1c0.2-0.2,0.4-0.4,0.5-0.6c0.2-0.2,0.3-0.4,0.4-0.6c0.1-0.2,0.2-0.4,0.3-0.6c0.1-0.2,0.1-0.4,0.1-0.7c0-0.3,0-0.6-0.2-0.8c-0.1-0.2-0.3-0.5-0.5-0.6c-0.2-0.2-0.5-0.3-0.7-0.4c-0.6-0.2-1.3-0.2-1.9,0c-0.3,0.1-0.5,0.3-0.8,0.5c-0.2,0.2-0.4,0.5-0.5,0.7c-0.1,0.3-0.2,0.5-0.2,0.8l0,0.2h1.5l0-0.2c0-0.1,0-0.3,0.1-0.4c0-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.2-0.1,0.5-0.1,0.7,0c0.1,0,0.2,0.1,0.2,0.2c0.1,0.1,0.1,0.2,0.1,0.2c0,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2,0,0.3c0,0.1-0.1,0.2-0.1,0.3c-0.1,0.1-0.2,0.3-0.3,0.4c-0.1,0.2-0.3,0.3-0.4,0.5l-2.2,2.4V18H18v-1.3H15.3z"/></svg>';
 RTE_DefaultConfig.svgCode_superscript = '<svg viewBox="-3 -3 24 24" fill="#5F6368"><path d="M7.4,9l3.6,3.6L9.6,14L6,10.4L2.4,14L1,12.6L4.6,9L1,5.4L2.4,4L6,7.6L9.6,4L11,5.4L7.4,9z M15.3,5.7l1.1-1.1c0.2-0.2,0.4-0.4,0.5-0.6c0.2-0.2,0.3-0.4,0.4-0.6c0.1-0.2,0.2-0.4,0.3-0.6c0.1-0.2,0.1-0.4,0.1-0.7c0-0.3,0-0.6-0.2-0.8c-0.1-0.2-0.3-0.5-0.5-0.6c-0.2-0.2-0.5-0.3-0.7-0.4c-0.6-0.2-1.3-0.2-1.9,0c-0.3,0.1-0.5,0.3-0.8,0.5c-0.2,0.2-0.4,0.5-0.5,0.7c-0.1,0.3-0.2,0.5-0.2,0.8l0,0.2h1.5l0-0.2c0-0.1,0-0.3,0.1-0.4c0-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.2-0.1,0.5-0.1,0.7,0c0.1,0,0.2,0.1,0.2,0.2c0.1,0.1,0.1,0.2,0.1,0.2c0,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2,0,0.3c0,0.1-0.1,0.2-0.1,0.3c-0.1,0.1-0.2,0.3-0.3,0.4c-0.1,0.2-0.3,0.3-0.4,0.5l-2.2,2.4V7H18V5.7H15.3z"/> </svg>';
 RTE_DefaultConfig.svgCode_strike = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path d="M8.527 13.164c-2.153 0-3.589-1.107-3.705-2.81h1.23c.144 1.06 1.129 1.703 2.544 1.703 1.34 0 2.31-.705 2.31-1.675 0-.827-.547-1.374-1.914-1.675L8.046 8.5h3.45c.468.437.675.994.675 1.697 0 1.826-1.436 2.967-3.644 2.967zM6.602 6.5H5.167a2.776 2.776 0 01-.099-.76c0-1.627 1.436-2.768 3.48-2.768 1.969 0 3.39 1.175 3.445 2.85h-1.23c-.11-1.08-.964-1.743-2.25-1.743-1.23 0-2.18.602-2.18 1.607 0 .31.083.581.27.814z"/><path fill-rule="evenodd" d="M15 8.5H1v-1h14v1z" clip-rule="evenodd"/></svg>';
-//RTE_DefaultConfig.svgCode_insertimage = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M14.002 2h-12a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zm-12-1a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V3a2 2 0 00-2-2h-12z" clip-rule="evenodd"/><path fill="#666666" d="M10.648 7.646a.5.5 0 01.577-.093L15.002 9.5V14h-14v-2l2.646-2.354a.5.5 0 01.63-.062l2.66 1.773 3.71-3.71z"/><path fill-rule="evenodd" d="M4.502 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/></svg>';
+RTE_DefaultConfig.svgCode_insertimage = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M14.002 2h-12a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zm-12-1a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V3a2 2 0 00-2-2h-12z" clip-rule="evenodd"/><path fill="#666666" d="M10.648 7.646a.5.5 0 01.577-.093L15.002 9.5V14h-14v-2l2.646-2.354a.5.5 0 01.63-.062l2.66 1.773 3.71-3.71z"/><path fill-rule="evenodd" d="M4.502 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/></svg>';
 RTE_DefaultConfig.svgCode_paragraph = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path d="M13.9,1.6H5.7c-2.3,0-4.1,1.6-4.1,3.6s1.8,3.6,4.1,3.6v5.1h1.2V2.6h2.9v11.2H11V2.6h2.9V1.6z M5.7,7.7 c-1.6,0-2.9-1.1-2.9-2.6s1.3-2.6,2.9-2.6V7.7z"/></svg>';
 RTE_DefaultConfig.svgCode_fullscreenenter = '<svg viewBox="-3 -3 22 22" fill="#5F6368"><path fill-rule="evenodd" d="M1.5 1a.5.5 0 00-.5.5v4a.5.5 0 01-1 0v-4A1.5 1.5 0 011.5 0h4a.5.5 0 010 1h-4zM10 .5a.5.5 0 01.5-.5h4A1.5 1.5 0 0116 1.5v4a.5.5 0 01-1 0v-4a.5.5 0 00-.5-.5h-4a.5.5 0 01-.5-.5zM.5 10a.5.5 0 01.5.5v4a.5.5 0 00.5.5h4a.5.5 0 010 1h-4A1.5 1.5 0 010 14.5v-4a.5.5 0 01.5-.5zm15 0a.5.5 0 01.5.5v4a1.5 1.5 0 01-1.5 1.5h-4a.5.5 0 010-1h4a.5.5 0 00.5-.5v-4a.5.5 0 01.5-.5z" clip-rule="evenodd"/></svg>';
 RTE_DefaultConfig.svgCode_fullscreenexit = '<svg viewBox="-2 -2 20 20" fill="#5F6368"><path fill-rule="evenodd" d="M5.5 0a.5.5 0 01.5.5v4A1.5 1.5 0 014.5 6h-4a.5.5 0 010-1h4a.5.5 0 00.5-.5v-4a.5.5 0 01.5-.5zm5 0a.5.5 0 01.5.5v4a.5.5 0 00.5.5h4a.5.5 0 010 1h-4A1.5 1.5 0 0110 4.5v-4a.5.5 0 01.5-.5zM0 10.5a.5.5 0 01.5-.5h4A1.5 1.5 0 016 11.5v4a.5.5 0 01-1 0v-4a.5.5 0 00-.5-.5h-4a.5.5 0 01-.5-.5zm10 1a1.5 1.5 0 011.5-1.5h4a.5.5 0 010 1h-4a.5.5 0 00-.5.5v4a.5.5 0 01-1 0v-4z" clip-rule="evenodd"/>';

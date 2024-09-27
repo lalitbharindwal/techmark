@@ -378,7 +378,7 @@
                                                                 <button class="btn btn-light" type="button" id="send_emails_btn">SEND EMAILS <i class="ri-send-plane-2-fill fs-10"></i></button>
                                                             </div>
                                                             <script>
-                                                                var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "default" });
+                                                                var editor1 = new RichTextEditor("#div_editor1", editorcfg, { skin: "grey", toolbar: "default" });
                                                             </script>
                                                             <script src="assets/editor/res/patch.js"></script>
                                                         </div>
@@ -404,13 +404,13 @@
                                                         <div class="modal-body">
                                                             <div class="row" style="text-align: center; min-height: 420px;">
                                                                 <div class="col-md-4">
-                                                                    <br><button type="button" id="type" class="btn btn-info btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-copy-line label-icon align-middle fs-16 me-2"></i>Copy/Paste</button>
-                                                                    <!--<br><br>
+                                                                    <br><button type="button" id="type" onclick="uploadoptions(this)" class="btn btn-info btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-copy-line label-icon align-middle fs-16 me-2"></i>Copy/Paste</button>
+                                                                    <br><br>
+                                                                    <button type="button" id="excel" onclick="uploadoptions(this)" class="btn btn-success btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-excel-2-line label-icon align-middle fs-16 me-2"></i>Import Excel Sheets</button>
+                                                                    <!--<br><br> 
                                                                     <button type="button" id="contacts" onclick="uploadoptions(this)" class="btn btn-warning btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-contacts-book-fill label-icon align-middle fs-16 me-2"></i>Contact List</button>
-                                                                    <br><br> 
-                                                                    <button type="button" id="excel" onclick="uploadoptions(this)" class="btn btn-primary btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-excel-2-line label-icon align-middle fs-16 me-2"></i>Import Excel Sheets</button>
                                                                     <br><br>                                                                                            
-                                                                    <button type="button" id="csv" onclick="uploadoptions(this)" class="btn btn-success btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>Import CSV File</button><hr>-->
+                                                                    <button type="button" id="csv" onclick="uploadoptions(this)" class="btn btn-prime btn-label waves-effect waves-light" style="width: 5cm;"><i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>Import CSV File</button><hr>-->
                                                                 </div>
                                                                 <div class="col-md-8" id="uploadoptions">
                                                                     <div class="row">
@@ -701,6 +701,8 @@
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <!-- Sweet Alerts js -->
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script src="assets/js/pages/form-file-upload.init.js"></script>
     <!-- App js -->
     <script src="assets/js/app.js"></script>
     <script src="assets/main/add-campaign.js"></script>

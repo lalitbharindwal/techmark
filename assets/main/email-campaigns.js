@@ -290,6 +290,22 @@ async function saveemailpayload(email){
     }
 }
 
+function generate_html_template(mail){
+    var generated_template = cache.data["email-campaigns"][campaignid]["body_html"];
+    Object.keys(cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"]).forEach(function(key) {
+        generated_template = generated_template.replaceAll(`{{${key}}}`, cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"][key]);
+    });
+    return generated_template;
+}
+
+function generate_text_template(mail){
+    var generated_template = cache.data["email-campaigns"][campaignid]["body_text"];
+    Object.keys(cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"]).forEach(function(key) {
+        generated_template = generated_template.replaceAll(`{{${key}}}`, cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"][key]);
+    });
+    return generated_template;
+}
+
 async function send_email(index){
     var email = cache.data.campaignid.recipients[index]
     document.getElementById("log-status").innerHTML = `Sending to ${email}`;
@@ -310,8 +326,8 @@ async function send_email(index){
         "bcc": cache.data["email-campaigns"][campaignid]["bcc"],
         "replyto": cache.data["email-campaigns"][campaignid]["replyto"],
         "subject": cache.data["email-campaigns"][campaignid]["subject"],
-        "body_text": cache.data["email-campaigns"][campaignid]["body_text"],
-        "body_html": cache.data["email-campaigns"][campaignid]["body_html"],
+        "body_text": generate_text_template(email),
+        "body_html": generate_html_template(email),
         "smtp_server": cache.data["email-campaigns"][campaignid]["smtp_server"]
     })}).then(response => {
         if (!response.ok) {
