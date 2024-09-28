@@ -74,7 +74,6 @@ var payload = [];
 var count = 0;
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
-
 async function tabledata() {
     await storage("techmark", "get");
     if(id){
@@ -85,7 +84,6 @@ async function tabledata() {
         for (const key in cache.data["email-templates"]) {
             payload.push([++count, key, cache.data["email-templates"][key]["template-name"], cache.data["email-templates"][key]["datetime"], key]);
         }
-        
         await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         table(payload);
     }
@@ -174,7 +172,6 @@ async function update_template(){
             location = "auth-500.html";
             //console.log(data)
         }else{
-            
             document.getElementById("editor-button").innerHTML = `<button class="fs-16 btn btn-light" type="button"><i class="fs-17 bx bx-save"></i> Template Updated</button>`;
         }
     }).catch(error => {

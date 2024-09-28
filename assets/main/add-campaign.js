@@ -40,8 +40,6 @@ verifymail()
 dropdown(obj)
 */
 
-
-
 function datetime(){
     const now = new Date();
     const year = now.getFullYear();
@@ -67,8 +65,8 @@ function getid(){
 
 async function startsession() {
     await storage("techmark", "get");
-    document.getElementById("campaignid").innerHTML = getid();
-    campaignid = document.getElementById("campaignid").textContent;
+    campaignid = getid();
+    document.getElementById("campaignid").innerHTML = campaignid;
     cache.data.campaignid = {};
     show_aliases();
     check_gmail();
@@ -99,7 +97,7 @@ function check_gmail(){
         storage("techmark", "get");
         editor1.setHTMLCode(cache.data["email-templates"][params.get('templateid')]["html-content"]);
     }
-    if(cache.data.gmail != undefined){
+    if(cache.data.campaignid.gmail != undefined){
         document.getElementById("sender").innerHTML = "Authenticating access...";
         document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
         const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
@@ -179,17 +177,10 @@ function saveContacts(){
     // Find all matches of valid email patterns in the textarea
     var validEmails = [...new Set(recipients.match(emailRegex))];
 
-    var emails = [];
-    if(validEmails){
-        validEmails.forEach((email, index) => {
-            emails.push(email.trim())
-        });
-    }
-
-    if(emails.length<=300){
-        if((cache.data.todaysmailsquota-emails.length) >= 0){
-            cache.data.campaignid.recipients = emails;
-            document.getElementById("select-recipient").innerHTML = `${emails.length} Recipient Selected`;
+    if(validEmails.length<=300){
+        if((cache.data.todaysmailsquota-validEmails.length) >= 0){
+            cache.data.campaignid.recipients = validEmails;
+            document.getElementById("select-recipient").innerHTML = `${validEmails.length} Recipient Selected`;
             storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         }else{
             cache.data.campaignid.recipients = undefined;
@@ -238,9 +229,7 @@ function uploadoptions(obj){
                         <h4 class="card-title mb-0">Upload CSV</h4>
                     </div><!-- end card header -->
                     <div class="card-body">
-                        
-
-                        
+                        //implement Here
                     </div>
                     <!-- end card body -->
                 </div>
@@ -287,7 +276,7 @@ function uploadoptions(obj){
     </div>`;
     document.getElementById("card-btns").innerHTML = `<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>`;
     getContactList();
-    };
+};
 }
 
 
@@ -342,7 +331,6 @@ function excelsheetupload(){
 function displayexcelsheetPreview() {
     // Clear previous preview if any
     previewArea.innerHTML = '';
-
     if (cache.data.campaignid.excelsheet.length > 0) {
         // Generate HTML for table
         var tableHtml = '<table><thead style="background-color:#0ab39c;color:white;"><tr><th>#</th>';
@@ -487,21 +475,25 @@ function validateExcelsheet(){
             <i class="ri-edit-box-line me-1 align-middle"></i> Excelsheet
         </a>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveExcelContacts()">Select</button>`;
-    
 }
 
 function saveExcelContacts(){
     cache.data.campaignid.recipients = ``;
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
-    cache.data.campaignid.excelsheet.forEach(function(row, index) {
-        // Check if row contains 'Emails' field
-        if ('Emails' in row) {
-            cache.data.campaignid.recipients+=` ${row["Emails"]}`;
-        }
-    });
-    cache.data.campaignid.recipients = [...new Set(cache.data.campaignid.recipients.match(emailRegex))]
-    document.getElementById("select-recipient").innerHTML = `${cache.data.campaignid.recipients.length} Recipient Selected`;
-    storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+    if((cache.data.todaysmailsquota-validEmails.length) >= 0){
+        cache.data.campaignid.excelsheet.forEach(function(row, index) {
+            if ('Emails' in row) {
+                cache.data.campaignid.recipients+=` ${row["Emails"]}`;
+            }
+        });
+        cache.data.campaignid.recipients = [...new Set(cache.data.campaignid.recipients.match(emailRegex))];
+        document.getElementById("select-recipient").innerHTML = `${cache.data.campaignid.recipients.length} Recipient Selected`;
+        storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+    }else{
+        cache.data.campaignid.recipients = undefined;
+        document.getElementById("select-recipient").innerHTML = `0 Recipient Selected`;
+        alert("Quota Limit Excedding");
+    }
 }
 
 function raw(gmail){
@@ -574,7 +566,6 @@ function generatePayload(payload){
 
     attributes = {}
     if(cache.data.campaignid.excelsheet){
-        console.log("sheet")
         cache.data.campaignid.excelsheet.forEach(function(row, index) {
             // Check if row contains 'Emails' field
             attributes[row["Emails"]] = {};
@@ -594,7 +585,6 @@ function generatePayload(payload){
             };
         });
     }else{
-        console.log("no sheet")
         payload["to"].forEach((mail, index) => {
             cache.data["email-campaigns"][campaignid]["payload"][mail] = {
                 "attributes": {},
@@ -626,10 +616,7 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                 if(cache.data.campaignid.recipients == undefined){
                     alert("Please Select Recipients");
                 }else{
-                    var cc;
-                    var bcc;
-                    var replyto;
-                    var smtp_server;
+                    var cc, bcc, replyto, smtp_server;
                     try{
                         cc = document.getElementById("cc").value;
                     }catch(error){
@@ -681,7 +668,6 @@ document.getElementById("send_emails_btn") && document.getElementById("send_emai
                     document.getElementById("log-bcc").innerHTML = payload.bcc;
                     document.getElementById("log-replyto").innerHTML = payload.replyto;
                     generatePayload(payload);
-                    console.log(cache.data["email-campaigns"][campaignid])
                     Mailer();
                 }
             }
@@ -709,10 +695,10 @@ function Mailer(){
                 "object_name": `${cache["data"]["email"]}/${campaignid}/payload.txt`
         })
         }).then(response => {
-                if (!response.ok) {
-                    location = "auth-offline.html";
-                }
-                return response.json()
+            if (!response.ok) {
+                location = "auth-offline.html";
+            }
+            return response.json()
         }).then(data => {
             if(JSON.parse(data["body"])["error"] == "true"){
                 location = "auth-500.html";
@@ -766,7 +752,6 @@ function Mailer(){
         });
     }
 }
-
 
 var sent = 0, failed = 0, error = 0, sendingCount = 0;
 async function display_log(mail){
@@ -906,8 +891,8 @@ async function savegmailpayload(gmail){
             display_log(gmail);
         }
     }).catch(error => {
-            //console.log(error)
-            location = "auth-offline.html";
+        console.log(error)
+        //location = "auth-offline.html";
     });
     cache.data.campaignid.flag++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
@@ -994,7 +979,6 @@ function send_email(index){
                 saveemailpayload(email);
             }
         }
-
     }).catch(error => {
         cache["data"]["email-campaigns"][campaignid]["payload"][email]["response"] = error;
         cache["data"]["email-campaigns"][campaignid]["payload"][email]["status"] = "Error";
@@ -1007,7 +991,7 @@ function send_email(index){
         if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
             send_email(cache.data.campaignid.flag);
         }
-    }, 500); // 1000 milliseconds delay
+    }, 500); // 500 milliseconds delay
 }
 
 function getEmail(){
@@ -1044,7 +1028,7 @@ function getCode(gmail){
         "redirect_uri": 'https://techmark.solutions/add-campaign'
     }
     if(gmail != ""){
-        cache.data.gmail = gmail;
+        cache.data.campaignid.gmail = gmail;
         storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         startOAuthFlow(event["clientId"], event["redirect_uri"]);
     }else{
@@ -1094,21 +1078,21 @@ function getProfile(token, event){
             try{
                 if(data["error"]["status"] == "PERMISSION_DENIED"){
                     cache.data.campaignid.bearer = undefined;
-                    cache.data.gmail = undefined;
+                    cache.data.campaignid.gmail = undefined;
                     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+event["email"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
                     document.getElementById("sender").innerHTML = ((data["error"]["message"]).split(" ")[3]);
                 }
             }catch{
                     cache.data.campaignid.bearer = btoa(token);
-                    cache.data.gmail = data["emailAddress"];
+                    cache.data.campaignid.gmail = data["emailAddress"];
                     storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
                     document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("sender").innerHTML = data["emailAddress"];
             }
         }).catch(error => {
             cache.data.campaignid.bearer = undefined;
-            cache.data.gmail = undefined;
+            cache.data.campaignid.gmail = undefined;
             storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
             document.getElementById("status-badge-"+data["emailAddress"]).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
             document.getElementById("sender").innerHTML = "Authentication Failed";
@@ -1181,242 +1165,11 @@ function select_sender(obj){
                 if(data.body.login){
                     const domaininfo = JSON.parse(data.body.domaininfo);
                     const whoisinfo = domaininfo.domaininfo.whoisinfo;
-                        const dnsinfo = domaininfo.domaininfo.dnsinfo;
-                        const ipinfo = domaininfo.domaininfo.ipinfo;
-                        const smtp_server = domaininfo.domaininfo.smtp_server;
-                        const log = `<div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">SMTP Server</th>
-                                                <td class="text-muted" data-label="-">${smtp_server}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">A</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.A}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">MX</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">NS</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">TXT</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Ip Address</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.ip}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Loc</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.loc}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">City</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.city}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Postal</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.postal}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Country</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.country}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Organisation</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.org}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Timestamp</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.timezone}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    
-                    show_aliases();
-                    document.getElementById("sender").innerHTML = obj.id;
-                    document.getElementById("status-badge-"+obj.id).innerHTML = `<span class="badge bg-success">Selected</span>`;
-                    document.getElementById("domaininfo").innerHTML = log;
-                }else{
-                    show_aliases();
-                    document.getElementById("sender").innerHTML = "Select Sender";
-                    document.getElementById("status-badge-"+obj.id).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
-                    const domaininfo = JSON.parse(data.body.domaininfo);
-                    const whoisinfo = domaininfo.domaininfo.whoisinfo;
                     const dnsinfo = domaininfo.domaininfo.dnsinfo;
                     const ipinfo = domaininfo.domaininfo.ipinfo;
                     const smtp_server = domaininfo.domaininfo.smtp_server;
-                    var log = '';
-                    if(whoisinfo){
-                        log = `<div class="card">
+                    const log = `<div class="card">
                             <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    }
-                    
-                    if(dnsinfo){
-                        log = `<div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">SMTP Server</th>
-                                                <td class="text-muted" data-label="-">${smtp_server}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">A</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.A}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">MX</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">NS</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">TXT</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    }
-
-                    if(ipinfo){
-                        log = `<div class="card">
-                                <div class="card-body">
                                 <h5 class="card-title mb-3">${payload.useremail}</h5>
                                 <div class="table-responsive">
                                     <table class="table table-borderless mb-0">
@@ -1510,7 +1263,9 @@ function select_sender(obj){
                                 </div>
                             </div><!-- end card body -->
                         </div><!-- end card -->`;
-                    }
+                    show_aliases();
+                    document.getElementById("sender").innerHTML = obj.id;
+                    document.getElementById("status-badge-"+obj.id).innerHTML = `<span class="badge bg-success">Selected</span>`;
                     document.getElementById("domaininfo").innerHTML = log;
                 }
             }else{
@@ -1566,7 +1321,6 @@ function verifymail(){
             }
             return response.json()
         }).then(data => {
-            console.log(data)
             if(!data.error){
                 if(data.body.login){
                     const domaininfo = JSON.parse(data.body.domaininfo);
@@ -1692,239 +1446,6 @@ function verifymail(){
                         document.getElementById("domaininfo").innerHTML = log;
                         document.getElementById("domaininfolog").innerHTML = log;
                     }
-                }else{
-                    show_aliases();
-                    document.getElementById("verifyemailBtn").innerHTML = `<button type="button" class="btn rounded-pill btn-light waves-effect" onclick="verifymail()">VERIFY</button><hr>
-                                                                            <!-- Danger Alert -->
-                                                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                                                <strong>Verification Failed</strong>
-                                                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                                            </div>`;
-                    const domaininfo = JSON.parse(data.body.domaininfo);
-                    const whoisinfo = domaininfo.domaininfo.whoisinfo;
-                    const dnsinfo = domaininfo.domaininfo.dnsinfo;
-                    const ipinfo = domaininfo.domaininfo.ipinfo;
-                    const smtp_server = domaininfo.domaininfo.smtp_server;
-                    var log = '';
-                    if(whoisinfo){
-                        log = `<div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    }
-                    
-                    if(dnsinfo){
-                        log = `<div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">SMTP Server</th>
-                                                <td class="text-muted" data-label="-">${smtp_server}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">A</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.A}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">MX</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">NS</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">TXT</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    }
-
-                    if(ipinfo){
-                        log = `<div class="card">
-                                <div class="card-body">
-                                <h5 class="card-title mb-3">${payload.useremail}</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Email</th>
-                                                <td class="text-muted" data-label="-">${payload.useremail}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain</th>
-                                                <td class="text-muted" data-label="-">${payload.domain}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">User Name</th>
-                                                <td class="text-muted" data-label="-">${payload.name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Alias Email</th>
-                                                <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="col">Domain Name</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Created On</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Expiry Date</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">SMTP Server</th>
-                                                <td class="text-muted" data-label="-">${smtp_server}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Name Servers :</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Registerer</th>
-                                                <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">A</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.A}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">MX</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">NS</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">TXT</th>
-                                                <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Ip Address</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.ip}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Loc</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.loc}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">City</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.city}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Postal</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.postal}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Country</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.country}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Organisation</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.org}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="ps-0" scope="row">Timestamp</th>
-                                                <td class="text-muted" data-label="-">${ipinfo.timezone}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->`;
-                    }
-                    document.getElementById("domaininfo").innerHTML = log;
-                    document.getElementById("domaininfolog").innerHTML = log;
                 }
             }else{
                 location = "auth-500.html";
@@ -1981,3 +1502,470 @@ function dropdown(obj){
         document.getElementById("toggle-replyto-btn").innerHTML = '<a class="dropdown-item" id="replytoon" onclick="dropdown(this)">Replyto</a>';
     }
 }
+
+
+
+/*
+show_aliases();
+document.getElementById("sender").innerHTML = "Select Sender";
+document.getElementById("status-badge-"+obj.id).innerHTML = `<span class="badge bg-danger">Authentication Failed</span>`;
+const domaininfo = JSON.parse(data.body.domaininfo);
+const whoisinfo = domaininfo.domaininfo.whoisinfo;
+const dnsinfo = domaininfo.domaininfo.dnsinfo;
+const ipinfo = domaininfo.domaininfo.ipinfo;
+const smtp_server = domaininfo.domaininfo.smtp_server;
+var log = '';
+if(whoisinfo){
+    log = `<div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+                    
+if(dnsinfo){
+    log = `<div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">SMTP Server</th>
+                            <td class="text-muted" data-label="-">${smtp_server}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">A</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.A}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">MX</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">NS</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">TXT</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+
+if(ipinfo){
+    log = `<div class="card">
+            <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">SMTP Server</th>
+                            <td class="text-muted" data-label="-">${smtp_server}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">A</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.A}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">MX</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">NS</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">TXT</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Ip Address</th>
+                            <td class="text-muted" data-label="-">${ipinfo.ip}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Loc</th>
+                            <td class="text-muted" data-label="-">${ipinfo.loc}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">City</th>
+                            <td class="text-muted" data-label="-">${ipinfo.city}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Postal</th>
+                            <td class="text-muted" data-label="-">${ipinfo.postal}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Country</th>
+                            <td class="text-muted" data-label="-">${ipinfo.country}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Organisation</th>
+                            <td class="text-muted" data-label="-">${ipinfo.org}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Timestamp</th>
+                            <td class="text-muted" data-label="-">${ipinfo.timezone}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+document.getElementById("domaininfo").innerHTML = log;
+
+
+show_aliases();
+document.getElementById("verifyemailBtn").innerHTML = `<button type="button" class="btn rounded-pill btn-light waves-effect" onclick="verifymail()">VERIFY</button><hr>
+                                                        <!-- Danger Alert -->
+                                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                            <strong>Verification Failed</strong>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                        </div>`;
+const domaininfo = JSON.parse(data.body.domaininfo);
+const whoisinfo = domaininfo.domaininfo.whoisinfo;
+const dnsinfo = domaininfo.domaininfo.dnsinfo;
+const ipinfo = domaininfo.domaininfo.ipinfo;
+const smtp_server = domaininfo.domaininfo.smtp_server;
+var log = '';
+if(whoisinfo){
+    log = `<div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+                    
+if(dnsinfo){
+    log = `<div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">SMTP Server</th>
+                            <td class="text-muted" data-label="-">${smtp_server}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">A</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.A}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">MX</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">NS</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">TXT</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+
+if(ipinfo){
+    log = `<div class="card">
+            <div class="card-body">
+            <h5 class="card-title mb-3">${payload.useremail}</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-0" scope="col">User Email</th>
+                            <td class="text-muted" data-label="-">${payload.useremail}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain</th>
+                            <td class="text-muted" data-label="-">${payload.domain}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">User Name</th>
+                            <td class="text-muted" data-label="-">${payload.name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Alias Email</th>
+                            <td class="text-muted" data-label="-">${payload["alias-email"]}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="col">Domain Name</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.domain_name}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Created On</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.creation_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Expiry Date</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.expiration_date}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">SMTP Server</th>
+                            <td class="text-muted" data-label="-">${smtp_server}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Name Servers :</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.name_servers}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Registerer</th>
+                            <td class="text-muted" data-label="-">${whoisinfo.registrar}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">A</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.A}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">MX</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.MX}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">NS</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.NS}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">TXT</th>
+                            <td class="text-muted" data-label="-">${dnsinfo.TXT}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Ip Address</th>
+                            <td class="text-muted" data-label="-">${ipinfo.ip}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Loc</th>
+                            <td class="text-muted" data-label="-">${ipinfo.loc}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">City</th>
+                            <td class="text-muted" data-label="-">${ipinfo.city}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Postal</th>
+                            <td class="text-muted" data-label="-">${ipinfo.postal}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Country</th>
+                            <td class="text-muted" data-label="-">${ipinfo.country}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Organisation</th>
+                            <td class="text-muted" data-label="-">${ipinfo.org}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-0" scope="row">Timestamp</th>
+                            <td class="text-muted" data-label="-">${ipinfo.timezone}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end card body -->
+    </div><!-- end card -->`;
+}
+document.getElementById("domaininfo").innerHTML = log;
+document.getElementById("domaininfolog").innerHTML = log;
+
+*/

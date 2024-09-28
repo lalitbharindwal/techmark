@@ -1,6 +1,4 @@
-var payload = [];
-var count = 0
-
+var payload = [], count = 0;
 async function table(payload){
     document.getElementById("campaigns") && new gridjs.Grid({
         columns: [{
@@ -131,14 +129,12 @@ async function tabledata() {
         for (const key in cache.data["email-campaigns"]) {
             payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], key]);
         }
-        
-        await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
         table(payload);
     }
 }
 
 function view_email(obj){
-    editor1.setHTMLCode(cache.data["email-campaigns"][campaignid]["body_html"]);
+    editor1.setHTMLCode(generate_html_template(obj.id));
 }
 
 document.getElementById("resend_emails") && document.getElementById("resend_emails").addEventListener("click", function() {
@@ -155,6 +151,10 @@ document.getElementById("resend_emails") && document.getElementById("resend_emai
         showCloseButton: !0
     }).then(function(t) {
         if(t.isConfirmed){
+            if((cache.data.todaysmailsquota-cache.data.campaignid.recipients.length) <= 0){
+                alert("Quota Limit Excedding");
+                return
+            }
             var logmodel = new bootstrap.Modal(document.querySelector('.bs-example-modal-xl1'), {
                 backdrop: 'static', // Disable closing by clicking outside the modal
                 keyboard: false     // Disable closing with the Esc key
@@ -278,13 +278,13 @@ async function saveemailpayload(email){
             display_log(email);
         }
     }).catch(error => {
-            //console.log(error)
-            location = "auth-offline.html";
+        //console.log(error)
+        location = "auth-offline.html";
     });
     cache.data.campaignid.flag++;
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     if(cache.data.campaignid.flag < cache.data.campaignid.recipients.length){
-        await send_email(cache.data.campaignid.flag);
+        send_email(cache.data.campaignid.flag);
     }else{
         document.getElementById("log-status").innerHTML = `Campaign Ended`;
     }

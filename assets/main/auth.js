@@ -54,8 +54,7 @@ function resendOTP(){
 
 function generateOTP() {
     var string = '0123456789'; 
-    let OTP = ''; 
-    // Find the length of string 
+    let OTP = '';
     var len = string.length; 
     for (let i = 0; i < 4; i++ ) { 
         OTP += string[Math.floor(Math.random() * len)]; 
@@ -88,6 +87,35 @@ function verify(code){
     }else{
         document.getElementById("alert").innerHTML = "Incorrect OTP";
     }
+}
+
+function put_data(table_name, items){
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+      mode: 'cors',
+      headers: headers,
+      "method": "POST",
+      "body": JSON.stringify({
+        "service": "dynamodb",
+        "method": "put",
+        "table_name": table_name,
+        "items": items
+      })
+    }).then(response => {
+        if (!response.ok) {
+          location = "auth-offline.html";
+        }
+        return response.json()
+    }).then(data => {
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+        }else{
+            location = "auth-success.html";
+        }
+    }).catch(error => {
+        location = "auth-offline.html";
+    });
 }
 
 async function signup(){
@@ -133,7 +161,7 @@ async function signup(){
             }
         }
     }).catch(error => {
-          console.log(error)
+          //console.log(error)
           location = "auth-offline.html";
     });
 }
@@ -237,6 +265,7 @@ async function storage(data, method) {
 
 var cache;
 async function get_email_campaign(object){
+    document.getElementById("alert").innerHTML = "Please wait...";
     for(var i=0;i<object.length;i++){
         var key = (object[i]["Key"]).split("/");
         if(key[0] == cache["data"]["email"]){
@@ -299,8 +328,7 @@ async function getbuckets(data) {
     "body": JSON.stringify({
         "service": "s3",
         "method": "list",
-        "bucket_name": "techmark-email-campaigns",
-        "object_name": `lalitbharindwal@gmail.com`
+        "bucket_name": "techmark-email-campaigns"
     })
     }).then(response => {
         if (!response.ok) {
@@ -359,35 +387,6 @@ async function login(){
         }
     }).catch(error => {
         //console.log(error)
-        location = "auth-offline.html";
-    });
-}
-
-function put_data(table_name, items){
-    let headers = new Headers();
-    headers.append('Origin', '*');
-    fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
-      mode: 'cors',
-      headers: headers,
-      "method": "POST",
-      "body": JSON.stringify({
-        "service": "dynamodb",
-        "method": "put",
-        "table_name": table_name,
-        "items": items
-      })
-    }).then(response => {
-        if (!response.ok) {
-          location = "auth-offline.html";
-        }
-        return response.json()
-    }).then(data => {
-        if(JSON.parse(data["body"])["error"] == "true"){
-            location = "auth-500.html";
-        }else{
-            location = "auth-success.html";
-        }
-    }).catch(error => {
         location = "auth-offline.html";
     });
 }
