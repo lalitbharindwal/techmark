@@ -9,7 +9,7 @@ async function table(payload){
             }
         }, {
             name: "Campaign ID",
-            width: "140px",
+            width: "130px",
             formatter: function(e) {
                 return gridjs.html(`<a href="campaign-details.html?campaignid=${e}">` + e + "</a>")
             }
@@ -18,16 +18,22 @@ async function table(payload){
             width: "170px"
         }, {
             name: "Sender",
-            width: "190px"
+            width: "180px"
         }, {
             name: "Sender Name",
             width: "170px"
         }, {
             name: "Useremail",
-            width: "190px"
+            width: "180px"
+        }, {
+            name: "Datetime",
+            width: "100px"
+        }, {
+            name: "Count",
+            width: "70px"
         }, {
             name: "Actions",
-            width: "150px",
+            width: "80px",
             formatter: function(e) {
                 return gridjs.html(`<a href='campaign-details.html?campaignid=${e}' class='text-reset text-decoration-underline'>Details</a>`)
             }
@@ -127,7 +133,7 @@ async function tabledata() {
         }).render(document.getElementById("campaign-detail"))
     }else{
         for (const key in cache.data["email-campaigns"]) {
-            payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], key]);
+            payload.push([++count, key, cache.data["email-campaigns"][key]["subject"], cache.data["email-campaigns"][key]["from"], cache.data["email-campaigns"][key]["fullname"], cache.data["email-campaigns"][key]["useremail"], `${key.slice(0, 2)}-${key.slice(2, 4)}-${key.slice(4, 8)} ${key.slice(8, 10)}:${key.slice(10, 12)}:${key.slice(12, 14)}`,Object.keys(cache.data["email-campaigns"][key]["payload"]).length, key]);
         }
         table(payload);
     }

@@ -71,7 +71,7 @@ async function emailsSendingLog() {
     if(cache.data.userdata.plans["current-plan"].plan == "free"){
         daily_limit = 100;
     }else{
-        daily_limit = 1500;
+        daily_limit = 1200;
     }
     document.getElementById("emails-sent-today").innerHTML = totalEmailsSentToday;
     document.getElementById("total-emails-sent").innerHTML = totalEmailsSentMonthly;
