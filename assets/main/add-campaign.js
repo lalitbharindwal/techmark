@@ -99,12 +99,12 @@ function check_gmail(){
     }
     if(cache.data.campaignid.gmail != undefined){
         document.getElementById("sender").innerHTML = "Authenticating access...";
-        document.getElementById("status-badge-"+cache.data.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
+        document.getElementById("status-badge-"+cache.data.campaignid.gmail).innerHTML = `<span class="badge bg-warning">Authenticating</span>`;
         const clientId = '386167497194-ngpan3ub2v01mn4l0lv225gi83jth9mv.apps.googleusercontent.com';
         const redirectUri = 'https://techmark.solutions/add-campaign';
         const clientSecret = "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";
         const event = {
-            "email": cache.data.gmail,
+            "email": cache.data.campaignid.gmail,
             "clientId": clientId,
             "clientSecret": clientSecret,
             "redirect_uri": redirectUri
@@ -331,6 +331,7 @@ function excelsheetupload(){
 function displayexcelsheetPreview() {
     // Clear previous preview if any
     previewArea.innerHTML = '';
+    attributes = []
     if (cache.data.campaignid.excelsheet.length > 0) {
         // Generate HTML for table
         var tableHtml = '<table><thead style="background-color:#0ab39c;color:white;"><tr><th>#</th>';
@@ -480,13 +481,13 @@ function validateExcelsheet(){
 function saveExcelContacts(){
     cache.data.campaignid.recipients = ``;
     var emailRegex = /\b[A-Za-z0-9._]+@(?:[A-Za-z0-9-]+\.)+(?:com|org|in|in.net|net.in|net|co|co.in|uk|group|digital|io|ai|live|studio|au|ventures|is)\b/g;
-    if((cache.data.todaysmailsquota-validEmails.length) >= 0){
-        cache.data.campaignid.excelsheet.forEach(function(row, index) {
-            if ('Emails' in row) {
-                cache.data.campaignid.recipients+=` ${row["Emails"]}`;
-            }
-        });
-        cache.data.campaignid.recipients = [...new Set(cache.data.campaignid.recipients.match(emailRegex))];
+    cache.data.campaignid.excelsheet.forEach(function(row, index) {
+        if ('Emails' in row) {
+            cache.data.campaignid.recipients+=` ${row["Emails"]}`;
+        }
+    });
+    cache.data.campaignid.recipients = [...new Set(cache.data.campaignid.recipients.match(emailRegex))];
+    if((cache.data.todaysmailsquota-cache.data.campaignid.recipients.length) >= 0){
         document.getElementById("select-recipient").innerHTML = `${cache.data.campaignid.recipients.length} Recipient Selected`;
         storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
     }else{
