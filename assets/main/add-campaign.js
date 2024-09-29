@@ -770,6 +770,7 @@ async function display_log(mail){
         </tr>`;
         // progressbar
         updateProgressBars(sent, failed, error);
+        document.getElementById("log-status").innerHTML = `Mail Sent Successfully to ${mail}}`;
     }
 
     if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "False"){
@@ -786,7 +787,6 @@ async function display_log(mail){
         // progressbar
         updateProgressBars(sent, failed, error);
         document.getElementById("log-status").innerHTML = `Failed to send ${mail}: ${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["response"]}`;
-        return
     }
 
     if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "Error"){
@@ -801,6 +801,7 @@ async function display_log(mail){
              <td data-label="Status"><span class="badge bg-warning">Error</span></td>
          </tr>`;
         // progressbar
+        document.getElementById("log-status").innerHTML = `Error to send ${mail}: ${cache["data"]["email-campaigns"][campaignid]["payload"][mail]["response"]}`;
         updateProgressBars(sent, failed, error);
      }
 }
@@ -856,7 +857,7 @@ async function saveemailpayload(email){
             display_log(email);
         }
     }).catch(error => {
-        console.log(error);
+        //console.log(error);
         //location = "auth-offline.html";
     });
     await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
@@ -892,7 +893,7 @@ async function savegmailpayload(gmail){
             display_log(gmail);
         }
     }).catch(error => {
-        console.log(error)
+        //console.log(error)
         //location = "auth-offline.html";
     });
     cache.data.campaignid.flag++;
