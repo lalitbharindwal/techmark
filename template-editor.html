@@ -10,6 +10,8 @@
     <link rel="shortcut icon" href="assets/images/logo-sm.png">
     <!-- Sweet Alert css-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <!-- glightbox css -->
+    <link rel="stylesheet" href="assets/libs/glightbox/css/glightbox.min.css">
     <!-- Layout config Js -->
     <script src="assets/js/layout.js"></script>
     <!-- Bootstrap Css -->
@@ -242,7 +244,10 @@
                                                                 <button class="fs-16 btn btn-light" type="submit"><i class="fs-17 bx bx-save"></i> Save Template</button>
                                                             </div>
                                                             <script>
-                                                                var editor1 = new RichTextEditor("#div_editor1", { skin: "green", toolbar: "full" });
+                                                                RTE_DefaultConfig.text_mymenu1 = "Insert Image";
+                                                                editorcfg.toolbar_mytoolbar = "{bold,italic,underline,forecolor,backcolor}|{justifyleft,justifycenter,justifyright,justifyfull}|{insertorderedlist,insertunorderedlist,indent,outdent}{superscript,subscript}" + " #{paragraphs:toggle,fontname:toggle,fontsize:toggle,inlinestyle,lineheight}" + " / {removeformat,cut,copy,paste,delete,find}|{insertlink,unlink,insertblockquote,insertemoji,insertchars,inserttable,menu_mymenu1,inserttemplate,insertcode}" + "#{preview,code,selectall}" + " /{paragraphs:dropdown | fontname:dropdown | fontsize:dropdown} {paragraphstyle,toggle_paragraphop,menu_paragraphop}" + "#{toggleborder,fullscreenenter,fullscreenexit,undo,redo,togglemore}";
+                                                                editorcfg.subtoolbar_mymenu1 = 'insertimage,insertgallery';
+                                                                var editor1 = new RichTextEditor("#div_editor1", editorcfg, { skin: "green", toolbar: "full" });
                                                             </script>
                                                             <script src="assets/editor/res/patch.js"></script>
                                                         </div>
@@ -250,6 +255,15 @@
                                                 </div>
                                             </form>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row gallery-wrapper" id="email-templates"></div>
                                     </div>
                                 </div>
                             </div>
@@ -285,6 +299,12 @@
 
                 #div_editor1 rte-dialog-header {
                     background-color: white;
+                }
+
+                #template-image {
+                    display: flex; /* Enable flexbox */
+                    justify-content: center; /* Horizontal center */
+                    align-items: center; /* Vertical center */
                 }
             </style>
 
