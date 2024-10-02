@@ -533,7 +533,7 @@ return {"raw": customBase64Encode(raw)}
 }
 
 function generate_html_template(mail){
-    var generated_template = cache.data["email-campaigns"][campaignid]["body_html"];
+    var generated_template = cache.data["email-campaigns"][campaignid]["body_html"] + `<img src="https://vepaz3qwnvpu3ww6d7zel3eh2u0hqmaa.lambda-url.us-east-1.on.aws/email-tracking?email=${mail}&campaignid=${campaignid}&useremail=${cache["data"]["email"]}" width="1" height="1">`;
     Object.keys(cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"]).forEach(function(key) {
         generated_template = generated_template.replaceAll(`{{${key}}}`, cache.data["email-campaigns"][campaignid]["payload"][mail]["attributes"][key]);
     });
@@ -706,10 +706,43 @@ function Mailer(){
                 //console.log(data)
             }else{   
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
-                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
-                cache.data["email-campaigns"][campaignid]["bearer"] = atob(cache.data.bearer);
-                cache.data.campaignid.flag = 0;
-                send_gmail(cache.data.campaignid.flag);
+                var condition_expression = "#useremail = :value1";
+                var update_expression = "SET #emailtracking.#campaignid = :value2";
+                var expression_attribute_names = {"#useremail": "email", "#emailtracking": "email-tracking" ,"#campaignid": campaignid};
+                var expression_attribute_values = {":value1": cache.data.email, ":value2": {}};
+                fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+                mode: 'cors',
+                headers: headers,
+                "method": "POST",
+                "body": JSON.stringify({
+                    "service": "dynamodb",
+                    "method": "update",
+                    "table_name": "techmark-solutions",
+                    "primary_key": {"email": cache["data"]["email"]},
+                    "condition_expression": condition_expression,
+                    "update_expression": update_expression,
+                    "expression_attribute_names": expression_attribute_names,
+                    "expression_attribute_values": expression_attribute_values
+                })
+                }).then(response => {
+                    if (!response.ok) {
+                        location = "auth-offline.html";
+                    }
+                    return response.json()
+                }).then(data => {
+                    if(JSON.parse(data["body"])["error"] == "true"){
+                        location = "auth-500.html";
+                        //console.log(data)
+                    }else{
+                        cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
+                        cache.data["email-campaigns"][campaignid]["bearer"] = atob(cache.data.bearer);
+                        cache.data.campaignid.flag = 0;
+                        send_gmail(cache.data.campaignid.flag);
+                    }
+                }).catch(error => {
+                    //console.log(error)
+                    location = "auth-offline.html";
+                });
             }
         }).catch(error => {
             //console.log(error)
@@ -743,9 +776,42 @@ function Mailer(){
                 location = "auth-500.html";
             }else{
                 document.getElementById("log-status").innerHTML = "Starting Connection...";
-                cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
-                cache.data.campaignid.flag = 0;
-                send_email(cache.data.campaignid.flag);
+                var condition_expression = "#useremail = :value1";
+                var update_expression = "SET #emailtracking.#campaignid = :value2";
+                var expression_attribute_names = {"#useremail": "email", "#emailtracking": "email-tracking" ,"#campaignid": campaignid};
+                var expression_attribute_values = {":value1": cache.data.email, ":value2": {}};
+                fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+                mode: 'cors',
+                headers: headers,
+                "method": "POST",
+                "body": JSON.stringify({
+                    "service": "dynamodb",
+                    "method": "update",
+                    "table_name": "techmark-solutions",
+                    "primary_key": {"email": cache["data"]["email"]},
+                    "condition_expression": condition_expression,
+                    "update_expression": update_expression,
+                    "expression_attribute_names": expression_attribute_names,
+                    "expression_attribute_values": expression_attribute_values
+                })
+                }).then(response => {
+                    if (!response.ok) {
+                        location = "auth-offline.html";
+                    }
+                    return response.json()
+                }).then(data => {
+                    if(JSON.parse(data["body"])["error"] == "true"){
+                        location = "auth-500.html";
+                        //console.log(data)
+                    }else{
+                        cache.data.todaysmailsquota = cache.data.todaysmailsquota-cache.data.campaignid.recipients.length;
+                        cache.data.campaignid.flag = 0;
+                        send_email(cache.data.campaignid.flag);
+                    }
+                }).catch(error => {
+                    //console.log(error)
+                    location = "auth-offline.html";
+                });
             }
         }).catch(error => {
             //console.log(error)
@@ -770,7 +836,7 @@ async function display_log(mail){
         </tr>`;
         // progressbar
         updateProgressBars(sent, failed, error);
-        document.getElementById("log-status").innerHTML = `Mail Sent Successfully to ${mail}}`;
+        document.getElementById("log-status").innerHTML = `Mail Sent Successfully to ${mail}`;
     }
 
     if(cache["data"]["email-campaigns"][campaignid]["payload"][mail]["status"] == "False"){

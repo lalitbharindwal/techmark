@@ -80,7 +80,8 @@ function verify(code){
                 }
             },
             "email-credentials": {},
-            "email-templates": {}
+            "email-templates": {},
+            "email-tracking": {}
         }
 
         put_data("techmark-solutions", data1);

@@ -51,6 +51,7 @@ const params = new URLSearchParams(window.location.search);
 const campaignid = params.get('campaignid');
 async function tabledata() {
     await storage("techmark", "get");
+    console.log(cache)
     if(campaignid){
         document.getElementById("subject").innerHTML = cache.data["email-campaigns"][campaignid]["subject"];
         document.getElementById("from").innerHTML = cache.data["email-campaigns"][campaignid]["from"];
@@ -80,7 +81,11 @@ async function tabledata() {
         cache.data.campaignid = [];
         cache.data.campaignid.recipients = [];
         for (const key in cache.data["email-campaigns"][campaignid]["payload"]) {
-            payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], key]);
+            if ((cache.data["email-tracking"][campaignid]) && (cache.data["email-tracking"][campaignid]).hasOwnProperty(key)) {
+                payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], true, key]);
+            }else{
+                payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], false, key]);
+            }
             if((cache.data["email-campaigns"][campaignid]["from"].split("@"))[1] != "gmail.com"){
                 if(cache.data["email-campaigns"][campaignid]["payload"][key]["status"] == "PENDING" || cache.data["email-campaigns"][campaignid]["payload"][key]["status"] == "False" || cache.data["email-campaigns"][campaignid]["payload"][key]["status"] == "Error"){
                     cache.data.campaignid.recipients.push(key);
@@ -115,6 +120,16 @@ async function tabledata() {
                         return gridjs.html(`<span class="badge bg-warning">ERROR</span>`)
                     }else{
                         return gridjs.html(`<span class="badge bg-info">${e}</span>`)
+                    }
+                }
+            }, {
+                name: "Tracking",
+                width: "80px",
+                formatter: function(e) {
+                    if(e == "true"){
+                        return gridjs.html(`<span class="badge bg-success">Seen</span>`)
+                    }else{
+                        return gridjs.html(`<span class="badge bg-warning">Unseen</span>`)
                     }
                 }
             }, {
