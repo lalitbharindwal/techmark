@@ -51,7 +51,6 @@ const params = new URLSearchParams(window.location.search);
 const campaignid = params.get('campaignid');
 async function tabledata() {
     await storage("techmark", "get");
-    console.log(cache)
     if(campaignid){
         document.getElementById("subject").innerHTML = cache.data["email-campaigns"][campaignid]["subject"];
         document.getElementById("from").innerHTML = cache.data["email-campaigns"][campaignid]["from"];
@@ -82,7 +81,7 @@ async function tabledata() {
         cache.data.campaignid.recipients = [];
         for (const key in cache.data["email-campaigns"][campaignid]["payload"]) {
             if ((cache.data["email-tracking"][campaignid]) && (cache.data["email-tracking"][campaignid]).hasOwnProperty(key)) {
-                payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], true, key]);
+                payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], cache.data["email-tracking"][campaignid][key]["datetime"], key]);
             }else{
                 payload.push([++count, key, cache.data["email-campaigns"][campaignid]["payload"][key]["datetime"], cache.data["email-campaigns"][campaignid]["payload"][key]["status"], false, key]);
             }
@@ -126,8 +125,8 @@ async function tabledata() {
                 name: "Tracking",
                 width: "80px",
                 formatter: function(e) {
-                    if(e == "true"){
-                        return gridjs.html(`<span class="badge bg-success">Seen</span>`)
+                    if(e){
+                        return gridjs.html(`<span class="badge bg-success">${e}</span>`)
                     }else{
                         return gridjs.html(`<span class="badge bg-warning">Unseen</span>`)
                     }
@@ -157,6 +156,42 @@ async function tabledata() {
 function view_email(obj){
     editor1.setHTMLCode(generate_html_template(obj.id));
 }
+
+async function refresh(){
+    let headers = new Headers();
+    headers.append('Origin', '*');
+    await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
+      mode: 'cors',
+      headers: headers,
+      "method": "POST",
+      "body": JSON.stringify({
+        "service": "dynamodb",
+        "method": "get",
+        "table_name": "techmark-solutions",
+        "primary_key": {
+            "email": cache.data.email
+        }
+      })
+    }).then(response => {
+        if (!response.ok) {
+          location = "auth-offline.html";
+        }
+        return response.json();
+    }).then(data => {
+        if(JSON.parse(data["body"])["error"] == "true"){
+            location = "auth-500.html";
+        }else{
+            cache.data["email-tracking"] = JSON.parse(data.body)["data"]["email-tracking"];
+        }
+    }).catch(error => {
+        //console.log(error)
+        location = "auth-offline.html";
+    });
+
+    await storage({"techmark": "techmark", "cache": customBase64Encode(JSON.stringify(cache))}, "update");
+    window.location.reload();
+}
+
 
 document.getElementById("resend_emails") && document.getElementById("resend_emails").addEventListener("click", function() {
     Swal.fire({

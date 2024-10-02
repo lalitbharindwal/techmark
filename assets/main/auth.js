@@ -353,7 +353,7 @@ async function getbuckets(data) {
 async function login(){
     let headers = new Headers();
     headers.append('Origin', '*');
-    document.getElementById("alert").innerHTML = "Loading...";
+    document.getElementById("alert").innerHTML = "Loading Application...";
     await fetch("https://vtipzz6d5e.execute-api.us-east-1.amazonaws.com/techmark-aws/", {
       mode: 'cors',
       headers: headers,

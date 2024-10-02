@@ -279,7 +279,6 @@ function uploadoptions(obj){
 };
 }
 
-
 function excelsheetupload(){
     const dropArea = document.querySelector(".drop_box"),
     button = dropArea.querySelector("button"),
