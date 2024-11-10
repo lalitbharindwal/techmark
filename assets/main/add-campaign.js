@@ -1365,7 +1365,7 @@ function verifymail(){
                 return
             }
         }else{
-            if(Object.keys(cache.data["email-credentials"]).length > 5){
+            if(Object.keys(cache.data["email-credentials"]).length > 6){
                 alert("Alice Limit End");
                 return
             }
